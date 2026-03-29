@@ -1,0 +1,1 @@
+window.GORUNNERS_API = "";

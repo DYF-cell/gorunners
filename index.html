@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>GoRunners - Playful Onsite Run Experiences</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#home">Skip to content</a>
+    <div class="ambient-grid" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-mark">GR</span>
+        <div>
+          <p class="brand-title">GoRunners</p>
+          <p class="brand-subtitle">Playful Onsite Run Experiences</p>
+        </div>
+      </div>
+      <nav class="main-nav" aria-label="Primary">
+        <button class="nav-link" data-target="home" data-i18n="nav_home">Home</button>
+        <button class="nav-link" data-target="explore" data-i18n="nav_explore">Explore</button>
+        <button class="nav-link" data-target="event" data-i18n="nav_event">Event</button>
+        <button class="nav-link" data-target="match" data-i18n="nav_match">Match Me</button>
+        <button class="nav-link" data-target="community" data-i18n="nav_community">Community</button>
+        <button class="nav-link" data-target="myrun" data-i18n="nav_myrun">My Run</button>
+        <button class="nav-link" data-target="organizer" data-i18n="nav_organizer">Organizer</button>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button class="ghost-button lang-button active" data-lang="en">EN</button>
+          <button class="ghost-button lang-button" data-lang="zh">中文</button>
+        </div>
+        <button class="ghost-button" id="location-toggle" data-i18n="header_location">
+          Enable Location
+        </button>
+        <button class="primary-button" id="quick-register" data-i18n="header_join">
+          Join Next Run
+        </button>
+        <div class="user-chip" id="user-chip" hidden>
+          <span id="user-name">Guest</span>
+          <button class="ghost-button" id="logout-button" data-i18n="header_logout">Logout</button>
+        </div>
+        <button class="outline-button" id="login-button" data-i18n="header_login">Login</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="section hero">
+        <div class="hero-content">
+          <p class="eyebrow" data-i18n="hero_eyebrow">C1 Go Runners - Wuming Run Crew Edition</p>
+          <h1 data-i18n="hero_title">
+            Run together, feel connected, play the route.
+          </h1>
+          <p class="lead" data-i18n="hero_lead">
+            GoRunners is a playful web platform that helps runners discover onsite events,
+            match with pace-friendly groups, and unlock rewards along interactive routes.
+          </p>
+          <div class="hero-actions">
+            <button class="primary-button" data-target="explore" data-i18n="hero_cta_explore">Explore Runs</button>
+            <button class="outline-button" data-target="match" data-i18n="hero_cta_match">Find My Pace</button>
+          </div>
+          <div class="hero-stats">
+            <div>
+              <p class="stat-label" data-i18n="hero_stat_members">Active Members</p>
+              <p class="stat-value" id="stat-members">1,042</p>
+            </div>
+            <div>
+              <p class="stat-label" data-i18n="hero_stat_runs">Runs This Week</p>
+              <p class="stat-value" id="stat-runs">12</p>
+            </div>
+            <div>
+              <p class="stat-label" data-i18n="hero_stat_badges">Badges Earned</p>
+              <p class="stat-value" id="stat-badges">38</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-header">
+            <p class="card-title" data-i18n="spotlight_title">Tonight's Spotlight</p>
+            <p class="card-subtitle" id="spotlight-title">Sunset 5K Campus Run</p>
+          </div>
+          <div class="hero-card-body">
+            <div class="info-row">
+              <span data-i18n="label_time">Time</span>
+              <strong id="spotlight-time">18:30</strong>
+            </div>
+            <div class="info-row">
+              <span data-i18n="label_meetup">Meet-up</span>
+              <strong id="spotlight-location">Dushu Lake Gate A</strong>
+            </div>
+            <div class="info-row">
+              <span data-i18n="label_pace">Pace</span>
+              <strong id="spotlight-pace">6'30"-7'30" / km</strong>
+            </div>
+            <div class="info-row">
+              <span data-i18n="label_perks">Playful Perks</span>
+              <strong id="spotlight-perks">3 checkpoints - 1 badge</strong>
+            </div>
+          </div>
+          <button class="primary-button full" id="spotlight-cta" data-i18n="spotlight_cta">
+            Reserve a Spot
+          </button>
+        </div>
+      </section>
+
+      <section id="explore" class="section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow" data-i18n="explore_eyebrow">Discover</p>
+            <h2 data-i18n="explore_title">Explore Onsite Runs</h2>
+          </div>
+          <div class="filters">
+            <label class="input-pill">
+              <span class="sr-only">Search runs</span>
+              <input
+                type="search"
+                id="search-input"
+                placeholder="Search by name or tag"
+                data-i18n-placeholder="search_placeholder"
+              />
+            </label>
+            <select id="filter-distance" class="input-pill" aria-label="Distance">
+              <option value="all" data-i18n="filter_distance">Distance</option>
+              <option value="short" data-i18n="filter_short">0-4 km</option>
+              <option value="medium" data-i18n="filter_medium">5-8 km</option>
+              <option value="long" data-i18n="filter_long">9+ km</option>
+            </select>
+            <select id="filter-level" class="input-pill" aria-label="Difficulty">
+              <option value="all" data-i18n="filter_level">Difficulty</option>
+              <option value="Beginner" data-i18n="level_beginner">Beginner</option>
+              <option value="Intermediate" data-i18n="level_intermediate">Intermediate</option>
+              <option value="Advanced" data-i18n="level_advanced">Advanced</option>
+            </select>
+            <select id="filter-time" class="input-pill" aria-label="Time">
+              <option value="all" data-i18n="filter_time">Time</option>
+              <option value="morning" data-i18n="time_morning">Morning</option>
+              <option value="afternoon" data-i18n="time_afternoon">Afternoon</option>
+              <option value="evening" data-i18n="time_evening">Evening</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid two" id="events-grid" aria-live="polite"></div>
+      </section>
+
+      <section id="event" class="section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow" data-i18n="detail_eyebrow">Detail</p>
+            <h2 id="event-title" data-i18n="detail_title">Run Event Detail</h2>
+          </div>
+          <div class="pill-group" id="event-tags"></div>
+        </div>
+
+        <div class="grid two">
+          <div class="card detail-card">
+            <div class="detail-header">
+              <div>
+                <p class="card-title" id="event-name">Sunset 5K Campus Run</p>
+                <p class="card-subtitle" id="event-subtitle">Beginner Friendly - Social</p>
+              </div>
+              <span class="badge" id="event-status">12 seats left</span>
+            </div>
+            <div class="detail-info">
+              <div>
+                <p class="label" data-i18n="label_meetup">Meet-up</p>
+                <p class="value" id="event-location">Dushu Lake Gate A</p>
+              </div>
+              <div>
+                <p class="label" data-i18n="label_time">Time</p>
+                <p class="value" id="event-time">18:30 - Thu</p>
+              </div>
+              <div>
+                <p class="label" data-i18n="label_distance">Distance</p>
+                <p class="value" id="event-distance">5 km</p>
+              </div>
+              <div>
+                <p class="label" data-i18n="label_pace_range">Pace Range</p>
+                <p class="value" id="event-pace">6'30"-7'30" / km</p>
+              </div>
+            </div>
+            <p class="body" id="event-description">
+              Sunset community run around the lake, designed to welcome new runners. Includes
+              warm-up support, steady pacing, and playful checkpoints.
+            </p>
+            <div class="gear-list" id="event-gear"></div>
+            <div class="reward-callout" id="event-rewards"></div>
+            <div class="button-row">
+              <button class="primary-button" id="register-button" data-i18n="button_register">
+                Register Now
+              </button>
+              <button class="outline-button" id="route-preview" data-i18n="button_preview">
+                Preview Route
+              </button>
+            </div>
+          </div>
+          <div class="card map-card">
+            <div class="map-header">
+              <p class="card-title" data-i18n="map_title">Interactive Route Map</p>
+              <div class="button-row">
+                <button class="outline-button" id="checkpoint-recommend" data-i18n="button_recommend">
+                  Recommend Points
+                </button>
+                <button class="outline-button" id="plan-clear" data-i18n="button_plan_clear">
+                  Clear Plan
+                </button>
+                <button class="outline-button" id="map-expand" data-i18n="button_map_expand">
+                  Expand Planner
+                </button>
+                <button class="ghost-button" id="route-reset" data-i18n="button_reset">
+                  Reset Checkpoints
+                </button>
+              </div>
+            </div>
+            <div class="route-map" id="route-map" role="img" aria-label="Route map"></div>
+            <div class="checkpoint-list" id="checkpoint-list"></div>
+            <div class="map-footnote" data-i18n="map_footnote">
+              Complete all checkpoints to unlock the Route Explorer badge.
+            </div>
+            <div class="map-footnote" data-i18n="map_plan_note">
+              Tap map to open fullscreen planner and add running points with guided tips.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="match" class="section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow" data-i18n="match_eyebrow">Match</p>
+            <h2 data-i18n="match_title">Pace-Based Group Matching</h2>
+          </div>
+          <p class="section-subtitle" data-i18n="match_subtitle">
+            Tell us your pace, goals, and vibe. We'll recommend a group and a run that keeps
+            it supportive and fun.
+          </p>
+        </div>
+
+        <div class="grid two">
+          <form class="card form-card" id="match-form">
+            <label>
+              <span data-i18n="match_experience_label">Experience Level</span>
+              <select name="experience" required>
+                <option value="Beginner" data-i18n="level_beginner">Beginner</option>
+                <option value="Intermediate" data-i18n="level_intermediate">Intermediate</option>
+                <option value="Advanced" data-i18n="level_advanced">Advanced</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="match_goal_label">Goal for Today</span>
+              <select name="goal" required>
+                <option value="Social" data-i18n="goal_social">Social</option>
+                <option value="Stress Relief" data-i18n="goal_stress">Stress Relief</option>
+                <option value="Training" data-i18n="goal_training">Training</option>
+                <option value="PB" data-i18n="goal_pb">Challenge PB</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="match_pace_label">Preferred Pace (min/km)</span>
+              <select name="pace" required>
+                <option value="7.5">7'30"+</option>
+                <option value="6.5">6'00"-7'30"</option>
+                <option value="5.5">5'00"-6'00"</option>
+                <option value="4.8">4'00"-5'00"</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="match_style_label">Run Style</span>
+              <select name="style" required>
+                <option value="Buddy" data-i18n="style_buddy">Buddy</option>
+                <option value="Group" data-i18n="style_group">Group</option>
+                <option value="Solo" data-i18n="style_solo">Solo + check-ins</option>
+              </select>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="wearable" />
+              <span data-i18n="match_wearable">Sync from wearable for real-time pace</span>
+            </label>
+            <button class="primary-button" type="submit" data-i18n="match_submit">Get My Match</button>
+          </form>
+          <div class="card result-card" id="match-result">
+            <p class="card-title" data-i18n="match_result_title">Your Match</p>
+            <p class="result-title" id="match-title">Complete the form to see recommendations.</p>
+            <p class="result-body" id="match-body">
+              We will suggest a pace-friendly group, a nearby run, and the playful rewards you can unlock.
+            </p>
+            <div class="result-badges" id="match-badges"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="community" class="section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow" data-i18n="community_eyebrow">Community</p>
+            <h2 data-i18n="community_title">Suzhou Runner Map & Threads</h2>
+          </div>
+          <p class="section-subtitle" data-i18n="community_subtitle">
+            Explore real spots across Suzhou, check in onsite, and share runner-to-runner tips.
+          </p>
+        </div>
+
+        <div class="grid two">
+          <div class="card map-card">
+            <div class="map-header">
+              <p class="card-title" data-i18n="community_map_title">Suzhou Live Map</p>
+              <div class="button-row">
+                <button class="ghost-button" id="locate-button" data-i18n="community_locate">
+                  Locate Me
+                </button>
+                <button class="outline-button" id="checkin-button" data-i18n="community_checkin">
+                  Check In
+                </button>
+              </div>
+            </div>
+            <div class="city-map" id="city-map" role="img" aria-label="Suzhou city map"></div>
+            <div class="map-footnote" data-i18n="community_note">
+              Location is used only to show nearby spots and check-ins.
+            </div>
+          </div>
+          <div class="card community-card">
+            <div class="card-header">
+              <p class="card-title" data-i18n="community_feed_title">Spot Threads</p>
+              <select id="spot-select" class="input-pill" aria-label="Spot selector"></select>
+            </div>
+            <div id="spot-details" class="spot-details"></div>
+            <form id="post-form" class="post-form">
+              <textarea
+                id="post-text"
+                rows="3"
+                placeholder="Share a tip or moment"
+                data-i18n-placeholder="post_placeholder"
+                required
+              ></textarea>
+              <div class="post-actions">
+                <input type="file" id="post-image" accept="image/*" capture="environment" />
+                <button class="ghost-button" type="button" id="camera-button" data-i18n="post_camera">
+                  Open Camera
+                </button>
+                <button class="primary-button" type="submit" data-i18n="post_submit">Post</button>
+              </div>
+              <img id="post-preview" class="post-preview" alt="" />
+            </form>
+            <div id="post-list" class="post-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="myrun" class="section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow" data-i18n="myrun_eyebrow">My Run</p>
+            <h2 data-i18n="myrun_title">Participation Rewards & Progress</h2>
+          </div>
+          <p class="section-subtitle" data-i18n="myrun_subtitle">
+            Celebrate consistency, not competition. Track your streaks, badges, and upcoming runs.
+          </p>
+        </div>
+
+        <div class="grid three">
+          <div class="card">
+            <p class="card-title" data-i18n="myrun_streak">Weekly Streak</p>
+            <p class="stat-highlight" id="streak-count">0 runs</p>
+            <p class="body" data-i18n="myrun_streak_hint">
+              Join 3 runs in a row to unlock the Momentum badge.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card-title" data-i18n="myrun_points">Total Points</p>
+            <p class="stat-highlight" id="points-count">0 pts</p>
+            <p class="body" data-i18n="myrun_points_hint">
+              Earn points for each registration, checkpoint, and team run.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card-title" data-i18n="myrun_badges">Badges Unlocked</p>
+            <div class="badge-grid" id="badge-grid"></div>
+          </div>
+        </div>
+
+        <div class="card" id="registered-events">
+          <div class="card-header">
+            <p class="card-title" data-i18n="myrun_upcoming">Upcoming Runs</p>
+            <button class="ghost-button" id="clear-registrations" data-i18n="myrun_clear">
+              Clear All
+            </button>
+          </div>
+          <div class="list" id="registrations-list"></div>
+        </div>
+      </section>
+
+      <section id="organizer" class="section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow" data-i18n="org_eyebrow">Organizer</p>
+            <h2 data-i18n="org_title">Lightweight Activity Management</h2>
+          </div>
+          <p class="section-subtitle" data-i18n="org_subtitle">
+            Create events, track attendance, and broadcast onsite updates to keep everyone informed.
+          </p>
+        </div>
+
+        <div class="grid two">
+          <form class="card form-card" id="create-event-form">
+            <p class="card-title" data-i18n="org_create_title">Create a New Run</p>
+            <label>
+              <span data-i18n="org_name_label">Run Name</span>
+              <input type="text" name="name" placeholder="Lake Loop Sunrise Run" required />
+            </label>
+            <label>
+              <span data-i18n="org_location_label">Meet-up Location</span>
+              <input type="text" name="location" placeholder="Gate B / Lakeside" required />
+            </label>
+            <label>
+              <span data-i18n="org_time_label">Time & Day</span>
+              <input type="text" name="time" placeholder="07:00 - Sat" required />
+            </label>
+            <label>
+              <span data-i18n="org_distance_label">Distance (km)</span>
+              <input type="number" name="distance" min="1" step="0.5" required />
+            </label>
+            <label>
+              <span data-i18n="org_level_label">Difficulty</span>
+              <select name="level" required>
+                <option value="Beginner" data-i18n="level_beginner">Beginner</option>
+                <option value="Intermediate" data-i18n="level_intermediate">Intermediate</option>
+                <option value="Advanced" data-i18n="level_advanced">Advanced</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="org_capacity_label">Capacity</span>
+              <input type="number" name="capacity" min="5" step="1" required />
+            </label>
+            <button class="primary-button" type="submit" data-i18n="org_publish">Publish Run</button>
+          </form>
+          <div class="card">
+            <div class="card-header">
+              <p class="card-title" data-i18n="org_attendance">Live Attendance</p>
+              <button class="ghost-button" id="send-update" data-i18n="org_update">
+                Send Update
+              </button>
+            </div>
+            <div class="attendance" id="attendance-list"></div>
+            <div class="notice" id="organizer-notice" data-i18n="org_notice">
+              No update sent yet. Tap "Send Update" to broadcast a warm-up reminder.
+            </div>
+          </div>
+        </div>
+        <div class="card admin-card">
+          <div class="card-header">
+            <p class="card-title" data-i18n="org_users">User Management</p>
+            <button class="ghost-button" id="load-users" data-i18n="org_users_load">Refresh</button>
+          </div>
+          <div class="list" id="users-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <p class="brand-title" data-i18n="footer_title">GoRunners - Wuming Run Crew</p>
+        <p class="body" data-i18n="footer_subtitle">
+          Built for CPT208 Human-Centric Computing - Active Lifestyles Track
+        </p>
+      </div>
+      <div class="footer-actions">
+        <button class="outline-button" data-target="explore" data-i18n="footer_explore">
+          See All Runs
+        </button>
+        <button class="primary-button" data-target="match" data-i18n="footer_match">
+          Match Again
+        </button>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <div class="modal" id="auth-modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <p class="card-title" id="auth-title" data-i18n="auth_signin">Sign In</p>
+          <button class="ghost-button" id="auth-close">Close</button>
+        </div>
+        <form id="auth-form" class="form-card">
+          <label>
+            <span data-i18n="auth_email_label">Email</span>
+            <input type="email" name="email" required />
+          </label>
+          <label id="auth-name-field">
+            <span data-i18n="auth_name_label">Name</span>
+            <input type="text" name="name" />
+          </label>
+          <label>
+            <span data-i18n="auth_password_label">Password</span>
+            <input type="password" name="password" required />
+          </label>
+          <button class="primary-button" type="submit" id="auth-submit" data-i18n="auth_login_button">
+            Login
+          </button>
+        </form>
+        <button class="outline-button" id="auth-toggle" data-i18n="auth_toggle_register">
+          Need an account? Register
+        </button>
+      </div>
+    </div>
+
+    <div class="modal map-picker-modal" id="map-picker-modal" aria-hidden="true">
+      <div class="map-picker-card">
+        <div class="map-picker-head">
+          <div>
+            <p class="card-title" data-i18n="map_picker_title">Route Planner</p>
+            <p class="card-subtitle" data-i18n="map_picker_subtitle">
+              Select a point for hydration, checkpoints, and route strategy.
+            </p>
+          </div>
+          <button class="ghost-button" id="map-picker-close" data-i18n="map_picker_close">Close</button>
+        </div>
+        <div class="map-picker-body">
+          <div class="map-picker-canvas" id="map-picker" role="img" aria-label="Expanded route planner map"></div>
+          <aside class="map-picker-panel">
+            <p class="picker-heading" data-i18n="map_picker_steps_title">How to choose a location</p>
+            <ol class="picker-steps">
+              <li data-i18n="map_picker_step_1">Choose marker type</li>
+              <li data-i18n="map_picker_step_2">Tap map or a suggested point</li>
+              <li data-i18n="map_picker_step_3">Confirm and save</li>
+            </ol>
+            <div class="picker-types" id="map-picker-types" role="group" aria-label="Marker type">
+              <button class="pill-button active" type="button" data-plan-type="checkpoint" data-i18n="type_checkpoint">
+                Checkpoint
+              </button>
+              <button class="pill-button" type="button" data-plan-type="water" data-i18n="type_water">Water</button>
+              <button class="pill-button" type="button" data-plan-type="photo" data-i18n="type_photo">Photo</button>
+              <button class="pill-button" type="button" data-plan-type="start" data-i18n="type_start">Start</button>
+              <button class="pill-button" type="button" data-plan-type="finish" data-i18n="type_finish">Finish</button>
+            </div>
+            <p class="picker-tip" id="map-picker-hint" data-i18n="map_picker_hint_checkpoint">
+              Good for pace reminders and team regroup points.
+            </p>
+            <div class="picker-suggestions">
+              <p class="picker-heading" data-i18n="map_picker_suggestions">Suggested route points</p>
+              <div class="picker-list" id="map-picker-suggestions"></div>
+            </div>
+            <label class="picker-note">
+              <span data-i18n="map_picker_note_label">Marker note</span>
+              <input
+                type="text"
+                id="map-picker-label"
+                maxlength="60"
+                placeholder="e.g. Easy pace regroup"
+                data-i18n-placeholder="map_picker_note_placeholder"
+              />
+            </label>
+            <p class="picker-coords" id="map-picker-coords" data-i18n="map_picker_coords_empty">
+              No point selected yet.
+            </p>
+            <div class="button-row">
+              <button class="outline-button" id="map-picker-cancel" type="button" data-i18n="map_picker_cancel">
+                Cancel
+              </button>
+              <button class="primary-button" id="map-picker-save" type="button" data-i18n="map_picker_save">
+                Save Marker
+              </button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="data.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

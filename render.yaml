@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: gorunners-api
+    env: python
+    rootDir: server
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GORUNNERS_SECRET
+        generateValue: true
+      - key: GORUNNERS_DB
+        value: sqlite:///gorunners.db
