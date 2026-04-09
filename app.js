@@ -13,6 +13,8 @@ const defaultState = {
   language: "en",
   posts: {},
   selectedSpotId: CITY_SPOTS[0]?.id || "",
+  selectedTrainerId: "",
+  aiChats: {},
   currentLocation: null,
   routePlans: {},
 };
@@ -26,10 +28,30 @@ const i18n = {
     nav_community: "Community",
     nav_myrun: "My Run",
     nav_organizer: "Organizer",
+    nav_ai_trainer: "AI Trainer",
     header_location: "Enable Location",
     header_join: "Join Next Run",
     header_login: "Login",
     header_logout: "Logout",
+    ai_eyebrow: "AI",
+    ai_title: "AI Trainer",
+    ai_subtitle: "Choose a trainer and chat inside the page.",
+    ai_open: "Open",
+    ai_setup: "Setup",
+    ai_default_name: "AI Trainer",
+    ai_select_placeholder: "Select a trainer",
+    ai_empty: "Configure trainer embed URLs in config.js to enable this panel.",
+    ai_input_label: "Message",
+    ai_input_placeholder: "Ask the trainer…",
+    ai_send: "Send",
+    ai_clear: "Clear",
+    ai_chat_unavailable: "AI chat is not configured on the server.",
+    ai_chat_error: "AI request failed. Please try again.",
+    ai_profile_title: "Trainer Setup",
+    ai_profile_subtitle: "Fill the required info once, then start chatting.",
+    ai_profile_save: "Save",
+    ai_profile_missing: "Please complete the required fields first.",
+    ai_profile_loading: "Loading trainer setup…",
     hero_eyebrow: "C1 Go Runners - Wuming Run Crew Edition",
     hero_title: "Run together, feel connected, play the route.",
     hero_lead:
@@ -224,10 +246,30 @@ const i18n = {
     nav_community: "社区",
     nav_myrun: "我的跑步",
     nav_organizer: "组织者",
+    nav_ai_trainer: "AI训练师选择",
     header_location: "开启定位",
     header_join: "加入下一场",
     header_login: "登录",
     header_logout: "退出",
+    ai_eyebrow: "AI",
+    ai_title: "AI训练师",
+    ai_subtitle: "选择一个训练师，在页面内直接对话。",
+    ai_open: "新窗口打开",
+    ai_setup: "设置",
+    ai_default_name: "AI训练师",
+    ai_select_placeholder: "请选择AI训练师",
+    ai_empty: "请在 config.js 配置 AI 训练师 embed URL，才能显示对话面板。",
+    ai_input_label: "消息",
+    ai_input_placeholder: "问训练师一个问题…",
+    ai_send: "发送",
+    ai_clear: "清空",
+    ai_chat_unavailable: "服务器尚未配置 AI 对话能力。",
+    ai_chat_error: "AI 请求失败，请稍后重试。",
+    ai_profile_title: "训练师信息",
+    ai_profile_subtitle: "先填写必填信息，再开始对话。",
+    ai_profile_save: "保存",
+    ai_profile_missing: "请先补全必填信息。",
+    ai_profile_loading: "正在加载训练师表单…",
     hero_eyebrow: "C1 Go Runners - 无名跑团",
     hero_title: "一起奔跑，连接彼此，玩转路线。",
     hero_lead: "GoRunners 帮助跑者发现线下活动、匹配合适配速小组，并在互动路线中解锁奖励。",
@@ -424,6 +466,21 @@ const dom = {
   navLinks: document.querySelectorAll(".nav-link"),
   sections: document.querySelectorAll("main section"),
   langButtons: document.querySelectorAll(".lang-button"),
+  aiTrainerSelect: document.getElementById("ai-trainer-select"),
+  aiTrainerOpen: document.getElementById("ai-trainer-open"),
+  aiTrainerSetup: document.getElementById("ai-trainer-setup"),
+  aiTrainerIframe: document.getElementById("ai-trainer-iframe"),
+  aiTrainerEmpty: document.getElementById("ai-trainer-empty"),
+  aiTrainerName: document.getElementById("ai-trainer-name"),
+  aiEmbed: document.getElementById("ai-embed"),
+  aiChat: document.getElementById("ai-chat"),
+  aiChatMessages: document.getElementById("ai-chat-messages"),
+  aiChatForm: document.getElementById("ai-chat-form"),
+  aiChatText: document.getElementById("ai-chat-text"),
+  aiChatClear: document.getElementById("ai-chat-clear"),
+  aiChatProfile: document.getElementById("ai-chat-profile"),
+  aiChatProfileForm: document.getElementById("ai-chat-profile-form"),
+  aiChatProfileSave: document.getElementById("ai-chat-profile-save"),
   eventsGrid: document.getElementById("events-grid"),
   eventTags: document.getElementById("event-tags"),
   eventName: document.getElementById("event-name"),
@@ -596,9 +653,453 @@ function setLanguage(lang) {
   renderPosts();
   updateSpotlight(activeEvent);
   renderCityMarkers();
+  renderAiTrainer();
   if (dom.mapPickerModal.classList.contains("show")) {
     renderPickerMap();
   }
+}
+
+function getAiTrainers() {
+  const trainers = window.GORUNNERS_AI_TRAINERS;
+  if (!Array.isArray(trainers)) return [];
+  return trainers
+    .filter((trainer) => trainer && trainer.id)
+    .map((trainer) => ({
+      id: String(trainer.id),
+      label: trainer.label,
+      mode: trainer.mode === "api" ? "api" : "embed",
+      useDifyParameters: trainer.useDifyParameters === true,
+      iframeSrc: typeof trainer.iframeSrc === "string" ? trainer.iframeSrc : "",
+      inputForm: Array.isArray(trainer.inputForm) ? trainer.inputForm : [],
+    }));
+}
+
+function getAiTrainerLabel(trainer) {
+  if (!trainer) return "";
+  if (typeof trainer.label === "string") return trainer.label;
+  if (trainer.label && typeof trainer.label === "object") {
+    return currentLang === "zh"
+      ? trainer.label.zh || trainer.label.en || trainer.id
+      : trainer.label.en || trainer.label.zh || trainer.id;
+  }
+  return trainer.id;
+}
+
+function getAnonAiUserId() {
+  const key = "gorunners_ai_user";
+  const existing = localStorage.getItem(key);
+  if (existing) return existing;
+  const generated =
+    (typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID()) ||
+    `anon_${Math.random().toString(16).slice(2)}${Date.now().toString(16)}`;
+  localStorage.setItem(key, generated);
+  return generated;
+}
+
+function getChatState(trainerId) {
+  if (!state.aiChats || typeof state.aiChats !== "object") {
+    state.aiChats = {};
+  }
+  if (!state.aiChats[trainerId]) {
+    state.aiChats[trainerId] = { conversationId: "", messages: [], inputs: {} };
+  }
+  const chat = state.aiChats[trainerId];
+  if (!Array.isArray(chat.messages)) chat.messages = [];
+  if (typeof chat.conversationId !== "string") chat.conversationId = "";
+  if (!chat.inputs || typeof chat.inputs !== "object") chat.inputs = {};
+  return chat;
+}
+
+function pushChatMessage(trainerId, role, text) {
+  const chat = getChatState(trainerId);
+  chat.messages.push({ role, text: String(text || "") });
+  if (chat.messages.length > 60) {
+    chat.messages = chat.messages.slice(-60);
+  }
+  saveState();
+}
+
+function renderAiChat(trainerId) {
+  if (!dom.aiChatMessages) return;
+  const chat = getChatState(trainerId);
+  dom.aiChatMessages.innerHTML = "";
+
+  if (!chat.messages.length) {
+    const bubble = document.createElement("div");
+    bubble.className = "ai-chat-bubble meta";
+    bubble.textContent = currentLang === "zh" ? "从一个问题开始吧。" : "Start with a question.";
+    dom.aiChatMessages.appendChild(bubble);
+    return;
+  }
+
+  chat.messages.forEach((message) => {
+    const bubble = document.createElement("div");
+    const role = message.role === "user" ? "user" : message.role === "assistant" ? "assistant" : "meta";
+    bubble.className = `ai-chat-bubble ${role}`;
+    bubble.textContent = message.text || "";
+    dom.aiChatMessages.appendChild(bubble);
+  });
+
+  dom.aiChatMessages.scrollTop = dom.aiChatMessages.scrollHeight;
+}
+
+async function sendAiChatMessage(trainerId, text) {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) return;
+
+  const chat = getChatState(trainerId);
+  const activeTrainer = getAiTrainers().find((trainer) => trainer.id === trainerId);
+  const requiredFields = (activeTrainer?.inputForm || []).filter((field) => field?.required);
+  const missingRequired = requiredFields.some((field) => !String(chat.inputs?.[field.key] || "").trim());
+  if (missingRequired) {
+    pushChatMessage(trainerId, "meta", t("ai_profile_missing"));
+    renderAiChat(trainerId);
+    if (dom.aiChatProfile) dom.aiChatProfile.hidden = false;
+    return;
+  }
+
+  pushChatMessage(trainerId, "user", trimmed);
+  renderAiChat(trainerId);
+
+  try {
+    const response = await apiRequest("/ai/chat", {
+      method: "POST",
+      body: JSON.stringify({
+        message: trimmed,
+        conversation_id: chat.conversationId,
+        user: currentUser?.email || currentUser?.id?.toString() || getAnonAiUserId(),
+        inputs: chat.inputs || {},
+      }),
+    });
+    if (response?.conversation_id) {
+      chat.conversationId = String(response.conversation_id);
+    }
+    pushChatMessage(trainerId, "assistant", response?.answer || "");
+  } catch (error) {
+    const message = error?.message || t("ai_chat_error");
+    pushChatMessage(trainerId, "meta", message === "Request failed" ? t("ai_chat_unavailable") : message);
+  }
+  renderAiChat(trainerId);
+}
+
+function getFieldLabel(field) {
+  if (!field) return "";
+  const label = field.label;
+  if (typeof label === "string") return label;
+  if (label && typeof label === "object") {
+    return currentLang === "zh" ? label.zh || label.en || field.key : label.en || label.zh || field.key;
+  }
+  return field.key;
+}
+
+function getFieldPlaceholder(field) {
+  if (!field) return "";
+  const placeholder = field.placeholder;
+  if (typeof placeholder === "string") return placeholder;
+  if (placeholder && typeof placeholder === "object") {
+    return currentLang === "zh"
+      ? placeholder.zh || placeholder.en || ""
+      : placeholder.en || placeholder.zh || "";
+  }
+  return "";
+}
+
+function getOptionLabel(option) {
+  if (!option) return "";
+  const label = option.label;
+  if (typeof label === "string") return label;
+  if (label && typeof label === "object") {
+    return currentLang === "zh" ? label.zh || label.en || option.value : label.en || label.zh || option.value;
+  }
+  return option.value;
+}
+
+let difyParametersCache = null;
+let difyParametersPromise = null;
+
+async function ensureDifyParameters() {
+  if (difyParametersCache) return difyParametersCache;
+  if (!difyParametersPromise) {
+    difyParametersPromise = apiRequest("/ai/parameters")
+      .then((payload) => {
+        difyParametersCache = payload || {};
+        return difyParametersCache;
+      })
+      .catch(() => {
+        difyParametersCache = {};
+        return difyParametersCache;
+      })
+      .finally(() => {
+        difyParametersPromise = null;
+      });
+  }
+  return difyParametersPromise;
+}
+
+function mapDifyInputFormField(field) {
+  if (!field || typeof field !== "object") return null;
+  const key = field.variable || field.name || field.key;
+  if (!key) return null;
+
+  const rawType = String(field.type || "text").toLowerCase();
+  const type =
+    rawType.includes("select") || rawType.includes("dropdown")
+      ? "select"
+      : rawType.includes("number")
+        ? "number"
+        : rawType.includes("paragraph") || rawType.includes("textarea")
+          ? "textarea"
+          : "text";
+
+  const optionsRaw = Array.isArray(field.options) ? field.options : [];
+  const options = optionsRaw
+    .map((option) => {
+      if (typeof option === "string" || typeof option === "number") {
+        return { value: String(option), label: String(option) };
+      }
+      if (option && typeof option === "object") {
+        const value = option.value ?? option.key ?? option.id;
+        const label = option.label ?? option.name ?? value;
+        if (!value) return null;
+        return { value: String(value), label: String(label) };
+      }
+      return null;
+    })
+    .filter(Boolean);
+
+  return {
+    key: String(key),
+    required: Boolean(field.required),
+    type,
+    label: typeof field.label === "string" ? field.label : field.label?.en || field.label?.zh || String(key),
+    placeholder: typeof field.placeholder === "string" ? field.placeholder : "",
+    options,
+  };
+}
+
+function getTrainerFields(trainer) {
+  if (!trainer) return [];
+  if (trainer.useDifyParameters !== true) {
+    return Array.isArray(trainer.inputForm) ? trainer.inputForm : [];
+  }
+  const fields = difyParametersCache?.user_input_form;
+  if (!Array.isArray(fields)) return [];
+  return fields.map(mapDifyInputFormField).filter(Boolean);
+}
+
+function renderAiTrainerProfileForm(trainer) {
+  if (!dom.aiChatProfile || !dom.aiChatProfileForm || !dom.aiChatProfileSave) return;
+  if (!trainer || trainer.mode !== "api") {
+    dom.aiChatProfile.hidden = true;
+    dom.aiChatProfileForm.innerHTML = "";
+    return;
+  }
+
+  const fields = getTrainerFields(trainer);
+  const shouldShowProfile = fields.length > 0;
+  dom.aiChatProfileForm.innerHTML = "";
+  if (!shouldShowProfile) {
+    if (trainer.useDifyParameters === true) {
+      dom.aiChatProfile.hidden = false;
+      const hint = document.createElement("div");
+      hint.className = "ai-chat-bubble meta";
+      hint.textContent = t("ai_profile_loading");
+      dom.aiChatProfileForm.appendChild(hint);
+      ensureDifyParameters().then(() => renderAiTrainer());
+    } else {
+      dom.aiChatProfile.hidden = true;
+    }
+    return;
+  }
+
+  const chat = getChatState(trainer.id);
+  const requiredFields = fields.filter((field) => field?.required);
+  const missingRequired = requiredFields.some((field) => !String(chat.inputs?.[field.key] || "").trim());
+  dom.aiChatProfile.hidden = !missingRequired;
+
+  fields.forEach((field) => {
+    if (!field?.key) return;
+    const wrapper = document.createElement("label");
+    const label = document.createElement("span");
+    label.textContent = `${getFieldLabel(field)}${field.required ? " *" : ""}`;
+    wrapper.appendChild(label);
+
+    const fieldType = field.type === "select" ? "select" : field.type === "textarea" ? "textarea" : "text";
+    if (fieldType === "select") {
+      const select = document.createElement("select");
+      select.name = field.key;
+      const options = Array.isArray(field.options) ? field.options : [];
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = currentLang === "zh" ? "请选择" : "Select";
+      placeholder.disabled = field.required === true;
+      placeholder.hidden = true;
+      placeholder.selected = !chat.inputs?.[field.key];
+      select.appendChild(placeholder);
+      options.forEach((option) => {
+        if (!option?.value) return;
+        const opt = document.createElement("option");
+        opt.value = String(option.value);
+        opt.textContent = typeof option.label === "string" ? option.label : getOptionLabel(option);
+        select.appendChild(opt);
+      });
+      select.value = chat.inputs?.[field.key] || "";
+      wrapper.appendChild(select);
+    } else if (fieldType === "textarea") {
+      const textarea = document.createElement("textarea");
+      textarea.name = field.key;
+      textarea.rows = 4;
+      textarea.value = chat.inputs?.[field.key] || "";
+      const placeholderText = typeof field.placeholder === "string" ? field.placeholder : getFieldPlaceholder(field);
+      if (placeholderText) textarea.placeholder = placeholderText;
+      wrapper.appendChild(textarea);
+    } else {
+      const input = document.createElement("input");
+      input.type = field.type === "number" ? "number" : "text";
+      input.name = field.key;
+      input.value = chat.inputs?.[field.key] || "";
+      const placeholderText = typeof field.placeholder === "string" ? field.placeholder : getFieldPlaceholder(field);
+      if (placeholderText) input.placeholder = placeholderText;
+      wrapper.appendChild(input);
+    }
+
+    dom.aiChatProfileForm.appendChild(wrapper);
+  });
+
+  dom.aiChatProfileSave.onclick = () => {
+    const formData = new FormData(dom.aiChatProfileForm);
+    fields.forEach((field) => {
+      if (!field?.key) return;
+      const raw = String(formData.get(field.key) || "").trim();
+      if (!raw) {
+        delete chat.inputs[field.key];
+        return;
+      }
+      const normalized =
+        field.type === "number"
+          ? Number.isFinite(Number(raw))
+            ? Number(raw)
+            : raw
+          : raw;
+      chat.inputs[field.key] = normalized;
+    });
+    chat.conversationId = "";
+    chat.messages = [];
+    saveState();
+    renderAiTrainer();
+  };
+}
+
+function renderAiTrainer() {
+  if (
+    !dom.aiTrainerSelect ||
+    !dom.aiTrainerIframe ||
+    !dom.aiTrainerEmpty ||
+    !dom.aiTrainerName ||
+    !dom.aiTrainerOpen ||
+    !dom.aiEmbed ||
+    !dom.aiChat ||
+    !dom.aiTrainerSetup
+  ) {
+    return;
+  }
+
+  const trainers = getAiTrainers();
+  const hasSelectedTrainer = trainers.some((trainer) => trainer.id === state.selectedTrainerId);
+  if (!hasSelectedTrainer) {
+    state.selectedTrainerId = trainers[0]?.id || "";
+    saveState();
+  }
+
+  dom.aiTrainerSelect.innerHTML = "";
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = t("ai_select_placeholder");
+  placeholder.disabled = true;
+  placeholder.hidden = true;
+  placeholder.selected = !state.selectedTrainerId;
+  dom.aiTrainerSelect.appendChild(placeholder);
+
+  trainers.forEach((trainer) => {
+    const option = document.createElement("option");
+    option.value = trainer.id;
+    option.textContent = getAiTrainerLabel(trainer);
+    dom.aiTrainerSelect.appendChild(option);
+  });
+
+  dom.aiTrainerSelect.value = state.selectedTrainerId || "";
+
+  const activeTrainer = trainers.find((trainer) => trainer.id === state.selectedTrainerId);
+  const embedUrl = activeTrainer?.iframeSrc || "";
+  const mode = activeTrainer?.mode || "embed";
+
+  dom.aiTrainerName.textContent = activeTrainer ? getAiTrainerLabel(activeTrainer) : t("ai_default_name");
+
+  if (mode === "api") {
+    dom.aiEmbed.hidden = true;
+    dom.aiChat.hidden = false;
+    dom.aiTrainerOpen.disabled = true;
+    dom.aiTrainerEmpty.hidden = true;
+    dom.aiTrainerSetup.hidden = false;
+    renderAiTrainerProfileForm(activeTrainer);
+    renderAiChat(activeTrainer?.id || "default");
+    return;
+  }
+
+  dom.aiChat.hidden = true;
+  dom.aiEmbed.hidden = false;
+  if (dom.aiChatProfile) dom.aiChatProfile.hidden = true;
+  dom.aiTrainerSetup.hidden = true;
+  if (dom.aiTrainerIframe.getAttribute("src") !== embedUrl) {
+    dom.aiTrainerIframe.setAttribute("src", embedUrl);
+  }
+  dom.aiTrainerEmpty.hidden = Boolean(embedUrl);
+  dom.aiEmbed.hidden = !embedUrl;
+  dom.aiTrainerOpen.disabled = !embedUrl;
+}
+
+function initAiTrainer() {
+  if (!dom.aiTrainerSelect || !dom.aiTrainerOpen) return;
+
+  dom.aiTrainerSelect.addEventListener("change", (event) => {
+    state.selectedTrainerId = event.target.value;
+    saveState();
+    renderAiTrainer();
+  });
+
+  dom.aiTrainerOpen.addEventListener("click", () => {
+    const activeTrainer = getAiTrainers().find((trainer) => trainer.id === state.selectedTrainerId);
+    const embedUrl = activeTrainer?.iframeSrc || "";
+    if (!embedUrl) return;
+    window.open(embedUrl, "_blank", "noopener,noreferrer");
+  });
+
+  if (dom.aiTrainerSetup && dom.aiChatProfile) {
+    dom.aiTrainerSetup.addEventListener("click", () => {
+      dom.aiChatProfile.hidden = !dom.aiChatProfile.hidden;
+    });
+  }
+
+  if (dom.aiChatForm && dom.aiChatText && dom.aiChatClear) {
+    dom.aiChatForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const trainerId = state.selectedTrainerId || "default";
+      const text = dom.aiChatText.value;
+      dom.aiChatText.value = "";
+      await sendAiChatMessage(trainerId, text);
+    });
+
+    dom.aiChatClear.addEventListener("click", () => {
+      const trainerId = state.selectedTrainerId || "default";
+      const chat = getChatState(trainerId);
+      chat.conversationId = "";
+      chat.messages = [];
+      saveState();
+      renderAiChat(trainerId);
+    });
+  }
+
+  renderAiTrainer();
 }
 
 function loadState() {
@@ -2119,6 +2620,7 @@ async function init() {
   initFilters();
   initActions();
   initLanguageToggle();
+  initAiTrainer();
   initMaps();
   setLanguage(currentLang);
   await ensureApiBase();

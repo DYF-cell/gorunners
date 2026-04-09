@@ -549,6 +549,130 @@ input[type="number"] {
   font: inherit;
 }
 
+.ai-embed {
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(24, 20, 18, 0.03);
+}
+
+.ai-embed iframe {
+  display: block;
+  width: 100%;
+  min-height: 720px;
+  border: 0;
+}
+
+.ai-chat {
+  display: grid;
+  gap: 14px;
+}
+
+.ai-chat-profile {
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.ai-chat-profile-head {
+  display: grid;
+  gap: 4px;
+}
+
+.ai-chat-profile-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.ai-chat-profile-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.ai-chat-profile-form label span {
+  font-size: 0.95rem;
+}
+
+.ai-chat-profile-form input,
+.ai-chat-profile-form textarea,
+.ai-chat-profile-form select {
+  background: rgba(24, 20, 18, 0.03);
+  border: 1px solid rgba(24, 20, 18, 0.1);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.ai-chat-messages {
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(24, 20, 18, 0.03);
+  padding: 16px;
+  min-height: 420px;
+  max-height: 720px;
+  overflow: auto;
+  display: grid;
+  gap: 10px;
+}
+
+.ai-chat-bubble {
+  max-width: min(640px, 92%);
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(24, 20, 18, 0.08);
+  box-shadow: var(--shadow);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+.ai-chat-bubble.user {
+  justify-self: end;
+  background: rgba(255, 106, 61, 0.12);
+  border-color: rgba(255, 106, 61, 0.28);
+}
+
+.ai-chat-bubble.assistant {
+  justify-self: start;
+  background: rgba(31, 122, 140, 0.1);
+  border-color: rgba(31, 122, 140, 0.22);
+}
+
+.ai-chat-bubble.meta {
+  justify-self: center;
+  background: rgba(24, 20, 18, 0.04);
+  border-color: rgba(24, 20, 18, 0.06);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.ai-chat-input {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.ai-chat-field {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.ai-chat-field input {
+  width: 100%;
+}
+
+@media (max-width: 680px) {
+  .ai-chat-input {
+    grid-template-columns: 1fr;
+  }
+}
+
 .leaflet-control-container,
 .leaflet-pane {
   z-index: 500;

@@ -7,6 +7,8 @@ import json
 import os
 import secrets
 import uuid
+import urllib.error
+import urllib.request
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
@@ -26,6 +28,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 UPLOAD_DIR = os.getenv("GORUNNERS_UPLOADS", str(BASE_DIR / "uploads"))
 PASSWORD_SCHEME = "pbkdf2_sha256"
 PASSWORD_ITERATIONS = 390000
+
+DIFY_BASE_URL = os.getenv("DIFY_BASE_URL", "").rstrip("/")
+DIFY_API_KEY = os.getenv("DIFY_API_KEY", "")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -234,6 +239,51 @@ class CommentInput(SQLModel):
 
 class RoleUpdate(SQLModel):
     role: str
+
+
+class AiChatRequest(SQLModel):
+    message: str
+    conversation_id: str = ""
+    user: str = "gorunners"
+    inputs: dict = {}
+
+
+class AiChatResponse(SQLModel):
+    answer: str
+    conversation_id: str = ""
+
+
+def dify_request(path: str, payload: Optional[dict] = None, method: str = "GET") -> dict:
+    if not DIFY_BASE_URL or not DIFY_API_KEY:
+        raise HTTPException(status_code=503, detail="AI not configured")
+
+    url = f"{DIFY_BASE_URL}{path}"
+    body = None
+    headers = {"Authorization": f"Bearer {DIFY_API_KEY}"}
+    if payload is not None:
+        body = json.dumps(payload).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+
+    request = urllib.request.Request(url, data=body, headers=headers, method=method)
+
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            raw = response.read().decode("utf-8")
+    except urllib.error.HTTPError as error:
+        try:
+            raw = error.read().decode("utf-8")
+            parsed = json.loads(raw)
+            detail = parsed.get("message") or parsed.get("detail") or raw
+        except Exception:
+            detail = "AI request failed"
+        raise HTTPException(status_code=502, detail=detail)
+    except urllib.error.URLError:
+        raise HTTPException(status_code=502, detail="AI service unreachable")
+
+    try:
+        return json.loads(raw) if raw else {}
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=502, detail="Invalid AI response")
 
 
 engine = create_engine(DATABASE_URL, echo=False)
@@ -492,6 +542,30 @@ def on_startup() -> None:
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.post("/ai/chat", response_model=AiChatResponse)
+def ai_chat(payload: AiChatRequest):
+    data = dify_request(
+        "/chat-messages",
+        payload={
+            "inputs": payload.inputs or {},
+            "query": payload.message,
+            "response_mode": "blocking",
+            "conversation_id": payload.conversation_id,
+            "user": payload.user or "gorunners",
+        },
+        method="POST",
+    )
+
+    answer = data.get("answer") or data.get("message") or ""
+    conversation_id = data.get("conversation_id") or payload.conversation_id or ""
+    return AiChatResponse(answer=answer, conversation_id=conversation_id)
+
+
+@app.get("/ai/parameters")
+def ai_parameters():
+    return dify_request("/parameters")
 
 
 @app.post("/auth/register", response_model=Token)
