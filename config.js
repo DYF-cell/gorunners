@@ -4,9 +4,9 @@ window.GORUNNERS_AI_TRAINERS = [
   {
     id: "default",
     label: { en: "GoRunner AI Trainer", zh: "GoRunner AI训练师" },
-    mode: "api",
-    useDifyParameters: true,
-    iframeSrc: "  ",
+    mode: "embed",
+    useDifyParameters: false,
+    iframeSrc: "http://127.0.0.1/chatbot/YcT9FHuccNmapXDu",
     inputForm: [
       {
         key: "running_level",
