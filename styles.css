@@ -496,6 +496,7 @@ input[type="number"] {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 .map-card {
@@ -533,6 +534,7 @@ input[type="number"] {
 
 #event .map-card .button-row {
   flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 #event .map-card .outline-button,
@@ -550,7 +552,8 @@ input[type="number"] {
 }
 
 #event .map-card .primary-button.active,
-#route-edit.active {
+#route-edit.active,
+#map-picker-edit.active {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
@@ -585,6 +588,7 @@ input[type="number"] {
 .route-saved-list {
   display: grid;
   gap: 8px;
+  flex: 1 1 100%;
   min-width: min(360px, 100%);
 }
 
@@ -1038,11 +1042,13 @@ body.modal-open {
 
 .map-picker-modal {
   padding: 24px;
+  align-items: flex-start;
+  overflow-y: auto;
 }
 
 .map-picker-card {
   width: min(1180px, 100%);
-  height: min(86vh, 780px);
+  min-height: min(86vh, 780px);
   background: var(--card);
   color: var(--ink);
   border-radius: 8px;
@@ -1086,7 +1092,13 @@ body.modal-open {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  resize: vertical;
+  min-height: 118px;
+  max-height: 45vh;
+  scrollbar-gutter: stable;
 }
 
 .map-picker-panel .picker-suggestions,
@@ -1155,9 +1167,10 @@ body.modal-open {
 }
 
 .picker-note {
-  display: grid;
-  gap: 6px;
+  margin: 0;
+  display: block;
   font-weight: 600;
+  color: var(--muted);
 }
 
 .picker-note input {
@@ -1207,7 +1220,7 @@ body.modal-open {
   }
 
   .map-picker-card {
-    height: 90vh;
+    min-height: 90vh;
     padding: 14px;
   }
 

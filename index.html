@@ -232,17 +232,17 @@
                 <button class="primary-button" id="route-save" data-i18n="button_route_save">
                   Save Route
                 </button>
-                <button class="outline-button" id="route-update" data-i18n="button_route_update">
-                  Update Route
-                </button>
-                <select id="route-select" class="input-pill" aria-label="Saved routes"></select>
-                <div class="route-saved-list" id="route-saved-list"></div>
                 <button class="primary-button" id="route-done" data-i18n="button_route_done">
                   Finish Editing
                 </button>
                 <button class="ghost-button" id="route-reset" data-i18n="button_reset">
                   Reset Checkpoints
                 </button>
+                <button class="outline-button" id="route-update" data-i18n="button_route_update">
+                  Update Route
+                </button>
+                <select id="route-select" class="input-pill" aria-label="Saved routes"></select>
+                <div class="route-saved-list" id="route-saved-list"></div>
               </div>
             </div>
             <div class="route-map" id="route-map" role="img" aria-label="Route map"></div>
@@ -607,16 +607,9 @@
               <p class="picker-heading" data-i18n="map_picker_suggestions">Suggested route points</p>
               <div class="picker-list" id="map-picker-suggestions"></div>
             </div>
-            <label class="picker-note">
-              <span data-i18n="map_picker_note_label">Marker note</span>
-              <input
-                type="text"
-                id="map-picker-label"
-                maxlength="60"
-                placeholder="e.g. Easy pace regroup"
-                data-i18n-placeholder="map_picker_note_placeholder"
-              />
-            </label>
+            <p class="picker-note" data-i18n="map_picker_note_help">
+              Click the map to add a point to the route. Save the route when the point order looks right.
+            </p>
             <p class="picker-coords" id="map-picker-coords" data-i18n="map_picker_coords_empty">
               No point selected yet.
             </p>
@@ -624,14 +617,11 @@
               <button class="outline-button" id="map-picker-cancel" type="button" data-i18n="map_picker_cancel">
                 Cancel
               </button>
-              <button class="primary-button" id="map-picker-add" type="button" data-i18n="button_route_add">
-                Add Point
+              <button class="primary-button" id="map-picker-edit" type="button" data-i18n="button_route_edit">
+                Edit Current Route
               </button>
               <button class="outline-button" id="map-picker-undo" type="button" data-i18n="button_route_undo">
                 Undo Point
-              </button>
-              <button class="outline-button" id="map-picker-delete-point" type="button" data-i18n="button_route_delete_point">
-                Delete Point
               </button>
               <button class="outline-button" id="map-picker-update" type="button" data-i18n="button_route_update">
                 Update Route
@@ -652,8 +642,8 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="data.js?v=route-editor-2"></script>
-    <script src="config.js?v=route-editor-2"></script>
-    <script src="app.js?v=route-editor-2"></script>
+    <script src="data.js?v=route-editor-3"></script>
+    <script src="config.js?v=route-editor-3"></script>
+    <script src="app.js?v=route-editor-3"></script>
   </body>
 </html>

@@ -125,6 +125,7 @@ const i18n = {
     map_picker_suggestions: "Suggested route points",
     map_picker_note_label: "Marker note",
     map_picker_note_placeholder: "e.g. Easy pace regroup",
+    map_picker_note_help: "Click the map to add a point to the route. Save the route when the point order looks right.",
     map_picker_coords_empty: "No point selected yet.",
     map_picker_coords_value: "Selected: {lat}, {lng}",
     map_picker_cancel: "Cancel",
@@ -258,6 +259,7 @@ const i18n = {
     toast_route_renamed: "Route renamed.",
     toast_route_point_deleted: "Route point deleted.",
     toast_picker_need_point: "Select a point on the map first.",
+    toast_route_edit_required: "Press Edit Current Route before changing route points.",
     toast_checkin_confirm: "Check-in confirmed.",
     toast_checkin_removed: "Check-in removed.",
     toast_geo_needed: "Enable location to check in.",
@@ -363,6 +365,7 @@ const i18n = {
     map_picker_suggestions: "推荐路线点位",
     map_picker_note_label: "标注备注",
     map_picker_note_placeholder: "例如：慢配速集合点",
+    map_picker_note_help: "点击地图会直接添加路线点位。点位顺序合适后，保存路线即可。",
     map_picker_coords_empty: "尚未选择点位。",
     map_picker_coords_value: "已选坐标：{lat}, {lng}",
     map_picker_cancel: "取消",
@@ -492,6 +495,7 @@ const i18n = {
     toast_route_renamed: "路线已重命名。",
     toast_route_point_deleted: "点位已删除。",
     toast_picker_need_point: "请先在地图上选择一个点位。",
+    toast_route_edit_required: "请先点击“编辑当前路线”，再修改路线点位。",
     toast_checkin_confirm: "签到已确认。",
     toast_checkin_removed: "已取消签到。",
     toast_geo_needed: "请先开启定位再签到。",
@@ -604,8 +608,8 @@ const dom = {
   mapPickerCancel: document.getElementById("map-picker-cancel"),
   mapPickerSave: document.getElementById("map-picker-save"),
   mapPickerAdd: document.getElementById("map-picker-add"),
+  mapPickerEdit: document.getElementById("map-picker-edit"),
   mapPickerUndo: document.getElementById("map-picker-undo"),
-  mapPickerDeletePoint: document.getElementById("map-picker-delete-point"),
   mapPickerUpdate: document.getElementById("map-picker-update"),
   mapPickerRouteSelect: document.getElementById("map-picker-route-select"),
   mapPickerRouteList: document.getElementById("map-picker-route-list"),
@@ -1712,7 +1716,7 @@ function renderPickerSuggestions() {
       pickerSelectedType = suggestion.type;
       updatePickerTypeButtons();
       setPickerSelectedLatLng({ lat: suggestion.lat, lng: suggestion.lng });
-      dom.mapPickerLabel.value = suggestion.label;
+      if (dom.mapPickerLabel) dom.mapPickerLabel.value = suggestion.label;
       pickerMap?.flyTo([suggestion.lat, suggestion.lng], Math.max(pickerMap.getZoom(), 14));
     });
   });
@@ -1750,7 +1754,7 @@ function renderPickerMap(resetSelection = true) {
     pickerSelectionMarker = null;
     pickerSelectedLatLng = null;
     dom.mapPickerCoords.textContent = t("map_picker_coords_empty");
-    dom.mapPickerLabel.value = "";
+    if (dom.mapPickerLabel) dom.mapPickerLabel.value = "";
   }
 
   const route = getEditableRoute(activeEvent);
@@ -2430,9 +2434,9 @@ function initActions() {
   dom.mapPickerClose.addEventListener("click", closeMapPicker);
   dom.mapPickerCancel.addEventListener("click", closeMapPicker);
   dom.mapPickerSave.addEventListener("click", saveMapPickerMarker);
-  dom.mapPickerAdd.addEventListener("click", addMapPickerPoint);
+  dom.mapPickerAdd?.addEventListener("click", addMapPickerPoint);
+  dom.mapPickerEdit?.addEventListener("click", () => setRouteEditing(true));
   dom.mapPickerUndo.addEventListener("click", undoRoutePoint);
-  dom.mapPickerDeletePoint.addEventListener("click", deleteSelectedRoutePoint);
   dom.mapPickerUpdate.addEventListener("click", updateCurrentSavedRoute);
   dom.mapPickerRouteSelect.addEventListener("change", (event) => loadSavedRoute(event.target.value));
   dom.mapPickerTypes.querySelectorAll("[data-plan-type]").forEach((button) => {
@@ -2806,6 +2810,13 @@ function getDraftRoute(event = activeEvent) {
   return normalizeRoutePoints(draftRoute);
 }
 
+function ensureDraftRoute() {
+  const key = getCurrentRouteKey();
+  if (!key) return [];
+  state.draftRoutes[key] = normalizeRoutePoints(state.draftRoutes[key]);
+  return state.draftRoutes[key];
+}
+
 function normalizeRoutePoints(points) {
   if (!Array.isArray(points)) return [];
   return points
@@ -2936,28 +2947,25 @@ function addRoutePoint(latlng) {
   const key = getCurrentRouteKey();
   if (!key) return;
 
-  if (getRouteMode() === "edit") {
-    const route = ensureEditableRoute();
-    route.push([Number(latlng.lat.toFixed(6)), Number(latlng.lng.toFixed(6))]);
-    selectedRoutePointIndex = route.length - 1;
-  } else {
-    setRouteMode("draft");
-    state.routePlans[key] = [];
-    if (!Array.isArray(state.draftRoutes[key])) state.draftRoutes[key] = [];
-    state.draftRoutes[key].push([Number(latlng.lat.toFixed(6)), Number(latlng.lng.toFixed(6))]);
-    selectedRoutePointIndex = state.draftRoutes[key].length - 1;
-    if (state.draftRoutes[key].length >= 2) {
-      state.routePlans[key] = state.draftRoutes[key].map((point) => [...point]);
-    }
+  if (getRouteMode() !== "edit") {
+    showToast(t("toast_route_edit_required"));
+    return;
   }
 
+  const route = ensureEditableRoute();
+  route.push([Number(latlng.lat.toFixed(6)), Number(latlng.lng.toFixed(6))]);
+  selectedRoutePointIndex = route.length - 1;
   saveState();
   refreshRouteViews();
 }
 
 function updateRoutePoint(index, latlng) {
+  if (!canEditVisibleRoute()) {
+    showToast(t("toast_route_edit_required"));
+    return;
+  }
   const key = getCurrentRouteKey();
-  const route = getRouteMode() === "draft" ? getDraftRoute() : ensureEditableRoute();
+  const route = getRouteMode() === "draft" ? ensureDraftRoute() : ensureEditableRoute();
   if (!route[index]) return;
   route[index] = [Number(latlng.lat.toFixed(6)), Number(latlng.lng.toFixed(6))];
   selectedRoutePointIndex = index;
@@ -2969,8 +2977,12 @@ function updateRoutePoint(index, latlng) {
 }
 
 function undoRoutePoint() {
+  if (getRouteMode() === "idle") {
+    showToast(t("toast_route_edit_required"));
+    return;
+  }
   const key = getCurrentRouteKey();
-  const route = getRouteMode() === "draft" ? getDraftRoute() : ensureEditableRoute();
+  const route = getRouteMode() === "draft" ? ensureDraftRoute() : ensureEditableRoute();
   if (!route.length) return;
   route.pop();
   selectedRoutePointIndex = null;
@@ -2983,8 +2995,12 @@ function undoRoutePoint() {
 }
 
 function deleteSelectedRoutePoint() {
+  if (getRouteMode() === "idle") {
+    showToast(t("toast_route_edit_required"));
+    return;
+  }
   const key = getCurrentRouteKey();
-  const route = getRouteMode() === "draft" ? getDraftRoute() : ensureEditableRoute();
+  const route = getRouteMode() === "draft" ? ensureDraftRoute() : ensureEditableRoute();
   if (!route.length) return;
   const index = selectedRoutePointIndex === null ? route.length - 1 : selectedRoutePointIndex;
   route.splice(index, 1);
@@ -3068,7 +3084,7 @@ function loadSavedRoute(routeId) {
   state.routePlans[key] = savedRoute.points.map((point) => [Number(point[0]), Number(point[1])]);
   state.draftRoutes[key] = [];
   state.selectedRoutes[key] = routeId;
-  setRouteMode("edit");
+  setRouteMode("idle");
   selectedRoutePointIndex = null;
   saveState();
   refreshRouteViews();
@@ -3144,12 +3160,12 @@ function renderRouteControls() {
     });
   });
 
-  [dom.routeUpdate, dom.mapPickerUpdate].forEach((button) => {
+  [dom.routeUndo, dom.routeUpdate, dom.mapPickerUndo, dom.mapPickerUpdate].forEach((button) => {
     if (button) button.disabled = getRouteMode() === "idle";
   });
   if (dom.mapPickerAdd) dom.mapPickerAdd.disabled = !pickerSelectedLatLng;
-  if (dom.mapPickerDeletePoint) dom.mapPickerDeletePoint.disabled = !canEditVisibleRoute() && !getSingleDraftPoint();
   if (dom.routeEdit) dom.routeEdit.classList.toggle("active", getRouteMode() === "edit");
+  if (dom.mapPickerEdit) dom.mapPickerEdit.classList.toggle("active", getRouteMode() === "edit");
   if (dom.routeEditHint) {
     dom.routeEditHint.textContent =
       getRouteMode() === "edit"
@@ -3174,7 +3190,7 @@ function renderPickerMap(resetSelection = true) {
     pickerSelectionMarker = null;
     pickerSelectedLatLng = null;
     dom.mapPickerCoords.textContent = t("map_picker_coords_empty");
-    dom.mapPickerLabel.value = "";
+    if (dom.mapPickerLabel) dom.mapPickerLabel.value = "";
   }
 
   const route = getVisibleRoute(activeEvent);
