@@ -511,13 +511,102 @@ input[type="number"] {
 
 .route-map {
   height: 260px;
-  border-radius: 24px;
+  border-radius: 8px;
   background: linear-gradient(135deg, rgba(31, 41, 55, 0.08), rgba(255, 106, 61, 0.12));
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(15, 23, 42, 0.1);
   cursor: zoom-in;
   box-shadow: inset 0 0 0 1px rgba(255, 106, 61, 0.15);
+}
+
+#event .map-card {
+  background: var(--card);
+  color: var(--ink);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+#event .map-card .card-title,
+#event .map-card .map-footnote {
+  color: var(--ink);
+}
+
+#event .map-card .button-row {
+  flex-wrap: wrap;
+}
+
+#event .map-card .outline-button,
+#event .map-card .ghost-button,
+#event .map-card .input-pill {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.14);
+  color: var(--ink);
+  border-radius: 8px;
+}
+
+#event .map-card .primary-button.active,
+#event .map-card .primary-button {
+  border-radius: 8px;
+}
+
+#event .map-card .primary-button.active,
+#route-edit.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 18px 36px rgba(255, 106, 61, 0.25);
+}
+
+.route-map .leaflet-tile,
+.map-picker-canvas .leaflet-tile {
+  filter: none;
+}
+
+.route-point-marker span {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: #10131a;
+  color: #fff;
+  border: 4px solid #ff6a3d;
+  font-weight: 800;
+  font-size: 1.1rem;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+
+.route-point-marker.selected span {
+  background: var(--primary);
+  color: #fff;
+  border-color: #111827;
+}
+
+.route-saved-list {
+  display: grid;
+  gap: 8px;
+  min-width: min(360px, 100%);
+}
+
+.saved-route-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.saved-route-row input {
+  min-width: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  padding: 10px 12px;
+  font: inherit;
+}
+
+#event .map-card .saved-route-row input {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.16);
+  color: var(--ink);
 }
 
 .route-line {
@@ -954,8 +1043,9 @@ body.modal-open {
 .map-picker-card {
   width: min(1180px, 100%);
   height: min(86vh, 780px);
-  background: linear-gradient(145deg, #ffffff 0%, #f3f4f6 60%, #eceff3 100%);
-  border-radius: calc(var(--radius-lg) + 4px);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 8px;
   border: 1px solid rgba(15, 23, 42, 0.16);
   box-shadow: 0 38px 95px rgba(15, 23, 42, 0.28);
   padding: 20px;
@@ -972,28 +1062,37 @@ body.modal-open {
 
 .map-picker-body {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr);
+  grid-template-columns: 1fr;
   gap: 16px;
   min-height: 0;
 }
 
 .map-picker-canvas {
   height: 100%;
-  min-height: 420px;
-  border-radius: 20px;
+  min-height: 520px;
+  border-radius: 8px;
   border: 1px solid rgba(15, 23, 42, 0.14);
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(255, 106, 61, 0.12), rgba(15, 23, 42, 0.06));
+  background: #fff;
 }
 
 .map-picker-panel {
-  background: rgba(255, 255, 255, 0.86);
+  order: -1;
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 18px;
+  border-radius: 8px;
   padding: 16px;
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
   overflow: auto;
+}
+
+.map-picker-panel .picker-suggestions,
+.map-picker-panel .picker-note,
+.map-picker-panel .picker-coords {
+  min-width: min(320px, 100%);
 }
 
 .picker-heading {
@@ -1019,7 +1118,8 @@ body.modal-open {
 .pill-button {
   border: 1px solid rgba(15, 23, 42, 0.16);
   background: #fff;
-  border-radius: 999px;
+  color: var(--ink);
+  border-radius: 8px;
   padding: 7px 12px;
   font-weight: 600;
   cursor: pointer;
@@ -1034,7 +1134,7 @@ body.modal-open {
 
 .picker-tip {
   margin: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   background: rgba(255, 106, 61, 0.12);
   border: 1px solid rgba(255, 106, 61, 0.32);
   padding: 10px 12px;
@@ -1061,8 +1161,10 @@ body.modal-open {
 }
 
 .picker-note input {
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid rgba(15, 23, 42, 0.16);
+  background: #fff;
+  color: var(--ink);
   padding: 10px 12px;
 }
 
