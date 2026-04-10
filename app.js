@@ -462,25 +462,20 @@ const sampleUpdates = {
   zh: ["10分钟后开始热身", "请先找到搭子", "补水点已开放"],
 };
 
+const defaultAiTrainer = {
+  id: "default",
+  label: { en: "GoRunner AI Trainer", zh: "GoRunner AI训练师" },
+  iframeSrc: "http://127.0.0.1/chatbot/YcT9FHuccNmapXDu",
+};
+
 const dom = {
   navLinks: document.querySelectorAll(".nav-link"),
   sections: document.querySelectorAll("main section"),
   langButtons: document.querySelectorAll(".lang-button"),
-  aiTrainerSelect: document.getElementById("ai-trainer-select"),
-  aiTrainerOpen: document.getElementById("ai-trainer-open"),
-  aiTrainerSetup: document.getElementById("ai-trainer-setup"),
   aiTrainerIframe: document.getElementById("ai-trainer-iframe"),
   aiTrainerEmpty: document.getElementById("ai-trainer-empty"),
   aiTrainerName: document.getElementById("ai-trainer-name"),
   aiEmbed: document.getElementById("ai-embed"),
-  aiChat: document.getElementById("ai-chat"),
-  aiChatMessages: document.getElementById("ai-chat-messages"),
-  aiChatForm: document.getElementById("ai-chat-form"),
-  aiChatText: document.getElementById("ai-chat-text"),
-  aiChatClear: document.getElementById("ai-chat-clear"),
-  aiChatProfile: document.getElementById("ai-chat-profile"),
-  aiChatProfileForm: document.getElementById("ai-chat-profile-form"),
-  aiChatProfileSave: document.getElementById("ai-chat-profile-save"),
   eventsGrid: document.getElementById("events-grid"),
   eventTags: document.getElementById("event-tags"),
   eventName: document.getElementById("event-name"),
@@ -992,14 +987,10 @@ function renderAiTrainerProfileForm(trainer) {
 
 function renderAiTrainer() {
   if (
-    !dom.aiTrainerSelect ||
     !dom.aiTrainerIframe ||
     !dom.aiTrainerEmpty ||
     !dom.aiTrainerName ||
-    !dom.aiTrainerOpen ||
-    !dom.aiEmbed ||
-    !dom.aiChat ||
-    !dom.aiTrainerSetup
+    !dom.aiEmbed
   ) {
     return;
   }
@@ -1007,98 +998,24 @@ function renderAiTrainer() {
   const trainers = getAiTrainers();
   const hasSelectedTrainer = trainers.some((trainer) => trainer.id === state.selectedTrainerId);
   if (!hasSelectedTrainer) {
-    state.selectedTrainerId = trainers[0]?.id || "";
+    state.selectedTrainerId = trainers[0]?.id || defaultAiTrainer.id;
     saveState();
   }
 
-  dom.aiTrainerSelect.innerHTML = "";
-  const placeholder = document.createElement("option");
-  placeholder.value = "";
-  placeholder.textContent = t("ai_select_placeholder");
-  placeholder.disabled = true;
-  placeholder.hidden = true;
-  placeholder.selected = !state.selectedTrainerId;
-  dom.aiTrainerSelect.appendChild(placeholder);
-
-  trainers.forEach((trainer) => {
-    const option = document.createElement("option");
-    option.value = trainer.id;
-    option.textContent = getAiTrainerLabel(trainer);
-    dom.aiTrainerSelect.appendChild(option);
-  });
-
-  dom.aiTrainerSelect.value = state.selectedTrainerId || "";
-
-  const activeTrainer = trainers.find((trainer) => trainer.id === state.selectedTrainerId);
+  const activeTrainer = trainers.find((trainer) => trainer.id === state.selectedTrainerId) || trainers[0] || defaultAiTrainer;
   const embedUrl = activeTrainer?.iframeSrc || "";
-  const mode = activeTrainer?.mode || "embed";
 
   dom.aiTrainerName.textContent = activeTrainer ? getAiTrainerLabel(activeTrainer) : t("ai_default_name");
 
-  if (mode === "api") {
-    dom.aiEmbed.hidden = true;
-    dom.aiChat.hidden = false;
-    dom.aiTrainerOpen.disabled = true;
-    dom.aiTrainerEmpty.hidden = true;
-    dom.aiTrainerSetup.hidden = false;
-    renderAiTrainerProfileForm(activeTrainer);
-    renderAiChat(activeTrainer?.id || "default");
-    return;
-  }
-
-  dom.aiChat.hidden = true;
   dom.aiEmbed.hidden = false;
-  if (dom.aiChatProfile) dom.aiChatProfile.hidden = true;
-  dom.aiTrainerSetup.hidden = true;
   if (dom.aiTrainerIframe.getAttribute("src") !== embedUrl) {
     dom.aiTrainerIframe.setAttribute("src", embedUrl);
   }
   dom.aiTrainerEmpty.hidden = Boolean(embedUrl);
   dom.aiEmbed.hidden = !embedUrl;
-  dom.aiTrainerOpen.disabled = !embedUrl;
 }
 
 function initAiTrainer() {
-  if (!dom.aiTrainerSelect || !dom.aiTrainerOpen) return;
-
-  dom.aiTrainerSelect.addEventListener("change", (event) => {
-    state.selectedTrainerId = event.target.value;
-    saveState();
-    renderAiTrainer();
-  });
-
-  dom.aiTrainerOpen.addEventListener("click", () => {
-    const activeTrainer = getAiTrainers().find((trainer) => trainer.id === state.selectedTrainerId);
-    const embedUrl = activeTrainer?.iframeSrc || "";
-    if (!embedUrl) return;
-    window.open(embedUrl, "_blank", "noopener,noreferrer");
-  });
-
-  if (dom.aiTrainerSetup && dom.aiChatProfile) {
-    dom.aiTrainerSetup.addEventListener("click", () => {
-      dom.aiChatProfile.hidden = !dom.aiChatProfile.hidden;
-    });
-  }
-
-  if (dom.aiChatForm && dom.aiChatText && dom.aiChatClear) {
-    dom.aiChatForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const trainerId = state.selectedTrainerId || "default";
-      const text = dom.aiChatText.value;
-      dom.aiChatText.value = "";
-      await sendAiChatMessage(trainerId, text);
-    });
-
-    dom.aiChatClear.addEventListener("click", () => {
-      const trainerId = state.selectedTrainerId || "default";
-      const chat = getChatState(trainerId);
-      chat.conversationId = "";
-      chat.messages = [];
-      saveState();
-      renderAiChat(trainerId);
-    });
-  }
-
   renderAiTrainer();
 }
 

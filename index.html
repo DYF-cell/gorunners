@@ -480,11 +480,6 @@
               Choose a trainer and chat inside the page.
             </p>
           </div>
-          <div class="filters">
-            <select id="ai-trainer-select" class="input-pill" aria-label="AI Trainer"></select>
-            <button class="outline-button" id="ai-trainer-open" data-i18n="ai_open">Open</button>
-            <button class="ghost-button" id="ai-trainer-setup" data-i18n="ai_setup" hidden>Setup</button>
-          </div>
         </div>
 
         <div class="card ai-trainer-card">
@@ -495,42 +490,11 @@
             <iframe
               id="ai-trainer-iframe"
               title="AI Trainer"
-              src=""
+              src="http://127.0.0.1/chatbot/YcT9FHuccNmapXDu"
               style="width: 100%; height: 100%; min-height: 720px"
               frameborder="0"
               allow="microphone"
             ></iframe>
-          </div>
-          <div class="ai-chat" id="ai-chat" hidden>
-            <div class="ai-chat-profile" id="ai-chat-profile" hidden>
-              <div class="ai-chat-profile-head">
-                <p class="card-title" data-i18n="ai_profile_title">Trainer Setup</p>
-                <p class="card-subtitle" data-i18n="ai_profile_subtitle">
-                  Fill the required info once, then start chatting.
-                </p>
-              </div>
-              <form class="ai-chat-profile-form" id="ai-chat-profile-form"></form>
-              <div class="button-row">
-                <button class="outline-button" id="ai-chat-profile-save" type="button" data-i18n="ai_profile_save">
-                  Save
-                </button>
-              </div>
-            </div>
-            <div class="ai-chat-messages" id="ai-chat-messages" aria-live="polite"></div>
-            <form class="ai-chat-input" id="ai-chat-form">
-              <label class="input-pill ai-chat-field">
-                <span class="sr-only" data-i18n="ai_input_label">Message</span>
-                <input
-                  type="text"
-                  id="ai-chat-text"
-                  autocomplete="off"
-                  placeholder="Ask the trainer…"
-                  data-i18n-placeholder="ai_input_placeholder"
-                />
-              </label>
-              <button class="primary-button" id="ai-chat-send" type="submit" data-i18n="ai_send">Send</button>
-              <button class="ghost-button" id="ai-chat-clear" type="button" data-i18n="ai_clear">Clear</button>
-            </form>
           </div>
           <div class="notice" id="ai-trainer-empty" data-i18n="ai_empty" hidden>
             Configure trainer embed URLs in config.js to enable this panel.
