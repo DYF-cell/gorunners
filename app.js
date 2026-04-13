@@ -255,6 +255,7 @@ const i18n = {
     toast_route_selected: "Saved route loaded.",
     toast_route_empty: "Add at least two points before saving.",
     toast_route_undo: "Last route point removed.",
+    toast_route_undo_empty: "There are no more route points to undo.",
     toast_route_deleted: "Route deleted.",
     toast_route_renamed: "Route renamed.",
     toast_route_point_deleted: "Route point deleted.",
@@ -491,6 +492,7 @@ const i18n = {
     toast_route_selected: "已载入保存的路线。",
     toast_route_empty: "至少添加两个点位后再保存。",
     toast_route_undo: "已撤销最后一个点位。",
+    toast_route_undo_empty: "当前路线没有可撤销的点位。",
     toast_route_deleted: "路线已删除。",
     toast_route_renamed: "路线已重命名。",
     toast_route_point_deleted: "点位已删除。",
@@ -1841,8 +1843,10 @@ async function loadCheckpointsForEvent(event) {
 
 function renderCheckpointList(event, serverCheckpoints) {
   const progress = state.checkpointProgress[event.id] || {};
-  const customRoute = state.routePlans?.[String(event.id)] || [];
-  const route = Array.isArray(customRoute) && customRoute.length
+  const hasCustomRoute = hasCustomRoutePlan(event);
+  const customRoute = hasCustomRoute ? normalizeRoutePoints(state.routePlans[String(event.id)]) : [];
+  const shouldUseCustomRoute = getRouteMode() === "edit" ? hasCustomRoute : customRoute.length > 0;
+  const route = shouldUseCustomRoute
     ? customRoute.map((_, index) => ({
         name: currentLang === "zh" ? `路线点 ${index + 1}` : `Route Point ${index + 1}`,
         type: index === 0 ? "start" : index === customRoute.length - 1 ? "finish" : "checkpoint",
@@ -1854,7 +1858,7 @@ function renderCheckpointList(event, serverCheckpoints) {
       }))
     : getEventArray(event, "route") || [];
   const fallbackRoute =
-    route.length || !event.route_coords
+    route.length || shouldUseCustomRoute || !event.route_coords
       ? route
       : event.route_coords.map((_, index) => ({
           name: currentLang === "zh" ? `打卡点 ${index + 1}` : `Checkpoint ${index + 1}`,
@@ -2810,6 +2814,11 @@ function getDraftRoute(event = activeEvent) {
   return normalizeRoutePoints(draftRoute);
 }
 
+function hasCustomRoutePlan(event = activeEvent) {
+  const key = event?.id ? String(event.id) : "";
+  return !!key && Object.prototype.hasOwnProperty.call(state.routePlans || {}, key);
+}
+
 function ensureDraftRoute() {
   const key = getCurrentRouteKey();
   if (!key) return [];
@@ -2829,16 +2838,22 @@ function normalizeRoutePoints(points) {
 }
 
 function getEditableRoute(event = activeEvent) {
-  const key = event?.id ? String(event.id) : "";
-  const customRoute = key ? normalizeRoutePoints(state.routePlans?.[key]) : [];
-  return customRoute.length ? customRoute : getEventRouteCoords(event);
+  if (hasCustomRoutePlan(event)) {
+    const key = String(event.id);
+    state.routePlans[key] = normalizeRoutePoints(state.routePlans[key]);
+    return state.routePlans[key];
+  }
+  return getEventRouteCoords(event);
 }
 
 function ensureEditableRoute() {
   const key = getCurrentRouteKey();
   if (!key) return [];
-  const normalized = normalizeRoutePoints(state.routePlans[key]);
-  state.routePlans[key] = normalized.length ? normalized : getEventRouteCoords(activeEvent);
+  if (!hasCustomRoutePlan(activeEvent)) {
+    state.routePlans[key] = getEventRouteCoords(activeEvent);
+    return state.routePlans[key];
+  }
+  state.routePlans[key] = normalizeRoutePoints(state.routePlans[key]);
   return state.routePlans[key];
 }
 
@@ -2847,7 +2862,12 @@ function getVisibleRoute(event = activeEvent) {
   if (getRouteMode() === "draft" && draftRoute.length) {
     return draftRoute.length >= 2 ? draftRoute : getEventRouteCoords(event);
   }
-  return getEditableRoute(event);
+  if (getRouteMode() === "edit") {
+    return getEditableRoute(event);
+  }
+  const key = event?.id ? String(event.id) : "";
+  const customRoute = key ? normalizeRoutePoints(state.routePlans?.[key]) : [];
+  return customRoute.length ? customRoute : getEventRouteCoords(event);
 }
 
 function getSingleDraftPoint(event = activeEvent) {
@@ -2928,7 +2948,7 @@ function renderEventMap(event) {
       .on("dragend", (dragEvent) => updateRoutePoint(0, dragEvent.target.getLatLng()));
   }
 
-  if (!route.length && !draftPoint) {
+  if (!route.length && !draftPoint && !hasCustomRoutePlan(event)) {
     L.marker(center).addTo(eventLayerGroup).bindPopup(getEventText(event, "name"));
   }
 
@@ -2983,7 +3003,10 @@ function undoRoutePoint() {
   }
   const key = getCurrentRouteKey();
   const route = getRouteMode() === "draft" ? ensureDraftRoute() : ensureEditableRoute();
-  if (!route.length) return;
+  if (!route.length) {
+    showToast(t("toast_route_undo_empty"));
+    return;
+  }
   route.pop();
   selectedRoutePointIndex = null;
   if (getRouteMode() === "draft") {
@@ -3022,9 +3045,10 @@ function setRouteEditing(enabled) {
   const key = getCurrentRouteKey();
   selectedRoutePointIndex = null;
   if (enabled) {
+    const baseRoute = getVisibleRoute(activeEvent).map((point) => [...point]);
     setRouteMode("edit");
     state.draftRoutes[key] = [];
-    state.routePlans[key] = getEditableRoute(activeEvent).map((point) => [...point]);
+    state.routePlans[key] = baseRoute;
   } else {
     setRouteMode("idle");
   }
@@ -3211,7 +3235,7 @@ function renderPickerMap(resetSelection = true) {
       .on("click", () => selectRoutePoint(0))
       .on("dragend", (dragEvent) => updateRoutePoint(0, dragEvent.target.getLatLng()));
   }
-  if (!route.length && !draftPoint) {
+  if (!route.length && !draftPoint && !hasCustomRoutePlan(activeEvent)) {
     L.marker(center).addTo(pickerRouteLayer).bindPopup(getEventText(activeEvent, "name"));
   }
 
