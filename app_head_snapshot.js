@@ -35,7 +35,6 @@ const i18n = {
     nav_ai_trainer: "AI Trainer",
     header_location: "Enable Location",
     header_join: "Join Next Run",
-    header_admin_console: "Admin Console",
     header_login: "Login",
     header_logout: "Logout",
     ai_eyebrow: "AI",
@@ -107,7 +106,7 @@ const i18n = {
     button_route_delete_point: "Delete Point",
     map_footnote: "Complete all checkpoints to unlock the Route Explorer badge.",
     map_plan_note: "Tap map to open fullscreen planner and add running points with guided tips.",
-    map_edit_hint: "Edit current route here; use Expand Planner to add new points.",
+    map_edit_hint: "Press Edit Current Route, then tap the map to add route points.",
     route_select_placeholder: "Saved routes",
     route_name_placeholder: "Route name",
     route_saved_empty: "No saved routes yet.",
@@ -198,16 +197,8 @@ const i18n = {
     org_attendance: "Live Attendance",
     org_users: "User Management",
     org_users_load: "Refresh",
-    org_admin_console: "Admin Console",
-    org_admin_open: "Open Console",
-    org_admin_description: "Admins manage users, events, and post moderation in the dedicated console.",
-    org_admin_guest: "Login with an admin account to enter the dedicated management console.",
-    org_admin_ready: "Admin access detected. Open the dedicated console for user, event, and moderation tools.",
     org_update: "Send Update",
     org_notice: "No update sent yet. Tap \"Send Update\" to broadcast a warm-up reminder.",
-    org_map_title: "Route Planner",
-    org_map_hint: "Empty map: click to add route points. Drag markers to adjust the route.",
-    org_type_hint: "Select type first, then click map to add; click an existing point to change its type.",
     footer_title: "GoRunners - Wuming Run Crew",
     footer_subtitle: "Built for CPT208 Human-Centric Computing - Active Lifestyles Track",
     footer_explore: "See All Runs",
@@ -255,7 +246,6 @@ const i18n = {
     toast_logout: "Logged out.",
     toast_register_success: "Account created.",
     toast_admin_required: "Admin access required.",
-    toast_admin_redirect: "Admin login detected. Redirecting to Admin Console.",
     toast_recommend_done: "Recommended checkpoints added.",
     toast_plan_added: "Planning marker saved.",
     toast_route_editing: "Route editing enabled. Tap the map to add points.",
@@ -271,7 +261,6 @@ const i18n = {
     toast_route_point_deleted: "Route point deleted.",
     toast_picker_need_point: "Select a point on the map first.",
     toast_route_edit_required: "Press Edit Current Route before changing route points.",
-    toast_route_expand_required: "Please click \"Expand Planner\" for further actions.",
     toast_checkin_confirm: "Check-in confirmed.",
     toast_checkin_removed: "Check-in removed.",
     toast_geo_needed: "Enable location to check in.",
@@ -288,7 +277,6 @@ const i18n = {
     nav_ai_trainer: "AI训练师选择",
     header_location: "开启定位",
     header_join: "加入下一场",
-    header_admin_console: "管理后台",
     header_login: "登录",
     header_logout: "退出",
     ai_eyebrow: "AI",
@@ -359,7 +347,7 @@ const i18n = {
     button_route_delete_point: "删除点位",
     map_footnote: "完成所有打卡点可解锁路线探索徽章。",
     map_plan_note: "点击地图可进入全屏规划，按提示添加补水和路线标注。",
-    map_edit_hint: "此处可编辑当前路线；新增点位请点击“放大规划”。",
+    map_edit_hint: "先点击编辑当前路线，再点击地图添加路线点位。",
     route_select_placeholder: "已保存路线",
     route_name_placeholder: "路线名称",
     route_saved_empty: "暂无保存路线。",
@@ -446,16 +434,8 @@ const i18n = {
     org_attendance: "签到情况",
     org_users: "用户管理",
     org_users_load: "刷新",
-    org_admin_console: "管理后台",
-    org_admin_open: "打开后台",
-    org_admin_description: "管理员请在独立后台中统一管理用户、活动和社区帖子。",
-    org_admin_guest: "请使用管理员账号登录后进入独立管理后台。",
-    org_admin_ready: "已识别管理员身份，请进入独立后台处理用户、活动和内容审核。",
     org_update: "发送通知",
     org_notice: "暂无通知，点击发送提醒热身。",
-    org_map_title: "路线规划",
-    org_map_hint: "空白地图：点击添加路线点位，可拖动圆点调整路线。",
-    org_type_hint: "先选点位类型，再点击地图添加；点击已有点位可修改类型。",
     footer_title: "GoRunners - 无名跑团",
     footer_subtitle: "CPT208 Human-Centric Computing - Active Lifestyles",
     footer_explore: "查看活动",
@@ -468,8 +448,8 @@ const i18n = {
     no_registrations: "暂无报名活动，先选择一场吧。",
     no_attendance: "暂无签到，先发布活动。",
     no_posts: "还没有帖子，快来第一个分享吧。",
-    post_like: "点赞",
-    post_reply: "评论",
+    post_like: "鼓励",
+    post_reply: "回复",
     post_floor: "{count}楼",
     spot_vibe: "氛围",
     spot_distance: "距离",
@@ -492,8 +472,8 @@ const i18n = {
     toast_checkin_ok: "已在{spot}签到。",
     toast_checkin_far: "距离约{distance}公里，靠近后可签到。",
     toast_posted: "已发布帖子。",
-    toast_like: "已点赞。",
-    toast_reply: "评论已添加。",
+    toast_like: "感谢你的鼓励。",
+    toast_reply: "回复已添加。",
     toast_update_sent: "通知已发送。",
     toast_event_created: "新活动已发布。",
     toast_cleared: "已清空报名记录。",
@@ -503,7 +483,6 @@ const i18n = {
     toast_logout: "已退出。",
     toast_register_success: "账号已创建。",
     toast_admin_required: "需要管理员权限。",
-    toast_admin_redirect: "已识别管理员账号，正在跳转到管理后台。",
     toast_recommend_done: "已生成推荐打卡点。",
     toast_plan_added: "规划标注已保存。",
     toast_route_editing: "已进入路线编辑，点击地图添加点位。",
@@ -519,7 +498,6 @@ const i18n = {
     toast_route_point_deleted: "点位已删除。",
     toast_picker_need_point: "请先在地图上选择一个点位。",
     toast_route_edit_required: "请先点击“编辑当前路线”，再修改路线点位。",
-    toast_route_expand_required: "请点击“放大规划”进一步操作。",
     toast_checkin_confirm: "签到已确认。",
     toast_checkin_removed: "已取消签到。",
     toast_geo_needed: "请先开启定位再签到。",
@@ -590,19 +568,8 @@ const dom = {
   attendanceList: document.getElementById("attendance-list"),
   sendUpdate: document.getElementById("send-update"),
   organizerNotice: document.getElementById("organizer-notice"),
-  organizerRouteMap: document.getElementById("organizer-route-map"),
-  orgMapExpand: document.getElementById("org-map-expand"),
-  orgMapClose: document.getElementById("org-map-close"),
-  orgMapTypes: document.getElementById("org-map-types"),
-  orgMapTypeHint: document.getElementById("org-map-type-hint"),
-  orgRouteEdit: document.getElementById("org-route-edit"),
-  orgRouteSave: document.getElementById("org-route-save"),
-  orgRouteDone: document.getElementById("org-route-done"),
-  orgRouteUndo: document.getElementById("org-route-undo"),
-  orgRouteClear: document.getElementById("org-route-clear"),
-  adminConsoleLink: document.getElementById("admin-console-link"),
-  openAdminConsole: document.getElementById("open-admin-console"),
-  adminConsoleState: document.getElementById("admin-console-state"),
+  usersList: document.getElementById("users-list"),
+  loadUsers: document.getElementById("load-users"),
   createEventForm: document.getElementById("create-event-form"),
   searchInput: document.getElementById("search-input"),
   filterDistance: document.getElementById("filter-distance"),
@@ -644,7 +611,6 @@ const dom = {
   mapPickerSave: document.getElementById("map-picker-save"),
   mapPickerAdd: document.getElementById("map-picker-add"),
   mapPickerEdit: document.getElementById("map-picker-edit"),
-  mapPickerClear: document.getElementById("map-picker-clear"),
   mapPickerUndo: document.getElementById("map-picker-undo"),
   mapPickerUpdate: document.getElementById("map-picker-update"),
   mapPickerRouteSelect: document.getElementById("map-picker-route-select"),
@@ -654,8 +620,6 @@ const dom = {
   mapPickerSuggestions: document.getElementById("map-picker-suggestions"),
   mapPickerLabel: document.getElementById("map-picker-label"),
   mapPickerCoords: document.getElementById("map-picker-coords"),
-  mapPickerPanel: document.getElementById("map-picker-panel"),
-  mapPickerResizeHandle: document.getElementById("map-picker-resize-handle"),
 };
 
 let API_BASE =
@@ -683,17 +647,9 @@ let pickerPlanLayer;
 let pickerSelectionLayer;
 let pickerSelectionMarker;
 let userMarker;
-let organizerMap;
-let organizerRouteLayer;
 let pickerSelectedType = "checkpoint";
 let pickerSelectedLatLng = null;
-let mapPickerResizeState = null;
 let selectedRoutePointIndex = null;
-let organizerRoutePoints = [];
-let organizerRouteEditMode = false;
-let organizerSelectedPointIndex = null;
-let organizerMapExpanded = false;
-let organizerSelectedType = "checkpoint";
 const planTypeIcons = {
   start: "S",
   checkpoint: "C",
@@ -1298,13 +1254,6 @@ function setUserUI() {
     dom.loginButton.hidden = false;
     dom.userName.textContent = "Guest";
   }
-  const isAdmin = currentUser?.role === "admin";
-  if (dom.adminConsoleLink) {
-    dom.adminConsoleLink.hidden = !isAdmin;
-  }
-  if (dom.adminConsoleState) {
-    dom.adminConsoleState.textContent = isAdmin ? t("org_admin_ready") : t("org_admin_guest");
-  }
 }
 
 function updateAuthModal() {
@@ -1695,10 +1644,7 @@ function getPickerHint(type) {
 function updatePickerTypeButtons() {
   if (!dom.mapPickerTypes) return;
   dom.mapPickerTypes.querySelectorAll("[data-plan-type]").forEach((button) => {
-    const type = sanitizeRouteType(button.dataset.planType || "checkpoint");
-    const icon = planTypeIcons[type] || "C";
-    button.textContent = `${t(`type_${type}`)} (${icon})`;
-    button.classList.toggle("active", type === pickerSelectedType);
+    button.classList.toggle("active", button.dataset.planType === pickerSelectedType);
   });
   dom.mapPickerHint.textContent = getPickerHint(pickerSelectedType);
 }
@@ -1901,9 +1847,9 @@ function renderCheckpointList(event, serverCheckpoints) {
   const customRoute = hasCustomRoute ? normalizeRoutePoints(state.routePlans[String(event.id)]) : [];
   const shouldUseCustomRoute = getRouteMode() === "edit" ? hasCustomRoute : customRoute.length > 0;
   const route = shouldUseCustomRoute
-    ? customRoute.map((point, index) => ({
+    ? customRoute.map((_, index) => ({
         name: currentLang === "zh" ? `路线点 ${index + 1}` : `Route Point ${index + 1}`,
-        type: sanitizeRouteType(point.type || getDefaultRouteType(index, customRoute.length)),
+        type: index === 0 ? "start" : index === customRoute.length - 1 ? "finish" : "checkpoint",
       }))
     : Array.isArray(serverCheckpoints) && serverCheckpoints.length
     ? serverCheckpoints.map((item) => ({
@@ -2168,6 +2114,10 @@ async function handleCreateEvent(event) {
     openAuthModal("login");
     return;
   }
+  if (!currentUser || currentUser.role !== "admin") {
+    showToast(t("toast_admin_required"));
+    return;
+  }
   const formData = new FormData(dom.createEventForm);
   const name = formData.get("name");
   const location = formData.get("location");
@@ -2186,13 +2136,6 @@ async function handleCreateEvent(event) {
       : level === "Intermediate"
       ? "5'30\"-6'30\" / km"
       : "4'30\"-5'30\" / km";
-  const organizerRouteCoords = organizerRoutePoints.map((point) => [point.lat, point.lng]);
-  const organizerRouteMeta = organizerRoutePoints.map((point, index) => ({
-    name: `${currentLang === "zh" ? "点位" : "Point"} ${index + 1}`,
-    type: sanitizeRouteType(point.type || getDefaultRouteType(index, organizerRoutePoints.length)),
-  }));
-  const defaultLat = organizerRouteCoords[0]?.[0] ?? 31.3;
-  const defaultLng = organizerRouteCoords[0]?.[1] ?? 120.62;
 
   const payload = {
     name,
@@ -2209,9 +2152,15 @@ async function handleCreateEvent(event) {
     capacity,
     tags: ["Organizer", "Onsite"],
     tags_zh: [],
-    lat: defaultLat,
-    lng: defaultLng,
-    route_coords: organizerRouteCoords,
+    lat: 31.3,
+    lng: 120.62,
+    route_coords: [
+      [31.3, 120.62],
+      [31.302, 120.624],
+      [31.304, 120.62],
+      [31.302, 120.616],
+      [31.3, 120.62],
+    ],
   };
 
   try {
@@ -2238,10 +2187,21 @@ async function handleCreateEvent(event) {
       gear: ["Water", "Comfort shoes"],
       description: "Organizer-created run with supportive pacing and onsite check-ins.",
       rewards: "Earn 55 pts + 'Organizer Pick' badge",
-      lat: defaultLat,
-      lng: defaultLng,
-      routeCoords: organizerRouteCoords,
-      route: organizerRouteMeta,
+      lat: 31.3,
+      lng: 120.62,
+      routeCoords: [
+        [31.3, 120.62],
+        [31.302, 120.624],
+        [31.304, 120.62],
+        [31.302, 120.616],
+        [31.3, 120.62],
+      ],
+      route: [
+        { name: "Meet-up Start", type: "start" },
+        { name: "Checkpoint One", type: "checkpoint" },
+        { name: "Hydration", type: "water" },
+        { name: "Finish", type: "finish" },
+      ],
     };
     events.unshift(fallback);
   }
@@ -2249,7 +2209,6 @@ async function handleCreateEvent(event) {
   saveEvents();
   renderEvents();
   dom.createEventForm.reset();
-  clearOrganizerRoutePlan();
   showToast(t("toast_event_created"));
 }
 
@@ -2271,7 +2230,7 @@ function sendOrganizerUpdate() {
   showToast(t("toast_update_sent"));
 }
 
-function openAdminConsole() {
+async function fetchUsers() {
   if (!authToken) {
     showToast(t("toast_login_required"));
     openAuthModal("login");
@@ -2281,7 +2240,21 @@ function openAdminConsole() {
     showToast(t("toast_admin_required"));
     return;
   }
-  window.location.href = "admin.html";
+  try {
+    const users = await apiRequest("/admin/users");
+    dom.usersList.innerHTML = users
+      .map(
+        (user) => `
+        <div class="list-item">
+          <strong>${user.name}</strong>
+          <span>${user.email} - ${user.role}</span>
+        </div>
+      `
+      )
+      .join("");
+  } catch (error) {
+    dom.usersList.innerHTML = `<p class="body">${error.message}</p>`;
+  }
 }
 
 async function handleRecommendCheckpoints() {
@@ -2345,8 +2318,7 @@ async function handleAuthSubmit(event) {
     closeAuthModal();
     setUserUI();
     if (currentUser?.role === "admin") {
-      showToast(t("toast_admin_redirect"));
-      setTimeout(() => openAdminConsole(), 300);
+      fetchUsers();
     }
   } catch (error) {
     showToast(error.message || t("toast_login_required"));
@@ -2444,19 +2416,7 @@ function initActions() {
     showToast(t("toast_cleared"));
   });
   dom.sendUpdate.addEventListener("click", sendOrganizerUpdate);
-  dom.orgMapExpand?.addEventListener("click", toggleOrganizerMapExpand);
-  dom.orgMapClose?.addEventListener("click", closeOrganizerMapExpand);
-  dom.orgMapTypes?.querySelectorAll("[data-org-plan-type]").forEach((button) => {
-    button.addEventListener("click", () => {
-      organizerSelectedType = sanitizeRouteType(button.dataset.orgPlanType || "checkpoint");
-      updateOrganizerTypeButtons();
-    });
-  });
-  dom.orgRouteEdit?.addEventListener("click", () => setOrganizerRouteEditing(true));
-  dom.orgRouteSave?.addEventListener("click", saveOrganizerRoutePlan);
-  dom.orgRouteDone?.addEventListener("click", () => setOrganizerRouteEditing(false));
-  dom.orgRouteUndo?.addEventListener("click", undoOrganizerRoutePoint);
-  dom.orgRouteClear?.addEventListener("click", clearOrganizerRoutePlan);
+  dom.loadUsers.addEventListener("click", fetchUsers);
   dom.createEventForm.addEventListener("submit", handleCreateEvent);
   dom.locationToggle.addEventListener("click", toggleLocation);
   dom.quickRegister.addEventListener("click", () => registerEvent(activeEvent.id));
@@ -2468,21 +2428,6 @@ function initActions() {
   dom.postImage.addEventListener("change", handleImagePreview);
   dom.cameraButton.addEventListener("click", () => dom.postImage.click());
   dom.loginButton.addEventListener("click", () => openAuthModal("login"));
-  dom.adminConsoleLink?.addEventListener("click", (event) => {
-    if (!currentUser || currentUser.role !== "admin") {
-      event.preventDefault();
-      showToast(t("toast_admin_required"));
-    }
-  });
-  dom.openAdminConsole?.addEventListener("click", (event) => {
-    if (!currentUser || currentUser.role !== "admin") {
-      event.preventDefault();
-      showToast(t("toast_admin_required"));
-      return;
-    }
-    event.preventDefault();
-    openAdminConsole();
-  });
   dom.logoutButton.addEventListener("click", handleLogout);
   dom.authClose.addEventListener("click", closeAuthModal);
   dom.authToggle.addEventListener("click", () => {
@@ -2495,78 +2440,26 @@ function initActions() {
   dom.mapPickerSave.addEventListener("click", saveMapPickerMarker);
   dom.mapPickerAdd?.addEventListener("click", addMapPickerPoint);
   dom.mapPickerEdit?.addEventListener("click", () => setRouteEditing(true));
-  dom.mapPickerClear?.addEventListener("click", clearRoutePlan);
   dom.mapPickerUndo.addEventListener("click", undoRoutePoint);
   dom.mapPickerUpdate.addEventListener("click", updateCurrentSavedRoute);
   dom.mapPickerRouteSelect.addEventListener("change", (event) => loadSavedRoute(event.target.value));
   dom.mapPickerTypes.querySelectorAll("[data-plan-type]").forEach((button) => {
     button.addEventListener("click", () => {
-      pickerSelectedType = sanitizeRouteType(button.dataset.planType || "checkpoint");
+      pickerSelectedType = button.dataset.planType || "checkpoint";
       updatePickerTypeButtons();
       if (pickerSelectedLatLng && pickerSelectionMarker) {
         setPickerSelectedLatLng(pickerSelectedLatLng);
       }
     });
   });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && organizerMapExpanded) closeOrganizerMapExpand();
-  });
-  document.addEventListener("mousedown", (event) => {
-    if (!organizerMapExpanded) return;
-    const card = dom.organizerRouteMap?.closest(".organizer-map-card");
-    if (card && !card.contains(event.target)) {
-      closeOrganizerMapExpand();
-    }
-  });
   dom.mapPickerModal.addEventListener("click", (event) => {
     if (event.target === dom.mapPickerModal) {
       closeMapPicker();
     }
   });
-  initMapPickerPanelResize();
 
   document.querySelectorAll("[data-target]").forEach((button) => {
     button.addEventListener("click", () => scrollToSection(button.dataset.target));
-  });
-}
-
-function initMapPickerPanelResize() {
-  const panel = dom.mapPickerPanel;
-  const handle = dom.mapPickerResizeHandle;
-  if (!panel || !handle) return;
-
-  const endResize = () => {
-    if (!mapPickerResizeState) return;
-    mapPickerResizeState = null;
-    document.body.classList.remove("resizing-map-picker-panel");
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", endResize);
-  };
-
-  const onMouseMove = (event) => {
-    if (!mapPickerResizeState) return;
-    const deltaY = event.clientY - mapPickerResizeState.startY;
-    const nextHeight = Math.min(
-      mapPickerResizeState.maxHeight,
-      Math.max(mapPickerResizeState.minHeight, mapPickerResizeState.startHeight + deltaY)
-    );
-    panel.style.height = `${Math.round(nextHeight)}px`;
-    panel.style.maxHeight = "none";
-    pickerMap?.invalidateSize();
-  };
-
-  handle.addEventListener("mousedown", (event) => {
-    event.preventDefault();
-    const rect = panel.getBoundingClientRect();
-    mapPickerResizeState = {
-      startY: event.clientY,
-      startHeight: rect.height,
-      minHeight: 118,
-      maxHeight: Math.max(220, Math.round(window.innerHeight * 0.72)),
-    };
-    document.body.classList.add("resizing-map-picker-panel");
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", endResize);
   });
 }
 
@@ -2580,14 +2473,8 @@ function initMaps() {
     [31.3, 120.62],
     11
   );
-  if (dom.organizerRouteMap) {
-    organizerMap = L.map("organizer-route-map", { zoomControl: true, attributionControl: true }).setView(
-      [31.3, 120.62],
-      12
-    );
-  }
 
-  [eventMap, cityMap, organizerMap].filter(Boolean).forEach((mapInstance) => {
+  [eventMap, cityMap].forEach((mapInstance) => {
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap contributors",
@@ -2600,25 +2487,8 @@ function initMaps() {
   eventLayerGroup = L.layerGroup().addTo(eventMap);
   planLayerGroup = L.layerGroup().addTo(eventMap);
   cityLayerGroup = L.layerGroup().addTo(cityMap);
-  if (organizerMap) {
-    organizerRouteLayer = L.layerGroup().addTo(organizerMap);
-    organizerMap.on("click", (event) => {
-      if (!organizerRouteEditMode) {
-        showToast(t("toast_route_edit_required"));
-        return;
-      }
-      organizerRoutePoints.push({
-        lat: Number(event.latlng.lat.toFixed(6)),
-        lng: Number(event.latlng.lng.toFixed(6)),
-        type: sanitizeRouteType(organizerSelectedType),
-      });
-      organizerSelectedPointIndex = organizerRoutePoints.length - 1;
-      renderOrganizerRouteMap();
-    });
-    renderOrganizerRouteMap();
-  }
   eventMap.on("click", (event) => {
-    handleEventMapClick(event.latlng);
+    addRoutePoint(event.latlng);
   });
   renderEventMap(activeEvent);
   renderCityMarkers();
@@ -2630,129 +2500,6 @@ function initMaps() {
       fillOpacity: 0.9,
     }).addTo(cityMap);
   }
-}
-
-function createOrganizerPointIcon(point, index, total, selected = false) {
-  const routeType = sanitizeRouteType(point?.type || getDefaultRouteType(index, total));
-  return L.divIcon({
-    className: `route-point-marker${selected ? " selected" : ""}`,
-    html: `<span>${planTypeIcons[routeType] || "C"}</span>`,
-    iconSize: [52, 52],
-    iconAnchor: [26, 26],
-  });
-}
-
-function renderOrganizerRouteMap() {
-  if (!organizerMap || !organizerRouteLayer) return;
-  organizerRouteLayer.clearLayers();
-  if (organizerRoutePoints.length > 1) {
-    const routeLine = L.polyline(
-      organizerRoutePoints.map((point) => [point.lat, point.lng]),
-      {
-        color: "#ff6a3d",
-        weight: 5,
-        opacity: 0.95,
-      }
-    ).addTo(organizerRouteLayer);
-    organizerMap.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
-  } else if (organizerRoutePoints.length === 1) {
-    organizerMap.setView([organizerRoutePoints[0].lat, organizerRoutePoints[0].lng], 14);
-  } else {
-    organizerMap.setView([31.3, 120.62], 12);
-  }
-
-  organizerRoutePoints.forEach((point, index) => {
-    const marker = L.marker([point.lat, point.lng], {
-      draggable: organizerRouteEditMode,
-      icon: createOrganizerPointIcon(point, index, organizerRoutePoints.length, organizerSelectedPointIndex === index),
-    }).addTo(organizerRouteLayer);
-    marker.bindPopup(`${getRoutePointText(point, index, organizerRoutePoints.length)} ${index + 1}`);
-    marker.on("click", (event) => {
-      L.DomEvent.stopPropagation(event);
-      organizerSelectedPointIndex = index;
-      if (organizerRouteEditMode && organizerRoutePoints[index]) {
-        organizerRoutePoints[index].type = sanitizeRouteType(organizerSelectedType);
-      }
-      renderOrganizerRouteMap();
-    });
-    if (organizerRouteEditMode) {
-      marker.on("dragend", (dragEvent) => {
-        const latlng = dragEvent.target.getLatLng();
-        organizerRoutePoints[index].lat = Number(latlng.lat.toFixed(6));
-        organizerRoutePoints[index].lng = Number(latlng.lng.toFixed(6));
-        organizerSelectedPointIndex = index;
-        renderOrganizerRouteMap();
-      });
-    }
-  });
-  renderOrganizerRouteControls();
-}
-
-function renderOrganizerRouteControls() {
-  if (dom.orgRouteEdit) dom.orgRouteEdit.classList.toggle("active", organizerRouteEditMode);
-  if (dom.orgRouteUndo) dom.orgRouteUndo.disabled = !organizerRoutePoints.length;
-  if (dom.orgRouteClear) dom.orgRouteClear.disabled = !organizerRoutePoints.length;
-  if (dom.orgRouteSave) dom.orgRouteSave.disabled = organizerRoutePoints.length < 2;
-  if (dom.orgMapClose) dom.orgMapClose.hidden = !organizerMapExpanded;
-  updateOrganizerTypeButtons();
-}
-
-function setOrganizerRouteEditing(enabled) {
-  organizerRouteEditMode = Boolean(enabled);
-  if (!organizerRouteEditMode) organizerSelectedPointIndex = null;
-  renderOrganizerRouteMap();
-  showToast(t(enabled ? "toast_route_editing" : "toast_route_done"));
-}
-
-function undoOrganizerRoutePoint() {
-  if (!organizerRoutePoints.length) {
-    showToast(t("toast_route_undo_empty"));
-    return;
-  }
-  organizerRoutePoints.pop();
-  organizerSelectedPointIndex = organizerRoutePoints.length ? organizerRoutePoints.length - 1 : null;
-  renderOrganizerRouteMap();
-  showToast(t("toast_route_undo"));
-}
-
-function clearOrganizerRoutePlan() {
-  organizerRoutePoints = [];
-  organizerSelectedPointIndex = null;
-  renderOrganizerRouteMap();
-}
-
-function toggleOrganizerMapExpand() {
-  const mapCard = dom.organizerRouteMap?.closest(".organizer-map-card");
-  if (!mapCard) return;
-  organizerMapExpanded = !organizerMapExpanded;
-  mapCard.classList.toggle("expanded", organizerMapExpanded);
-  document.body.classList.toggle("organizer-map-expanded", organizerMapExpanded);
-  if (dom.orgMapClose) dom.orgMapClose.hidden = !organizerMapExpanded;
-  setTimeout(() => organizerMap?.invalidateSize(), 40);
-}
-
-function closeOrganizerMapExpand() {
-  if (!organizerMapExpanded) return;
-  toggleOrganizerMapExpand();
-}
-
-function updateOrganizerTypeButtons() {
-  if (!dom.orgMapTypes) return;
-  dom.orgMapTypes.querySelectorAll("[data-org-plan-type]").forEach((button) => {
-    const type = sanitizeRouteType(button.dataset.orgPlanType || "checkpoint");
-    button.classList.toggle("active", type === organizerSelectedType);
-  });
-  if (dom.orgMapTypeHint) {
-    dom.orgMapTypeHint.textContent = t(`map_picker_hint_${organizerSelectedType}`);
-  }
-}
-
-function saveOrganizerRoutePlan() {
-  if (organizerRoutePoints.length < 2) {
-    showToast(t("toast_route_empty"));
-    return;
-  }
-  showToast(t("toast_route_saved"));
 }
 
 function renderCityMarkers() {
@@ -2976,15 +2723,7 @@ function renderPosts() {
       const commentList = post.comments || [];
       const comments = commentList
         .slice(0, 2)
-        .map((comment) => {
-          if (typeof comment === "string") {
-            return `<div class="post-comment">${escapeHtml(comment)}</div>`;
-          }
-          const userName = escapeHtml(comment.user_name || comment.userName || "");
-          const text = escapeHtml(comment.text || "");
-          const content = userName ? `${userName}：${text}` : text;
-          return `<div class="post-comment">${content}</div>`;
-        })
+        .map((comment) => `<div class="post-comment">${comment.text || comment}</div>`)
         .join("");
       return `
         <div class="post-item">
@@ -3024,7 +2763,7 @@ async function handleLike(postId) {
   }
   const spotId = state.selectedSpotId;
   const posts = state.posts[spotId] || [];
-  const post = posts.find((item) => String(item.id) === String(postId));
+  const post = posts.find((item) => item.id === postId);
   if (!post) return;
   try {
     const result = await apiRequest(`/posts/${postId}/like`, { method: "POST" });
@@ -3043,17 +2782,17 @@ async function handleReply(postId) {
     openAuthModal("login");
     return;
   }
-  const replyText = prompt(currentLang === "zh" ? "输入评论" : "Type a comment");
+  const replyText = prompt(currentLang === "zh" ? "输入回复" : "Type a reply");
   if (!replyText) return;
   const spotId = state.selectedSpotId;
   const posts = state.posts[spotId] || [];
-  const post = posts.find((item) => String(item.id) === String(postId));
+  const post = posts.find((item) => item.id === postId);
   if (!post) return;
   try {
-    const result = await apiRequest(`/posts/${postId}/comment`, { method: "POST", body: JSON.stringify({ text: replyText }) });
-    post.comments.push(result?.comment || { text: replyText, user_name: currentUser?.name || "Runner" });
+    await apiRequest(`/posts/${postId}/comment`, { method: "POST", body: JSON.stringify({ text: replyText }) });
+    post.comments.push({ text: replyText });
   } catch (error) {
-    post.comments.push({ text: replyText, user_name: currentUser?.name || "Runner" });
+    post.comments.push({ text: replyText });
   }
   saveState();
   renderPosts();
@@ -3075,21 +2814,6 @@ function getDraftRoute(event = activeEvent) {
   return normalizeRoutePoints(draftRoute);
 }
 
-function getRouteEditBase(event = activeEvent) {
-  const key = event?.id ? String(event.id) : "";
-  if (!key) return [];
-  return normalizeRoutePoints(state.routeEditBases?.[key]);
-}
-
-function setRouteEditBase(event = activeEvent, route = []) {
-  const key = event?.id ? String(event.id) : "";
-  if (!key) return;
-  if (!state.routeEditBases || typeof state.routeEditBases !== "object") {
-    state.routeEditBases = {};
-  }
-  state.routeEditBases[key] = normalizeRoutePoints(route);
-}
-
 function hasCustomRoutePlan(event = activeEvent) {
   const key = event?.id ? String(event.id) : "";
   return !!key && Object.prototype.hasOwnProperty.call(state.routePlans || {}, key);
@@ -3102,60 +2826,15 @@ function ensureDraftRoute() {
   return state.draftRoutes[key];
 }
 
-function sanitizeRouteType(type) {
-  const normalized = String(type || "").toLowerCase();
-  if (normalized === "start" || normalized === "checkpoint" || normalized === "water" || normalized === "photo" || normalized === "finish") {
-    return normalized;
-  }
-  return "checkpoint";
-}
-
-function getDefaultRouteType(index, total) {
-  if (index === 0) return "start";
-  if (index === total - 1) return "finish";
-  return "checkpoint";
-}
-
-function routePointToLatLng(point) {
-  return [Number(point.lat), Number(point.lng)];
-}
-
-function cloneRoutePoints(points) {
-  return normalizeRoutePoints(points).map((point) => ({ ...point }));
-}
-
 function normalizeRoutePoints(points) {
   if (!Array.isArray(points)) return [];
-  const total = points.length;
   return points
-    .map((point, index) => {
-      if (Array.isArray(point)) {
-        return {
-          lat: Number(point[0]),
-          lng: Number(point[1]),
-          type: point[2] ? sanitizeRouteType(point[2]) : getDefaultRouteType(index, total),
-        };
-      }
-      if (point && typeof point === "object") {
-        return {
-          lat: Number(point.lat ?? point[0]),
-          lng: Number(point.lng ?? point[1]),
-          type: sanitizeRouteType(point.type || getDefaultRouteType(index, total)),
-        };
-      }
+    .map((point) => {
+      if (Array.isArray(point)) return [Number(point[0]), Number(point[1])];
+      if (point && typeof point === "object") return [Number(point.lat), Number(point.lng)];
       return null;
     })
-    .filter((point) => Number.isFinite(point?.lat) && Number.isFinite(point?.lng));
-}
-
-function getEventRoutePoints(event = activeEvent) {
-  const coords = getEventRouteCoords(event);
-  const routeMeta = getEventArray(event, "route");
-  return coords.map((coord, index) => ({
-    lat: Number(coord[0]),
-    lng: Number(coord[1]),
-    type: sanitizeRouteType(routeMeta[index]?.type || getDefaultRouteType(index, coords.length)),
-  }));
+    .filter((point) => Number.isFinite(point?.[0]) && Number.isFinite(point?.[1]));
 }
 
 function getEditableRoute(event = activeEvent) {
@@ -3164,14 +2843,14 @@ function getEditableRoute(event = activeEvent) {
     state.routePlans[key] = normalizeRoutePoints(state.routePlans[key]);
     return state.routePlans[key];
   }
-  return getEventRoutePoints(event);
+  return getEventRouteCoords(event);
 }
 
 function ensureEditableRoute() {
   const key = getCurrentRouteKey();
   if (!key) return [];
   if (!hasCustomRoutePlan(activeEvent)) {
-    state.routePlans[key] = getEventRoutePoints(activeEvent);
+    state.routePlans[key] = getEventRouteCoords(activeEvent);
     return state.routePlans[key];
   }
   state.routePlans[key] = normalizeRoutePoints(state.routePlans[key]);
@@ -3179,32 +2858,31 @@ function ensureEditableRoute() {
 }
 
 function getVisibleRoute(event = activeEvent) {
+  const draftRoute = getDraftRoute(event);
+  if (getRouteMode() === "draft" && draftRoute.length) {
+    return draftRoute.length >= 2 ? draftRoute : getEventRouteCoords(event);
+  }
   if (getRouteMode() === "edit") {
-    const draftRoute = getDraftRoute(event);
-    if (draftRoute.length >= 2) return draftRoute;
-    if (draftRoute.length === 1) {
-      const baseRoute = getRouteEditBase(event);
-      return baseRoute.length ? baseRoute : getEditableRoute(event);
-    }
     return getEditableRoute(event);
   }
   const key = event?.id ? String(event.id) : "";
   const customRoute = key ? normalizeRoutePoints(state.routePlans?.[key]) : [];
-  return customRoute.length ? customRoute : getEventRoutePoints(event);
+  return customRoute.length ? customRoute : getEventRouteCoords(event);
 }
 
 function getSingleDraftPoint(event = activeEvent) {
   const draftRoute = getDraftRoute(event);
-  return getRouteMode() === "edit" && draftRoute.length === 1 ? draftRoute[0] : null;
+  return getRouteMode() === "draft" && draftRoute.length === 1 ? draftRoute[0] : null;
 }
 
 function canEditVisibleRoute() {
-  return getRouteMode() === "edit";
+  return getRouteMode() === "edit" || (getRouteMode() === "draft" && getDraftRoute().length >= 2);
 }
 
-function getRoutePointShortLabel(point, index, total) {
-  const type = sanitizeRouteType(point?.type || getDefaultRouteType(index, total));
-  return planTypeIcons[type] || "C";
+function getRoutePointShortLabel(index, total) {
+  if (index === 0) return "S";
+  if (index === total - 1) return "F";
+  return "C";
 }
 
 function escapeHtml(value) {
@@ -3215,89 +2893,59 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
-function getRoutePointText(point, index, total) {
-  const type = sanitizeRouteType(point?.type || getDefaultRouteType(index, total));
-  return t(`type_${type}`);
+function getRoutePointText(index, total) {
+  const shortLabel = getRoutePointShortLabel(index, total);
+  if (shortLabel === "S") return currentLang === "zh" ? "起点" : "Start";
+  if (shortLabel === "F") return currentLang === "zh" ? "终点" : "Finish";
+  return currentLang === "zh" ? "打卡点" : "Checkpoint";
 }
 
-function createRoutePointIcon(point, index, total = 1) {
+function createRoutePointIcon(index, total = 1) {
   return L.divIcon({
     className: `route-point-marker${selectedRoutePointIndex === index ? " selected" : ""}`,
-    html: `<span>${getRoutePointShortLabel(point, index, total)}</span>`,
+    html: `<span>${getRoutePointShortLabel(index, total)}</span>`,
     iconSize: [52, 52],
     iconAnchor: [26, 26],
   });
 }
 
-function resolveEditableRouteSource(preferred = "auto") {
-  if (preferred === "draft") return ensureDraftRoute();
-  if (preferred === "base") return ensureEditableRoute();
-  const draft = ensureDraftRoute();
-  return draft.length >= 2 ? draft : ensureEditableRoute();
-}
-
-function drawRoutePoint(layer, point, index, total, source = "auto", allowTypeChange = true) {
-  const marker = L.marker(routePointToLatLng(point), {
+function drawRoutePoint(layer, point, index, total) {
+  const marker = L.marker(point, {
     draggable: canEditVisibleRoute(),
-    icon: createRoutePointIcon(point, index, total),
+    icon: createRoutePointIcon(index, total),
   }).addTo(layer);
-  marker.bindPopup(`${getRoutePointText(point, index, total)} ${index + 1}`);
-  marker.on("click", (event) => {
-    L.DomEvent.stopPropagation(event);
-    selectRoutePoint(index);
-    if (getRouteMode() !== "edit" || !allowTypeChange) return;
-    const route = resolveEditableRouteSource(source);
-    if (!route[index]) return;
-    route[index].type = sanitizeRouteType(pickerSelectedType);
-    saveState();
-    refreshRouteViews();
-  });
+  marker.bindPopup(`${getRoutePointText(index, total)} ${index + 1}`);
+  marker.on("click", () => selectRoutePoint(index));
   if (canEditVisibleRoute()) {
-    marker.on("dragend", (dragEvent) => updateRoutePoint(index, dragEvent.target.getLatLng(), source));
+    marker.on("dragend", (dragEvent) => updateRoutePoint(index, dragEvent.target.getLatLng()));
   }
 }
 
 function renderEventMap(event) {
   if (!eventMap) return;
   eventLayerGroup.clearLayers();
-  const draftRoute = getDraftRoute(event);
-  const routeSource = getRouteMode() === "edit" && draftRoute.length >= 2 ? "draft" : "base";
   const route = getVisibleRoute(event);
   const draftPoint = getSingleDraftPoint(event);
   const center = event.lat && event.lng ? [event.lat, event.lng] : [31.3, 120.62];
 
   if (route.length > 1) {
-    const routeLine = L.polyline(
-      route.map((point) => routePointToLatLng(point)),
-      { color: "#ff6a3d", weight: 5, opacity: 0.95 }
-    ).addTo(eventLayerGroup);
+    const routeLine = L.polyline(route, { color: "#ff6a3d", weight: 5, opacity: 0.95 }).addTo(eventLayerGroup);
     eventMap.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
   } else {
     eventMap.setView(center, 14);
   }
 
-  route.forEach((point, index) =>
-    drawRoutePoint(eventLayerGroup, point, index, route.length, routeSource, false)
-  );
+  route.forEach((point, index) => drawRoutePoint(eventLayerGroup, point, index, route.length));
 
   if (draftPoint) {
-    L.marker(routePointToLatLng(draftPoint), {
+    L.marker(draftPoint, {
       draggable: true,
-      icon: createRoutePointIcon(draftPoint, 0, 1),
+      icon: createRoutePointIcon(0, 1),
     })
       .addTo(eventLayerGroup)
       .bindPopup(currentLang === "zh" ? "新路线起点" : "New route start")
-      .on("click", (event) => {
-        L.DomEvent.stopPropagation(event);
-        selectRoutePoint(0);
-        if (getRouteMode() !== "edit") return;
-        const draft = ensureDraftRoute();
-        if (!draft[0]) return;
-        draft[0].type = sanitizeRouteType(pickerSelectedType);
-        saveState();
-        refreshRouteViews();
-      })
-      .on("dragend", (dragEvent) => updateRoutePoint(0, dragEvent.target.getLatLng(), "draft"));
+      .on("click", () => selectRoutePoint(0))
+      .on("dragend", (dragEvent) => updateRoutePoint(0, dragEvent.target.getLatLng()));
   }
 
   if (!route.length && !draftPoint && !hasCustomRoutePlan(event)) {
@@ -3315,14 +2963,6 @@ function refreshRouteViews(updateCheckpoints = true) {
   }
 }
 
-function handleEventMapClick() {
-  if (getRouteMode() !== "edit") {
-    showToast(t("toast_route_edit_required"));
-    return;
-  }
-  showToast(t("toast_route_expand_required"));
-}
-
 function addRoutePoint(latlng) {
   const key = getCurrentRouteKey();
   if (!key) return;
@@ -3332,33 +2972,25 @@ function addRoutePoint(latlng) {
     return;
   }
 
-  const draft = ensureDraftRoute();
-  draft.push({
-    lat: Number(latlng.lat.toFixed(6)),
-    lng: Number(latlng.lng.toFixed(6)),
-    type: sanitizeRouteType(pickerSelectedType),
-  });
-  if (draft.length >= 2) {
-    state.routePlans[key] = cloneRoutePoints(draft);
-  }
-  selectedRoutePointIndex = draft.length - 1;
+  const route = ensureEditableRoute();
+  route.push([Number(latlng.lat.toFixed(6)), Number(latlng.lng.toFixed(6))]);
+  selectedRoutePointIndex = route.length - 1;
   saveState();
   refreshRouteViews();
 }
 
-function updateRoutePoint(index, latlng, source = "auto") {
+function updateRoutePoint(index, latlng) {
   if (!canEditVisibleRoute()) {
     showToast(t("toast_route_edit_required"));
     return;
   }
-  const route = resolveEditableRouteSource(source);
-  if (!route[index]) return;
-  route[index].lat = Number(latlng.lat.toFixed(6));
-  route[index].lng = Number(latlng.lng.toFixed(6));
-  selectedRoutePointIndex = index;
   const key = getCurrentRouteKey();
-  if (source === "draft" || (source === "auto" && ensureDraftRoute().length >= 2)) {
-    state.routePlans[key] = cloneRoutePoints(route);
+  const route = getRouteMode() === "draft" ? ensureDraftRoute() : ensureEditableRoute();
+  if (!route[index]) return;
+  route[index] = [Number(latlng.lat.toFixed(6)), Number(latlng.lng.toFixed(6))];
+  selectedRoutePointIndex = index;
+  if (getRouteMode() === "draft") {
+    state.routePlans[key] = route.length >= 2 ? route.map((point) => [...point]) : [];
   }
   saveState();
   refreshRouteViews();
@@ -3370,25 +3002,16 @@ function undoRoutePoint() {
     return;
   }
   const key = getCurrentRouteKey();
-  const draft = ensureDraftRoute();
-  if (draft.length) {
-    draft.pop();
-    if (draft.length >= 2) {
-      state.routePlans[key] = cloneRoutePoints(draft);
-    } else if (draft.length <= 1) {
-      const baseRoute = getRouteEditBase(activeEvent);
-      state.routePlans[key] = baseRoute.length ? cloneRoutePoints(baseRoute) : getEventRoutePoints(activeEvent);
-    }
-  } else {
-    const route = ensureEditableRoute();
-    if (!route.length) {
-      showToast(t("toast_route_undo_empty"));
-      return;
-    }
-    route.pop();
-    state.routePlans[key] = cloneRoutePoints(route);
+  const route = getRouteMode() === "draft" ? ensureDraftRoute() : ensureEditableRoute();
+  if (!route.length) {
+    showToast(t("toast_route_undo_empty"));
+    return;
   }
+  route.pop();
   selectedRoutePointIndex = null;
+  if (getRouteMode() === "draft") {
+    state.routePlans[key] = route.length >= 2 ? route.map((point) => [...point]) : [];
+  }
   saveState();
   refreshRouteViews();
   showToast(t("toast_route_undo"));
@@ -3400,18 +3023,14 @@ function deleteSelectedRoutePoint() {
     return;
   }
   const key = getCurrentRouteKey();
-  const draft = ensureDraftRoute();
-  const route = draft.length ? draft : ensureEditableRoute();
+  const route = getRouteMode() === "draft" ? ensureDraftRoute() : ensureEditableRoute();
   if (!route.length) return;
   const index = selectedRoutePointIndex === null ? route.length - 1 : selectedRoutePointIndex;
   route.splice(index, 1);
-  if (draft.length >= 2) {
-    state.routePlans[key] = cloneRoutePoints(draft);
-  } else if (draft.length <= 1) {
-    const baseRoute = getRouteEditBase(activeEvent);
-    state.routePlans[key] = baseRoute.length ? cloneRoutePoints(baseRoute) : getEventRoutePoints(activeEvent);
-  }
   selectedRoutePointIndex = null;
+  if (getRouteMode() === "draft") {
+    state.routePlans[key] = route.length >= 2 ? route.map((point) => [...point]) : [];
+  }
   saveState();
   refreshRouteViews();
   showToast(t("toast_route_point_deleted"));
@@ -3426,14 +3045,12 @@ function setRouteEditing(enabled) {
   const key = getCurrentRouteKey();
   selectedRoutePointIndex = null;
   if (enabled) {
-    const baseRoute = cloneRoutePoints(getVisibleRoute(activeEvent));
+    const baseRoute = getVisibleRoute(activeEvent).map((point) => [...point]);
     setRouteMode("edit");
     state.draftRoutes[key] = [];
-    setRouteEditBase(activeEvent, baseRoute);
     state.routePlans[key] = baseRoute;
   } else {
     setRouteMode("idle");
-    if (state.routeEditBases && key) delete state.routeEditBases[key];
   }
   saveState();
   refreshRouteViews();
@@ -3442,8 +3059,7 @@ function setRouteEditing(enabled) {
 
 function saveCurrentRoute() {
   const key = getCurrentRouteKey();
-  const draft = getDraftRoute();
-  const route = draft.length >= 2 ? draft : ensureEditableRoute();
+  const route = getRouteMode() === "draft" ? getDraftRoute() : ensureEditableRoute();
   if (!key || route.length < 2) {
     showToast(t("toast_route_empty"));
     return;
@@ -3454,13 +3070,12 @@ function saveCurrentRoute() {
   saved.push({
     id,
     label,
-    points: cloneRoutePoints(route),
+    points: route.map((point) => [...point]),
     updatedAt: new Date().toLocaleString(),
   });
-  state.routePlans[key] = cloneRoutePoints(route);
+  state.routePlans[key] = route.map((point) => [...point]);
   state.draftRoutes[key] = [];
   state.selectedRoutes[key] = id;
-  setRouteEditBase(activeEvent, state.routePlans[key]);
   setRouteMode("edit");
   saveState();
   refreshRouteViews();
@@ -3469,8 +3084,7 @@ function saveCurrentRoute() {
 
 function updateCurrentSavedRoute() {
   const key = getCurrentRouteKey();
-  const draft = getDraftRoute();
-  const route = draft.length >= 2 ? draft : getVisibleRoute(activeEvent);
+  const route = getVisibleRoute(activeEvent);
   if (!key || route.length < 2) {
     showToast(t("toast_route_empty"));
     return;
@@ -3480,7 +3094,7 @@ function updateCurrentSavedRoute() {
     saveCurrentRoute();
     return;
   }
-  selectedRoute.points = cloneRoutePoints(route);
+  selectedRoute.points = route.map((point) => [...point]);
   selectedRoute.updatedAt = new Date().toLocaleString();
   saveState();
   renderRouteControls();
@@ -3491,10 +3105,9 @@ function loadSavedRoute(routeId) {
   const key = getCurrentRouteKey();
   const savedRoute = getSavedRoutes().find((item) => item.id === routeId);
   if (!key || !savedRoute) return;
-  state.routePlans[key] = normalizeRoutePoints(savedRoute.points);
+  state.routePlans[key] = savedRoute.points.map((point) => [Number(point[0]), Number(point[1])]);
   state.draftRoutes[key] = [];
   state.selectedRoutes[key] = routeId;
-  setRouteEditBase(activeEvent, state.routePlans[key]);
   setRouteMode("idle");
   selectedRoutePointIndex = null;
   saveState();
@@ -3507,7 +3120,6 @@ function clearRoutePlan() {
   const key = String(activeEvent.id);
   state.routePlans[key] = [];
   state.draftRoutes[key] = [];
-  if (state.routeEditBases && key) delete state.routeEditBases[key];
   setRouteMode("idle");
   selectedRoutePointIndex = null;
   saveState();
@@ -3582,8 +3194,8 @@ function renderRouteControls() {
     dom.routeEditHint.textContent =
       getRouteMode() === "edit"
         ? currentLang === "zh"
-          ? "正在编辑当前路线：可拖动 S/C/F 圆点调整路线，新增点位请点击“放大规划”。"
-          : "Editing current route: drag S/C/F points here; use Expand Planner to add new points."
+          ? "正在编辑当前路线：拖动 S/C/F 圆点调整路线，或点击地图添加点位。"
+          : "Editing current route: drag S/C/F points or tap the map to add points."
         : getRouteMode() === "draft"
         ? currentLang === "zh"
           ? "正在新建路线：第一个点不会连接默认路线，第二个点开始自动连线。"
@@ -3605,39 +3217,23 @@ function renderPickerMap(resetSelection = true) {
     if (dom.mapPickerLabel) dom.mapPickerLabel.value = "";
   }
 
-  const draftRoute = getDraftRoute(activeEvent);
-  const routeSource = getRouteMode() === "edit" && draftRoute.length >= 2 ? "draft" : "base";
   const route = getVisibleRoute(activeEvent);
   const draftPoint = getSingleDraftPoint(activeEvent);
   const center = activeEvent.lat && activeEvent.lng ? [activeEvent.lat, activeEvent.lng] : [31.3, 120.62];
   if (route.length > 1) {
-    const routeLine = L.polyline(
-      route.map((point) => routePointToLatLng(point)),
-      { color: "#ff6a3d", weight: 5, opacity: 0.95 }
-    ).addTo(pickerRouteLayer);
+    const routeLine = L.polyline(route, { color: "#ff6a3d", weight: 5, opacity: 0.95 }).addTo(pickerRouteLayer);
     pickerMap.fitBounds(routeLine.getBounds(), { padding: [28, 28] });
   } else {
     pickerMap.setView(center, 14);
   }
 
-  route.forEach((point, index) =>
-    drawRoutePoint(pickerRouteLayer, point, index, route.length, routeSource, true)
-  );
+  route.forEach((point, index) => drawRoutePoint(pickerRouteLayer, point, index, route.length));
   if (draftPoint) {
-    L.marker(routePointToLatLng(draftPoint), { draggable: true, icon: createRoutePointIcon(draftPoint, 0, 1) })
+    L.marker(draftPoint, { draggable: true, icon: createRoutePointIcon(0, 1) })
       .addTo(pickerRouteLayer)
       .bindPopup(currentLang === "zh" ? "新路线起点" : "New route start")
-      .on("click", (event) => {
-        L.DomEvent.stopPropagation(event);
-        selectRoutePoint(0);
-        if (getRouteMode() !== "edit") return;
-        const draft = ensureDraftRoute();
-        if (!draft[0]) return;
-        draft[0].type = sanitizeRouteType(pickerSelectedType);
-        saveState();
-        refreshRouteViews();
-      })
-      .on("dragend", (dragEvent) => updateRoutePoint(0, dragEvent.target.getLatLng(), "draft"));
+      .on("click", () => selectRoutePoint(0))
+      .on("dragend", (dragEvent) => updateRoutePoint(0, dragEvent.target.getLatLng()));
   }
   if (!route.length && !draftPoint && !hasCustomRoutePlan(activeEvent)) {
     L.marker(center).addTo(pickerRouteLayer).bindPopup(getEventText(activeEvent, "name"));
@@ -3668,6 +3264,9 @@ async function init() {
   await ensureApiBase();
   await fetchCurrentUser();
   setUserUI();
+  if (currentUser?.role === "admin") {
+    fetchUsers();
+  }
   fetchEventsFromServer();
   fetchSpotsFromServer();
 }

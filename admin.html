@@ -11,7 +11,13 @@
       href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=admin-console-1" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="styles.css?v=admin-console-3" />
   </head>
   <body class="admin-shell">
     <div class="ambient-grid" aria-hidden="true"></div>
@@ -98,7 +104,101 @@
         </section>
 
         <div class="admin-layout">
-          <section class="card admin-section">
+          <section class="card admin-section admin-section-full admin-event-section">
+            <div class="card-header">
+              <div>
+                <p class="card-title">活动管理</p>
+                <p class="card-subtitle">按用户创建活动的同一套路线交互来规划、放大和覆盖活动</p>
+              </div>
+            </div>
+
+            <form id="admin-event-form" class="admin-event-form">
+              <input type="hidden" id="admin-event-id" name="event_id" />
+              <div class="notice admin-form-notice" id="admin-event-mode-label">
+                管理员可新建活动，也可点下方“编辑活动”覆盖任意活动路线与基础信息。
+              </div>
+              <div class="admin-event-workspace">
+                <div class="admin-event-fields">
+                  <label>
+                    <span>活动名称</span>
+                    <input type="text" name="name" placeholder="环湖晨跑" required />
+                  </label>
+                  <label>
+                    <span>集合地点</span>
+                    <input type="text" name="location" placeholder="独墅湖 Gate A" required />
+                  </label>
+                  <label>
+                    <span>时间</span>
+                    <input type="text" name="time" placeholder="07:00 - Sat" required />
+                  </label>
+                  <label>
+                    <span>距离 (km)</span>
+                    <input type="number" name="distance" min="1" step="0.5" required />
+                  </label>
+                  <label>
+                    <span>难度</span>
+                    <select name="level" required>
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Advanced">Advanced</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>人数上限</span>
+                    <input type="number" name="capacity" min="5" step="1" required />
+                  </label>
+
+                  <div class="admin-form-actions">
+                    <button class="primary-button" id="admin-event-submit" type="submit">发布新活动</button>
+                    <button class="outline-button" id="admin-event-cancel" type="button" hidden>取消编辑</button>
+                  </div>
+                </div>
+
+                <div class="card map-card organizer-map-card admin-route-card">
+                  <div class="map-header">
+                    <p class="card-title">管理员路线规划</p>
+                  </div>
+                  <div class="button-row">
+                    <button class="outline-button" id="admin-map-expand" type="button">放大规划</button>
+                    <button class="primary-button active" id="admin-route-edit" type="button">编辑当前路线</button>
+                    <button class="outline-button" id="admin-route-done" type="button">完成编辑</button>
+                    <button class="outline-button" id="admin-route-undo" type="button">撤销点位</button>
+                    <button class="ghost-button" id="admin-route-clear" type="button">清空规划</button>
+                  </div>
+                  <div class="picker-types organizer-types" id="admin-map-types" role="group" aria-label="Admin route type">
+                    <button class="pill-button active" type="button" data-plan-type="checkpoint">打卡</button>
+                    <button class="pill-button" type="button" data-plan-type="water">补水</button>
+                    <button class="pill-button" type="button" data-plan-type="photo">拍照</button>
+                    <button class="pill-button" type="button" data-plan-type="start">起点</button>
+                    <button class="pill-button" type="button" data-plan-type="finish">终点</button>
+                  </div>
+                  <div class="organizer-hints">
+                    <p class="picker-tip" id="admin-map-type-hint">适合设置集合点，帮助队伍保持节奏。</p>
+                    <div class="map-footnote">
+                      小地图用于快速查看和拖动路线；需要精细规划时点击“放大规划”。
+                    </div>
+                    <div class="map-footnote" id="admin-route-summary">
+                      当前还没有路线点位。点击“编辑当前路线”后可在地图上添加。
+                    </div>
+                  </div>
+                  <div class="organizer-route-shell">
+                    <div class="route-map organizer-route-map" id="admin-route-map" role="img" aria-label="Admin route map"></div>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <div class="card-header admin-subsection-head">
+              <div>
+                <p class="card-title">已发布活动</p>
+                <p class="card-subtitle">可从这里载入已有活动，继续编辑路线和基础信息</p>
+              </div>
+            </div>
+            <div class="admin-list" id="admin-events"></div>
+            <div class="admin-pagination" id="admin-events-pagination" hidden></div>
+          </section>
+
+          <section class="card admin-section admin-section-full">
             <div class="card-header">
               <div>
                 <p class="card-title">用户管理</p>
@@ -109,77 +209,80 @@
               </label>
             </div>
             <div class="admin-list" id="admin-users"></div>
-          </section>
-
-          <section class="card admin-section">
-            <div class="card-header">
-              <div>
-                <p class="card-title">活动管理</p>
-                <p class="card-subtitle">创建活动并查看报名情况</p>
-              </div>
-            </div>
-
-            <form id="admin-event-form" class="admin-mini-form">
-              <label>
-                <span>活动名称</span>
-                <input type="text" name="name" placeholder="环湖晨跑" required />
-              </label>
-              <label>
-                <span>集合地点</span>
-                <input type="text" name="location" placeholder="独墅湖 Gate A" required />
-              </label>
-              <label>
-                <span>时间</span>
-                <input type="text" name="time" placeholder="07:00 - Sat" required />
-              </label>
-              <label>
-                <span>距离 (km)</span>
-                <input type="number" name="distance" min="1" step="0.5" required />
-              </label>
-              <label>
-                <span>难度</span>
-                <select name="level" required>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
-              </label>
-              <label>
-                <span>人数上限</span>
-                <input type="number" name="capacity" min="5" step="1" required />
-              </label>
-              <button class="primary-button" type="submit">发布新活动</button>
-            </form>
-
-            <div class="admin-list" id="admin-events"></div>
+            <div class="admin-pagination" id="admin-users-pagination" hidden></div>
           </section>
 
           <section class="card admin-section admin-section-full">
             <div class="card-header">
               <div>
                 <p class="card-title">社区帖子审核</p>
-                <p class="card-subtitle">发现不当内容后可直接删除</p>
+                <p class="card-subtitle">管理员可对帖子与评论执行隐藏、恢复展示和删除</p>
               </div>
             </div>
             <div class="admin-list" id="admin-posts"></div>
-          </section>
-
-          <section class="card admin-section admin-section-full">
-            <div class="card-header">
-              <div>
-                <p class="card-title">最近管理操作</p>
-                <p class="card-subtitle">保留后台处理痕迹，方便追踪改动</p>
-              </div>
-            </div>
-            <div class="admin-list" id="admin-actions"></div>
+            <div class="admin-pagination" id="admin-posts-pagination" hidden></div>
           </section>
         </div>
       </section>
     </main>
 
+    <div class="modal map-picker-modal" id="admin-map-picker-modal" aria-hidden="true">
+      <div class="map-picker-card">
+        <div class="map-picker-head">
+          <div>
+            <p class="card-title">管理员放大规划</p>
+            <p class="card-subtitle">直接沿用用户创建活动时的路线编辑节奏：选类型、点地图、拖动微调。</p>
+          </div>
+          <button class="ghost-button" id="admin-map-picker-close" type="button">关闭</button>
+        </div>
+        <div class="map-picker-body">
+          <aside class="map-picker-panel" id="admin-map-picker-panel">
+            <p class="picker-heading">如何规划路线</p>
+            <ol class="picker-steps">
+              <li>先选择点位类型</li>
+              <li>点击地图添加新点</li>
+              <li>拖动圆点调整顺序位置</li>
+            </ol>
+            <div class="picker-types" id="admin-map-picker-types" role="group" aria-label="Admin planner marker type">
+              <button class="pill-button active" type="button" data-plan-type="checkpoint">打卡</button>
+              <button class="pill-button" type="button" data-plan-type="water">补水</button>
+              <button class="pill-button" type="button" data-plan-type="photo">拍照</button>
+              <button class="pill-button" type="button" data-plan-type="start">起点</button>
+              <button class="pill-button" type="button" data-plan-type="finish">终点</button>
+            </div>
+            <p class="picker-tip" id="admin-map-picker-hint">适合设置集合点，帮助队伍保持节奏。</p>
+            <p class="picker-note">
+              放大后可直接点击地图新增路线点位；点击已有点位可切换类型，拖动即可微调路线。
+            </p>
+            <p class="picker-coords" id="admin-map-picker-coords">尚未选择点位。</p>
+            <div class="button-row">
+              <button class="outline-button" id="admin-map-picker-cancel" type="button">取消</button>
+              <button class="primary-button" id="admin-map-picker-edit" type="button">编辑当前路线</button>
+              <button class="outline-button" id="admin-map-picker-done" type="button">完成编辑</button>
+              <button class="outline-button" id="admin-map-picker-undo" type="button">撤销点位</button>
+              <button class="outline-button" id="admin-map-picker-clear" type="button">清空规划</button>
+            </div>
+          </aside>
+          <div
+            class="map-picker-resize-handle"
+            id="admin-map-picker-resize-handle"
+            role="separator"
+            aria-label="Resize panel"
+            aria-orientation="horizontal"
+          ></div>
+          <div class="map-picker-canvas" id="admin-map-picker" role="img" aria-label="Admin expanded route planner"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="toast" id="admin-toast" role="status" aria-live="polite"></div>
 
-    <script src="config.js?v=admin-console-1"></script>
-    <script src="admin.js?v=admin-console-1"></script>
+    <script src="config.js?v=admin-console-3"></script>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="admin.js?v=admin-console-3"></script>
   </body>
 </html>

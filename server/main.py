@@ -110,6 +110,25 @@ def decode_list(value: Optional[str]) -> list:
         return []
 
 
+def normalize_event_route_meta(route_meta: Optional[list], route_coords: Optional[list]) -> list:
+    coords = route_coords or []
+    total = len(coords)
+    meta = route_meta or []
+    normalized = []
+    for index in range(total):
+        item = meta[index] if index < len(meta) and isinstance(meta[index], dict) else {}
+        route_type = str(item.get("type") or "").lower()
+        if route_type not in {"start", "checkpoint", "water", "photo", "finish"}:
+            route_type = "start" if index == 0 else "finish" if index == total - 1 else "checkpoint"
+        normalized.append(
+            {
+                "name": str(item.get("name") or f"Point {index + 1}"),
+                "type": route_type,
+            }
+        )
+    return normalized
+
+
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(index=True, unique=True)
@@ -142,6 +161,7 @@ class Event(SQLModel, table=True):
     lat: float
     lng: float
     route_coords_json: str = "[]"
+    route_meta_json: str = "[]"
     created_by: Optional[int] = None
     created_at: datetime = Field(default_factory=now_utc)
     updated_at: datetime = Field(default_factory=now_utc)
@@ -193,6 +213,9 @@ class Post(SQLModel, table=True):
     text: str
     image_url: str = ""
     likes: int = 0
+    is_hidden: bool = False
+    hidden_at: Optional[datetime] = None
+    hidden_by: Optional[int] = None
     created_at: datetime = Field(default_factory=now_utc)
 
 
@@ -201,6 +224,9 @@ class Comment(SQLModel, table=True):
     post_id: int = Field(index=True)
     user_id: int = Field(index=True)
     text: str
+    is_hidden: bool = False
+    hidden_at: Optional[datetime] = None
+    hidden_by: Optional[int] = None
     created_at: datetime = Field(default_factory=now_utc)
 
 
@@ -248,6 +274,7 @@ class EventInput(SQLModel):
     lat: float
     lng: float
     route_coords: List[List[float]] = []
+    route: List[dict] = []
 
 
 class CheckpointInput(SQLModel):
@@ -288,6 +315,10 @@ class AdminUserUpdate(SQLModel):
     name: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None
+
+
+class AdminModerationUpdate(SQLModel):
+    is_hidden: bool
 
 
 class AiChatRequest(SQLModel):
@@ -392,6 +423,42 @@ def ensure_legacy_columns() -> None:
         statements.append(
             f"ALTER TABLE {event_table} ADD COLUMN {quote_identifier('updated_at')} DATETIME"
         )
+    if "route_meta_json" not in event_columns and "event" in existing_tables:
+        statements.append(f"ALTER TABLE {event_table} ADD COLUMN {quote_identifier('route_meta_json')} TEXT")
+
+    post_columns = {column["name"] for column in inspector.get_columns("post")} if "post" in existing_tables else set()
+    post_table = quote_identifier("post")
+    if "post" in existing_tables:
+        if "is_hidden" not in post_columns:
+            statements.append(
+                f"ALTER TABLE {post_table} ADD COLUMN {quote_identifier('is_hidden')} BOOLEAN NOT NULL DEFAULT 0"
+            )
+        if "hidden_at" not in post_columns:
+            statements.append(
+                f"ALTER TABLE {post_table} ADD COLUMN {quote_identifier('hidden_at')} DATETIME"
+            )
+        if "hidden_by" not in post_columns:
+            statements.append(
+                f"ALTER TABLE {post_table} ADD COLUMN {quote_identifier('hidden_by')} INTEGER"
+            )
+
+    comment_columns = (
+        {column["name"] for column in inspector.get_columns("comment")} if "comment" in existing_tables else set()
+    )
+    comment_table = quote_identifier("comment")
+    if "comment" in existing_tables:
+        if "is_hidden" not in comment_columns:
+            statements.append(
+                f"ALTER TABLE {comment_table} ADD COLUMN {quote_identifier('is_hidden')} BOOLEAN NOT NULL DEFAULT 0"
+            )
+        if "hidden_at" not in comment_columns:
+            statements.append(
+                f"ALTER TABLE {comment_table} ADD COLUMN {quote_identifier('hidden_at')} DATETIME"
+            )
+        if "hidden_by" not in comment_columns:
+            statements.append(
+                f"ALTER TABLE {comment_table} ADD COLUMN {quote_identifier('hidden_by')} INTEGER"
+            )
 
     if not statements:
         with engine.begin() as connection:
@@ -407,6 +474,27 @@ def ensure_legacy_columns() -> None:
                     f"WHERE {quote_identifier('updated_at')} IS NULL"
                 )
             )
+            if "event" in existing_tables:
+                connection.execute(
+                    text(
+                        f"UPDATE {event_table} SET {quote_identifier('route_meta_json')} = '[]' "
+                        f"WHERE {quote_identifier('route_meta_json')} IS NULL"
+                    )
+                )
+            if "post" in existing_tables:
+                connection.execute(
+                    text(
+                        f"UPDATE {post_table} SET {quote_identifier('is_hidden')} = 0 "
+                        f"WHERE {quote_identifier('is_hidden')} IS NULL"
+                    )
+                )
+            if "comment" in existing_tables:
+                connection.execute(
+                    text(
+                        f"UPDATE {comment_table} SET {quote_identifier('is_hidden')} = 0 "
+                        f"WHERE {quote_identifier('is_hidden')} IS NULL"
+                    )
+                )
         return
 
     with engine.begin() as connection:
@@ -429,6 +517,26 @@ def ensure_legacy_columns() -> None:
                 text(
                     f"UPDATE {event_table} SET {quote_identifier('updated_at')} = {quote_identifier('created_at')} "
                     f"WHERE {quote_identifier('updated_at')} IS NULL"
+                )
+            )
+            connection.execute(
+                text(
+                    f"UPDATE {event_table} SET {quote_identifier('route_meta_json')} = '[]' "
+                    f"WHERE {quote_identifier('route_meta_json')} IS NULL"
+                )
+            )
+        if "post" in existing_tables:
+            connection.execute(
+                text(
+                    f"UPDATE {post_table} SET {quote_identifier('is_hidden')} = 0 "
+                    f"WHERE {quote_identifier('is_hidden')} IS NULL"
+                )
+            )
+        if "comment" in existing_tables:
+            connection.execute(
+                text(
+                    f"UPDATE {comment_table} SET {quote_identifier('is_hidden')} = 0 "
+                    f"WHERE {quote_identifier('is_hidden')} IS NULL"
                 )
             )
 
@@ -498,6 +606,16 @@ def get_registration_count(session: Session, event_id: int) -> int:
 
 
 def event_to_dict(event: Event) -> dict:
+    route_coords = decode_list(event.route_coords_json)
+    route_meta = decode_list(event.route_meta_json)
+    if not route_meta and route_coords:
+        route_meta = [
+            {
+                "name": f"Point {index + 1}",
+                "type": "start" if index == 0 else "finish" if index == len(route_coords) - 1 else "checkpoint",
+            }
+            for index in range(len(route_coords))
+        ]
     return {
         "id": event.id,
         "name": event.name,
@@ -517,7 +635,8 @@ def event_to_dict(event: Event) -> dict:
         "tags_zh": decode_list(event.tags_zh_json),
         "lat": event.lat,
         "lng": event.lng,
-        "route_coords": decode_list(event.route_coords_json),
+        "route_coords": route_coords,
+        "route": route_meta,
     }
 
 
@@ -556,6 +675,9 @@ def serialize_post_admin(
     user_name: str = "",
     user_email: str = "",
     spot_name: str = "",
+    comments: Optional[List[dict]] = None,
+    hidden_comment_count: int = 0,
+    hidden_by_name: str = "",
 ) -> dict:
     return {
         "id": post.id,
@@ -568,7 +690,34 @@ def serialize_post_admin(
         "image_url": post.image_url,
         "likes": post.likes,
         "comment_count": comment_count,
+        "hidden_comment_count": hidden_comment_count,
+        "is_hidden": post.is_hidden,
+        "hidden_at": post.hidden_at.isoformat() if post.hidden_at else None,
+        "hidden_by": post.hidden_by,
+        "hidden_by_name": hidden_by_name,
+        "comments": comments or [],
         "created_at": post.created_at.isoformat() if post.created_at else None,
+    }
+
+
+def serialize_comment_admin(
+    comment: Comment,
+    user_name: str = "",
+    user_email: str = "",
+    hidden_by_name: str = "",
+) -> dict:
+    return {
+        "id": comment.id,
+        "post_id": comment.post_id,
+        "user_id": comment.user_id,
+        "user_name": user_name,
+        "user_email": user_email,
+        "text": comment.text,
+        "is_hidden": comment.is_hidden,
+        "hidden_at": comment.hidden_at.isoformat() if comment.hidden_at else None,
+        "hidden_by": comment.hidden_by,
+        "hidden_by_name": hidden_by_name,
+        "created_at": comment.created_at.isoformat() if comment.created_at else None,
     }
 
 
@@ -593,9 +742,6 @@ def seed_data(session: Session) -> None:
         )
         session.add(admin)
         session.commit()
-
-    if session.exec(select(Event)).first():
-        return
 
     seed_events = [
         {
@@ -676,33 +822,35 @@ def seed_data(session: Session) -> None:
         },
     ]
 
-    for item in seed_events:
-        event = Event(
-            name=item["name"],
-            name_zh=item["name_zh"],
-            description=item["description"],
-            description_zh=item["description_zh"],
-            time_label=item["time_label"],
-            time_label_zh=item["time_label_zh"],
-            location=item["location"],
-            location_zh=item["location_zh"],
-            distance=item["distance"],
-            level=item["level"],
-            pace=item["pace"],
-            capacity=item["capacity"],
-            spots_left=item["capacity"],
-            tags_json=encode_list(item["tags"]),
-            tags_zh_json=encode_list(item["tags_zh"]),
-            lat=item["lat"],
-            lng=item["lng"],
-            route_coords_json=encode_list(item["route_coords"]),
-        )
-        session.add(event)
+    if not session.exec(select(Event)).first():
+        for item in seed_events:
+            event = Event(
+                name=item["name"],
+                name_zh=item["name_zh"],
+                description=item["description"],
+                description_zh=item["description_zh"],
+                time_label=item["time_label"],
+                time_label_zh=item["time_label_zh"],
+                location=item["location"],
+                location_zh=item["location_zh"],
+                distance=item["distance"],
+                level=item["level"],
+                pace=item["pace"],
+                capacity=item["capacity"],
+                spots_left=item["capacity"],
+                tags_json=encode_list(item["tags"]),
+                tags_zh_json=encode_list(item["tags_zh"]),
+                lat=item["lat"],
+                lng=item["lng"],
+                route_coords_json=encode_list(item["route_coords"]),
+                route_meta_json=encode_list(normalize_event_route_meta([], item["route_coords"])),
+            )
+            session.add(event)
 
     seed_spots = [
         {
             "name": "Dushu Lake",
-            "name_zh": "",
+            "name_zh": "独墅湖",
             "description": "Lakeside breeze, sunset reflections, easy loops.",
             "description_zh": "",
             "vibe": "Campus Lakeside",
@@ -712,7 +860,7 @@ def seed_data(session: Session) -> None:
         },
         {
             "name": "Jinji Lake",
-            "name_zh": "",
+            "name_zh": "金鸡湖",
             "description": "Wide paths and city skyline views for group runs.",
             "description_zh": "",
             "vibe": "City Skyline",
@@ -722,7 +870,7 @@ def seed_data(session: Session) -> None:
         },
         {
             "name": "Pingjiang Road",
-            "name_zh": "",
+            "name_zh": "平江路",
             "description": "Historic alleys with photo checkpoints.",
             "description_zh": "",
             "vibe": "Heritage Story",
@@ -730,9 +878,46 @@ def seed_data(session: Session) -> None:
             "lat": 31.312,
             "lng": 120.625,
         },
+        {
+            "name": "Shantang Street",
+            "name_zh": "山塘街",
+            "description": "Canal-side night views with lively old-town atmosphere.",
+            "description_zh": "沿河夜景与古城烟火气，适合夜跑打卡。",
+            "vibe": "Night Market",
+            "vibe_zh": "夜市氛围",
+            "lat": 31.334,
+            "lng": 120.59,
+        },
+        {
+            "name": "Humble Administrator's Garden",
+            "name_zh": "拙政园",
+            "description": "A classic Suzhou garden area for calm, easy loops.",
+            "description_zh": "经典苏式园林区域，适合舒缓慢跑。",
+            "vibe": "Garden Calm",
+            "vibe_zh": "园林静谧",
+            "lat": 31.324,
+            "lng": 120.627,
+        },
+        {
+            "name": "Tiger Hill",
+            "name_zh": "虎丘",
+            "description": "Historic hill routes with gentle elevation challenge.",
+            "description_zh": "历史名胜坡道路线，带来轻度爬升挑战。",
+            "vibe": "Hill Challenge",
+            "vibe_zh": "坡度挑战",
+            "lat": 31.34,
+            "lng": 120.587,
+        },
     ]
 
+    existing_spots = {spot.name: spot for spot in session.exec(select(Spot)).all()}
     for spot_item in seed_spots:
+        existing_spot = existing_spots.get(spot_item["name"])
+        if existing_spot:
+            if spot_item["name_zh"] and existing_spot.name_zh != spot_item["name_zh"]:
+                existing_spot.name_zh = spot_item["name_zh"]
+                session.add(existing_spot)
+            continue
         spot = Spot(
             name=spot_item["name"],
             name_zh=spot_item["name_zh"],
@@ -839,21 +1024,6 @@ def admin_dashboard(session: Session = Depends(get_session), admin_user: User = 
     posts = session.exec(select(Post)).all()
     registrations = session.exec(select(Registration)).all()
     comments = session.exec(select(Comment)).all()
-    recent_logs = session.exec(select(AdminActionLog).order_by(AdminActionLog.created_at.desc())).all()[:8]
-
-    user_map = {user.id: user for user in users}
-    recent_actions = [
-        {
-            "id": log.id,
-            "action_type": log.action_type,
-            "target_type": log.target_type,
-            "target_id": log.target_id,
-            "note": log.note,
-            "created_at": log.created_at.isoformat() if log.created_at else None,
-            "admin_name": user_map.get(log.admin_user_id).name if user_map.get(log.admin_user_id) else "Admin",
-        }
-        for log in recent_logs
-    ]
 
     return {
         "database_backend": DATABASE_BACKEND,
@@ -867,7 +1037,6 @@ def admin_dashboard(session: Session = Depends(get_session), admin_user: User = 
             "post_total": len(posts),
             "comment_total": len(comments),
         },
-        "recent_actions": recent_actions,
     }
 
 
@@ -984,16 +1153,29 @@ def admin_list_events(session: Session = Depends(get_session), _: User = Depends
 @app.get("/admin/posts")
 def admin_list_posts(session: Session = Depends(get_session), _: User = Depends(require_admin)):
     posts = session.exec(select(Post).order_by(Post.created_at.desc())).all()
-    comments = session.exec(select(Comment)).all()
+    comments = session.exec(select(Comment).order_by(Comment.created_at.asc())).all()
     users = session.exec(select(User)).all()
     spots = session.exec(select(Spot)).all()
 
     comment_counts: dict[int, int] = {}
+    hidden_comment_counts: dict[int, int] = {}
+    comments_by_post: dict[int, list[dict]] = {}
     for comment in comments:
         comment_counts[comment.post_id] = comment_counts.get(comment.post_id, 0) + 1
+        if comment.is_hidden:
+            hidden_comment_counts[comment.post_id] = hidden_comment_counts.get(comment.post_id, 0) + 1
 
     user_map = {user.id: user for user in users}
     spot_map = {spot.id: spot for spot in spots}
+    for comment in comments:
+        comments_by_post.setdefault(comment.post_id, []).append(
+            serialize_comment_admin(
+                comment,
+                user_name=user_map.get(comment.user_id).name if user_map.get(comment.user_id) else "",
+                user_email=user_map.get(comment.user_id).email if user_map.get(comment.user_id) else "",
+                hidden_by_name=user_map.get(comment.hidden_by).name if user_map.get(comment.hidden_by) else "",
+            )
+        )
     return [
         serialize_post_admin(
             post,
@@ -1001,6 +1183,9 @@ def admin_list_posts(session: Session = Depends(get_session), _: User = Depends(
             user_name=user_map.get(post.user_id).name if user_map.get(post.user_id) else "",
             user_email=user_map.get(post.user_id).email if user_map.get(post.user_id) else "",
             spot_name=spot_to_dict(spot_map.get(post.spot_id)).get("name", "") if spot_map.get(post.spot_id) else "",
+            comments=comments_by_post.get(post.id or 0, []),
+            hidden_comment_count=hidden_comment_counts.get(post.id or 0, 0),
+            hidden_by_name=user_map.get(post.hidden_by).name if user_map.get(post.hidden_by) else "",
         )
         for post in posts
     ]
@@ -1020,7 +1205,7 @@ def get_event(event_id: int, session: Session = Depends(get_session)):
     return event_to_dict(event)
 
 
-@app.post("/events", dependencies=[Depends(require_admin)])
+@app.post("/events")
 def create_event(event_in: EventInput, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     event = Event(
         name=event_in.name,
@@ -1041,18 +1226,20 @@ def create_event(event_in: EventInput, session: Session = Depends(get_session), 
         lat=event_in.lat,
         lng=event_in.lng,
         route_coords_json=encode_list(event_in.route_coords),
+        route_meta_json=encode_list(normalize_event_route_meta(event_in.route, event_in.route_coords)),
         created_by=user.id,
     )
     session.add(event)
     session.flush()
-    log_admin_action(
-        session,
-        admin_user_id=user.id or 0,
-        action_type="create_event",
-        target_type="event",
-        target_id=event.id,
-        note=event.name,
-    )
+    if user.role == "admin":
+        log_admin_action(
+            session,
+            admin_user_id=user.id or 0,
+            action_type="create_event",
+            target_type="event",
+            target_id=event.id,
+            note=event.name,
+        )
     session.commit()
     session.refresh(event)
     return event_to_dict(event)
@@ -1080,6 +1267,7 @@ def update_event(event_id: int, event_in: EventInput, session: Session = Depends
     event.lat = event_in.lat
     event.lng = event_in.lng
     event.route_coords_json = encode_list(event_in.route_coords)
+    event.route_meta_json = encode_list(normalize_event_route_meta(event_in.route, event_in.route_coords))
     event.updated_at = now_utc()
     registrations_used = get_registration_count(session, event_id)
     event.spots_left = max(event.capacity - registrations_used, 0)
@@ -1243,10 +1431,19 @@ def checkin_spot(spot_id: int, user: User = Depends(get_current_user), session: 
 
 @app.get("/spots/{spot_id}/posts")
 def list_posts(spot_id: int, session: Session = Depends(get_session)):
-    posts = session.exec(select(Post).where(Post.spot_id == spot_id).order_by(Post.created_at.desc())).all()
+    posts = session.exec(
+        select(Post).where(Post.spot_id == spot_id, Post.is_hidden == False).order_by(Post.created_at.desc())
+    ).all()
     output = []
     for post in posts:
-        comments = session.exec(select(Comment).where(Comment.post_id == post.id)).all()
+        comments = session.exec(
+            select(Comment).where(Comment.post_id == post.id, Comment.is_hidden == False).order_by(Comment.created_at.asc())
+        ).all()
+        comment_user_ids = {comment.user_id for comment in comments}
+        comment_users = {}
+        if comment_user_ids:
+            users = session.exec(select(User).where(User.id.in_(comment_user_ids))).all()
+            comment_users = {user.id: user.name for user in users}
         output.append(
             {
                 "id": post.id,
@@ -1256,7 +1453,13 @@ def list_posts(spot_id: int, session: Session = Depends(get_session)):
                 "image_url": post.image_url,
                 "likes": post.likes,
                 "created_at": post.created_at.isoformat(),
-                "comments": [comment.model_dump() for comment in comments],
+                "comments": [
+                    {
+                        **comment.model_dump(),
+                        "user_name": comment_users.get(comment.user_id, "Runner"),
+                    }
+                    for comment in comments
+                ],
             }
         )
     return output
@@ -1290,6 +1493,33 @@ def admin_delete_post(
     return {"status": "deleted"}
 
 
+@app.patch("/admin/posts/{post_id}")
+def admin_toggle_post_visibility(
+    post_id: int,
+    moderation_in: AdminModerationUpdate,
+    session: Session = Depends(get_session),
+    admin_user: User = Depends(require_admin),
+):
+    post = session.get(Post, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    post.is_hidden = moderation_in.is_hidden
+    post.hidden_at = now_utc() if moderation_in.is_hidden else None
+    post.hidden_by = admin_user.id if moderation_in.is_hidden else None
+    session.add(post)
+    log_admin_action(
+        session,
+        admin_user_id=admin_user.id or 0,
+        action_type="hide_post" if moderation_in.is_hidden else "restore_post",
+        target_type="post",
+        target_id=post.id,
+        note=post.text[:80],
+    )
+    session.commit()
+    return {"status": "updated", "is_hidden": post.is_hidden}
+
+
 @app.post("/spots/{spot_id}/posts")
 def create_post(spot_id: int, post_in: PostInput, user: User = Depends(get_current_user), session: Session = Depends(get_session)):
     spot = session.get(Spot, spot_id)
@@ -1305,7 +1535,7 @@ def create_post(spot_id: int, post_in: PostInput, user: User = Depends(get_curre
 @app.post("/posts/{post_id}/like")
 def like_post(post_id: int, user: User = Depends(get_current_user), session: Session = Depends(get_session)):
     post = session.get(Post, post_id)
-    if not post:
+    if not post or post.is_hidden:
         raise HTTPException(status_code=404, detail="Post not found")
     post.likes += 1
     session.add(post)
@@ -1316,12 +1546,63 @@ def like_post(post_id: int, user: User = Depends(get_current_user), session: Ses
 @app.post("/posts/{post_id}/comment")
 def comment_post(post_id: int, comment_in: CommentInput, user: User = Depends(get_current_user), session: Session = Depends(get_session)):
     post = session.get(Post, post_id)
-    if not post:
+    if not post or post.is_hidden:
         raise HTTPException(status_code=404, detail="Post not found")
     comment = Comment(post_id=post_id, user_id=user.id, text=comment_in.text)
     session.add(comment)
     session.commit()
-    return {"status": "commented"}
+    session.refresh(comment)
+    return {"status": "commented", "comment": {**comment.model_dump(), "user_name": user.name}}
+
+
+@app.patch("/admin/comments/{comment_id}")
+def admin_toggle_comment_visibility(
+    comment_id: int,
+    moderation_in: AdminModerationUpdate,
+    session: Session = Depends(get_session),
+    admin_user: User = Depends(require_admin),
+):
+    comment = session.get(Comment, comment_id)
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    comment.is_hidden = moderation_in.is_hidden
+    comment.hidden_at = now_utc() if moderation_in.is_hidden else None
+    comment.hidden_by = admin_user.id if moderation_in.is_hidden else None
+    session.add(comment)
+    log_admin_action(
+        session,
+        admin_user_id=admin_user.id or 0,
+        action_type="hide_comment" if moderation_in.is_hidden else "restore_comment",
+        target_type="comment",
+        target_id=comment.id,
+        note=comment.text[:80],
+    )
+    session.commit()
+    return {"status": "updated", "is_hidden": comment.is_hidden}
+
+
+@app.delete("/admin/comments/{comment_id}")
+def admin_delete_comment(
+    comment_id: int,
+    session: Session = Depends(get_session),
+    admin_user: User = Depends(require_admin),
+):
+    comment = session.get(Comment, comment_id)
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    log_admin_action(
+        session,
+        admin_user_id=admin_user.id or 0,
+        action_type="delete_comment",
+        target_type="comment",
+        target_id=comment.id,
+        note=comment.text[:80],
+    )
+    session.delete(comment)
+    session.commit()
+    return {"status": "deleted"}
 
 
 @app.post("/uploads")

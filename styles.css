@@ -81,7 +81,8 @@ select {
   background: rgba(243, 244, 246, 0.92);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(15, 23, 42, 0.12);
-  z-index: 10;
+  z-index: 1200;
+  isolation: isolate;
 }
 
 .brand {
@@ -504,6 +505,14 @@ input[type="number"] {
   gap: 16px;
 }
 
+.organizer-map-card {
+  margin-top: 16px;
+}
+
+.org-map-close[hidden] {
+  display: none;
+}
+
 .map-header {
   display: flex;
   justify-content: space-between;
@@ -519,6 +528,97 @@ input[type="number"] {
   border: 1px solid rgba(15, 23, 42, 0.1);
   cursor: zoom-in;
   box-shadow: inset 0 0 0 1px rgba(255, 106, 61, 0.15);
+  z-index: 0;
+  isolation: isolate;
+}
+
+.organizer-route-map {
+  height: 320px;
+  cursor: crosshair;
+  position: relative;
+  z-index: 0;
+}
+
+.organizer-route-shell {
+  position: relative;
+  margin-top: 4px;
+}
+
+.organizer-hints {
+  display: grid;
+  gap: 8px;
+  position: relative;
+  z-index: 4;
+}
+
+.event-map-hints {
+  display: grid;
+  gap: 8px;
+  position: relative;
+  z-index: 6;
+  background: #fff;
+  padding: 8px 10px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.organizer-map-card.expanded {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1180px, calc(100vw - 48px));
+  min-height: min(86vh, 780px);
+  z-index: 3200;
+  margin: 0;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.28);
+  padding: 20px;
+  gap: 12px;
+  align-content: start;
+  overflow-y: auto;
+}
+
+.organizer-map-card.expanded .organizer-route-map {
+  min-height: 520px;
+  height: calc(min(86vh, 780px) - 320px);
+}
+
+body.organizer-map-expanded {
+  overflow: hidden;
+}
+
+body.organizer-map-expanded::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 3199;
+}
+
+.organizer-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+#org-map-type-hint,
+#org-route-hint {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+}
+
+#org-route-hint {
+  position: relative;
+  margin: 0;
+  border: 0;
+  pointer-events: auto;
 }
 
 #event .map-card {
@@ -553,7 +653,10 @@ input[type="number"] {
 
 #event .map-card .primary-button.active,
 #route-edit.active,
-#map-picker-edit.active {
+#map-picker-edit.active,
+#org-route-edit.active,
+#admin-route-edit.active,
+#admin-map-picker-edit.active {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
@@ -640,6 +743,9 @@ input[type="number"] {
   border-radius: 24px;
   overflow: hidden;
   border: 1px solid rgba(15, 23, 42, 0.12);
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
 }
 
 .leaflet-container {
@@ -768,11 +874,6 @@ input[type="number"] {
   .ai-chat-input {
     grid-template-columns: 1fr;
   }
-}
-
-.leaflet-control-container,
-.leaflet-pane {
-  z-index: 500;
 }
 
 .checkpoint {
@@ -1069,24 +1170,31 @@ body.modal-open {
 .map-picker-body {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 0;
   min-height: 0;
+  position: relative;
+  isolation: isolate;
 }
 
 .map-picker-canvas {
+  position: relative;
+  z-index: 1;
   height: 100%;
   min-height: 520px;
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
   border: 1px solid rgba(15, 23, 42, 0.14);
+  border-top: 0;
   overflow: hidden;
   background: #fff;
 }
 
 .map-picker-panel {
-  order: -1;
-  background: rgba(255, 255, 255, 0.9);
+  position: relative;
+  z-index: 4;
+  background: #fff;
+  isolation: isolate;
   border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
   padding: 16px;
   display: flex;
   flex-wrap: wrap;
@@ -1095,10 +1203,41 @@ body.modal-open {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  resize: vertical;
+  resize: none;
   min-height: 118px;
   max-height: 45vh;
   scrollbar-gutter: stable;
+}
+
+.map-picker-resize-handle {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 12px;
+  margin: 0;
+  border-left: 1px solid rgba(15, 23, 42, 0.12);
+  border-right: 1px solid rgba(15, 23, 42, 0.12);
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+}
+
+.map-picker-resize-handle::before {
+  content: "";
+  width: 76px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.25);
+}
+
+body.resizing-map-picker-panel {
+  cursor: ns-resize;
+  user-select: none;
 }
 
 .map-picker-panel .picker-suggestions,
@@ -1422,16 +1561,113 @@ body.modal-open {
   min-width: 0;
 }
 
-.admin-mini-form input,
-.admin-mini-form select {
-  width: 100%;
+.admin-form-notice {
+  margin: 0;
+}
+
+.admin-event-section {
+  gap: 22px;
+}
+
+.admin-event-form {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-event-workspace {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(420px, 1.05fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.admin-event-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+  align-content: start;
+}
+
+.admin-event-fields > * {
   min-width: 0;
 }
 
-.admin-mini-form button {
+.admin-event-fields label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.admin-event-fields input,
+.admin-event-fields select {
+  width: 100%;
+  min-width: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  color: var(--ink);
+  padding: 10px 12px;
+}
+
+.admin-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   grid-column: 1 / -1;
+  margin-top: 2px;
+}
+
+.admin-form-actions button {
   width: min(280px, 100%);
-  justify-self: start;
+}
+
+.admin-route-card {
+  gap: 12px;
+  align-content: start;
+  position: relative;
+}
+
+.admin-route-card .button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-route-card .button-row > * {
+  flex: 0 0 auto;
+}
+
+.admin-route-card .map-footnote,
+.admin-route-card .picker-tip {
+  background: #fff;
+}
+
+.admin-route-card .organizer-route-map {
+  height: 360px;
+}
+
+.admin-subsection-head {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.admin-row.is-hidden,
+.admin-comment-row.is-hidden {
+  opacity: 0.82;
+  border-style: dashed;
+}
+
+.warning-button {
+  background: #ea580c;
+  border-color: #ea580c;
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(234, 88, 12, 0.2);
+}
+
+.warning-button:hover {
+  background: #c2410c;
+  border-color: #c2410c;
 }
 
 .admin-search {
@@ -1453,6 +1689,34 @@ body.modal-open {
   color: var(--muted);
 }
 
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.admin-pagination-summary {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.admin-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-pagination-controls button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .danger-button {
   background: #b91c1c;
   box-shadow: 0 14px 28px rgba(185, 28, 28, 0.28);
@@ -1466,6 +1730,31 @@ body.modal-open {
   width: min(320px, 100%);
   border-radius: 16px;
   border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.admin-comment-list {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-comment-row {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.admin-comment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-comment-actions {
+  grid-template-columns: repeat(auto-fit, minmax(136px, 168px));
 }
 
 .sr-only {
@@ -1535,7 +1824,12 @@ body.modal-open {
     grid-template-columns: 1fr;
   }
 
-  .admin-mini-form button {
+  .admin-event-workspace,
+  .admin-event-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-actions button {
     width: 100%;
   }
 
