@@ -205,6 +205,9 @@ const i18n = {
     org_admin_ready: "Admin access detected. Open the dedicated console for user, event, and moderation tools.",
     org_update: "Send Update",
     org_notice: "No update sent yet. Tap \"Send Update\" to broadcast a warm-up reminder.",
+    org_map_title: "Route Planner",
+    org_map_hint: "Empty map: click to add route points. Drag markers to adjust the route.",
+    org_type_hint: "Select type first, then click map to add; click an existing point to change its type.",
     footer_title: "GoRunners - Wuming Run Crew",
     footer_subtitle: "Built for CPT208 Human-Centric Computing - Active Lifestyles Track",
     footer_explore: "See All Runs",
@@ -450,6 +453,9 @@ const i18n = {
     org_admin_ready: "已识别管理员身份，请进入独立后台处理用户、活动和内容审核。",
     org_update: "发送通知",
     org_notice: "暂无通知，点击发送提醒热身。",
+    org_map_title: "路线规划",
+    org_map_hint: "空白地图：点击添加路线点位，可拖动圆点调整路线。",
+    org_type_hint: "先选点位类型，再点击地图添加；点击已有点位可修改类型。",
     footer_title: "GoRunners - 无名跑团",
     footer_subtitle: "CPT208 Human-Centric Computing - Active Lifestyles",
     footer_explore: "查看活动",
@@ -584,6 +590,16 @@ const dom = {
   attendanceList: document.getElementById("attendance-list"),
   sendUpdate: document.getElementById("send-update"),
   organizerNotice: document.getElementById("organizer-notice"),
+  organizerRouteMap: document.getElementById("organizer-route-map"),
+  orgMapExpand: document.getElementById("org-map-expand"),
+  orgMapClose: document.getElementById("org-map-close"),
+  orgMapTypes: document.getElementById("org-map-types"),
+  orgMapTypeHint: document.getElementById("org-map-type-hint"),
+  orgRouteEdit: document.getElementById("org-route-edit"),
+  orgRouteSave: document.getElementById("org-route-save"),
+  orgRouteDone: document.getElementById("org-route-done"),
+  orgRouteUndo: document.getElementById("org-route-undo"),
+  orgRouteClear: document.getElementById("org-route-clear"),
   adminConsoleLink: document.getElementById("admin-console-link"),
   openAdminConsole: document.getElementById("open-admin-console"),
   adminConsoleState: document.getElementById("admin-console-state"),
@@ -667,10 +683,17 @@ let pickerPlanLayer;
 let pickerSelectionLayer;
 let pickerSelectionMarker;
 let userMarker;
+let organizerMap;
+let organizerRouteLayer;
 let pickerSelectedType = "checkpoint";
 let pickerSelectedLatLng = null;
 let mapPickerResizeState = null;
 let selectedRoutePointIndex = null;
+let organizerRoutePoints = [];
+let organizerRouteEditMode = false;
+let organizerSelectedPointIndex = null;
+let organizerMapExpanded = false;
+let organizerSelectedType = "checkpoint";
 const planTypeIcons = {
   start: "S",
   checkpoint: "C",
@@ -2145,10 +2168,6 @@ async function handleCreateEvent(event) {
     openAuthModal("login");
     return;
   }
-  if (!currentUser || currentUser.role !== "admin") {
-    showToast(t("toast_admin_required"));
-    return;
-  }
   const formData = new FormData(dom.createEventForm);
   const name = formData.get("name");
   const location = formData.get("location");
@@ -2167,6 +2186,13 @@ async function handleCreateEvent(event) {
       : level === "Intermediate"
       ? "5'30\"-6'30\" / km"
       : "4'30\"-5'30\" / km";
+  const organizerRouteCoords = organizerRoutePoints.map((point) => [point.lat, point.lng]);
+  const organizerRouteMeta = organizerRoutePoints.map((point, index) => ({
+    name: `${currentLang === "zh" ? "点位" : "Point"} ${index + 1}`,
+    type: sanitizeRouteType(point.type || getDefaultRouteType(index, organizerRoutePoints.length)),
+  }));
+  const defaultLat = organizerRouteCoords[0]?.[0] ?? 31.3;
+  const defaultLng = organizerRouteCoords[0]?.[1] ?? 120.62;
 
   const payload = {
     name,
@@ -2183,15 +2209,9 @@ async function handleCreateEvent(event) {
     capacity,
     tags: ["Organizer", "Onsite"],
     tags_zh: [],
-    lat: 31.3,
-    lng: 120.62,
-    route_coords: [
-      [31.3, 120.62],
-      [31.302, 120.624],
-      [31.304, 120.62],
-      [31.302, 120.616],
-      [31.3, 120.62],
-    ],
+    lat: defaultLat,
+    lng: defaultLng,
+    route_coords: organizerRouteCoords,
   };
 
   try {
@@ -2218,21 +2238,10 @@ async function handleCreateEvent(event) {
       gear: ["Water", "Comfort shoes"],
       description: "Organizer-created run with supportive pacing and onsite check-ins.",
       rewards: "Earn 55 pts + 'Organizer Pick' badge",
-      lat: 31.3,
-      lng: 120.62,
-      routeCoords: [
-        [31.3, 120.62],
-        [31.302, 120.624],
-        [31.304, 120.62],
-        [31.302, 120.616],
-        [31.3, 120.62],
-      ],
-      route: [
-        { name: "Meet-up Start", type: "start" },
-        { name: "Checkpoint One", type: "checkpoint" },
-        { name: "Hydration", type: "water" },
-        { name: "Finish", type: "finish" },
-      ],
+      lat: defaultLat,
+      lng: defaultLng,
+      routeCoords: organizerRouteCoords,
+      route: organizerRouteMeta,
     };
     events.unshift(fallback);
   }
@@ -2240,6 +2249,7 @@ async function handleCreateEvent(event) {
   saveEvents();
   renderEvents();
   dom.createEventForm.reset();
+  clearOrganizerRoutePlan();
   showToast(t("toast_event_created"));
 }
 
@@ -2434,6 +2444,19 @@ function initActions() {
     showToast(t("toast_cleared"));
   });
   dom.sendUpdate.addEventListener("click", sendOrganizerUpdate);
+  dom.orgMapExpand?.addEventListener("click", toggleOrganizerMapExpand);
+  dom.orgMapClose?.addEventListener("click", closeOrganizerMapExpand);
+  dom.orgMapTypes?.querySelectorAll("[data-org-plan-type]").forEach((button) => {
+    button.addEventListener("click", () => {
+      organizerSelectedType = sanitizeRouteType(button.dataset.orgPlanType || "checkpoint");
+      updateOrganizerTypeButtons();
+    });
+  });
+  dom.orgRouteEdit?.addEventListener("click", () => setOrganizerRouteEditing(true));
+  dom.orgRouteSave?.addEventListener("click", saveOrganizerRoutePlan);
+  dom.orgRouteDone?.addEventListener("click", () => setOrganizerRouteEditing(false));
+  dom.orgRouteUndo?.addEventListener("click", undoOrganizerRoutePoint);
+  dom.orgRouteClear?.addEventListener("click", clearOrganizerRoutePlan);
   dom.createEventForm.addEventListener("submit", handleCreateEvent);
   dom.locationToggle.addEventListener("click", toggleLocation);
   dom.quickRegister.addEventListener("click", () => registerEvent(activeEvent.id));
@@ -2484,6 +2507,16 @@ function initActions() {
         setPickerSelectedLatLng(pickerSelectedLatLng);
       }
     });
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && organizerMapExpanded) closeOrganizerMapExpand();
+  });
+  document.addEventListener("mousedown", (event) => {
+    if (!organizerMapExpanded) return;
+    const card = dom.organizerRouteMap?.closest(".organizer-map-card");
+    if (card && !card.contains(event.target)) {
+      closeOrganizerMapExpand();
+    }
   });
   dom.mapPickerModal.addEventListener("click", (event) => {
     if (event.target === dom.mapPickerModal) {
@@ -2547,8 +2580,14 @@ function initMaps() {
     [31.3, 120.62],
     11
   );
+  if (dom.organizerRouteMap) {
+    organizerMap = L.map("organizer-route-map", { zoomControl: true, attributionControl: true }).setView(
+      [31.3, 120.62],
+      12
+    );
+  }
 
-  [eventMap, cityMap].forEach((mapInstance) => {
+  [eventMap, cityMap, organizerMap].filter(Boolean).forEach((mapInstance) => {
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap contributors",
@@ -2561,6 +2600,23 @@ function initMaps() {
   eventLayerGroup = L.layerGroup().addTo(eventMap);
   planLayerGroup = L.layerGroup().addTo(eventMap);
   cityLayerGroup = L.layerGroup().addTo(cityMap);
+  if (organizerMap) {
+    organizerRouteLayer = L.layerGroup().addTo(organizerMap);
+    organizerMap.on("click", (event) => {
+      if (!organizerRouteEditMode) {
+        showToast(t("toast_route_edit_required"));
+        return;
+      }
+      organizerRoutePoints.push({
+        lat: Number(event.latlng.lat.toFixed(6)),
+        lng: Number(event.latlng.lng.toFixed(6)),
+        type: sanitizeRouteType(organizerSelectedType),
+      });
+      organizerSelectedPointIndex = organizerRoutePoints.length - 1;
+      renderOrganizerRouteMap();
+    });
+    renderOrganizerRouteMap();
+  }
   eventMap.on("click", (event) => {
     handleEventMapClick(event.latlng);
   });
@@ -2574,6 +2630,129 @@ function initMaps() {
       fillOpacity: 0.9,
     }).addTo(cityMap);
   }
+}
+
+function createOrganizerPointIcon(point, index, total, selected = false) {
+  const routeType = sanitizeRouteType(point?.type || getDefaultRouteType(index, total));
+  return L.divIcon({
+    className: `route-point-marker${selected ? " selected" : ""}`,
+    html: `<span>${planTypeIcons[routeType] || "C"}</span>`,
+    iconSize: [52, 52],
+    iconAnchor: [26, 26],
+  });
+}
+
+function renderOrganizerRouteMap() {
+  if (!organizerMap || !organizerRouteLayer) return;
+  organizerRouteLayer.clearLayers();
+  if (organizerRoutePoints.length > 1) {
+    const routeLine = L.polyline(
+      organizerRoutePoints.map((point) => [point.lat, point.lng]),
+      {
+        color: "#ff6a3d",
+        weight: 5,
+        opacity: 0.95,
+      }
+    ).addTo(organizerRouteLayer);
+    organizerMap.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
+  } else if (organizerRoutePoints.length === 1) {
+    organizerMap.setView([organizerRoutePoints[0].lat, organizerRoutePoints[0].lng], 14);
+  } else {
+    organizerMap.setView([31.3, 120.62], 12);
+  }
+
+  organizerRoutePoints.forEach((point, index) => {
+    const marker = L.marker([point.lat, point.lng], {
+      draggable: organizerRouteEditMode,
+      icon: createOrganizerPointIcon(point, index, organizerRoutePoints.length, organizerSelectedPointIndex === index),
+    }).addTo(organizerRouteLayer);
+    marker.bindPopup(`${getRoutePointText(point, index, organizerRoutePoints.length)} ${index + 1}`);
+    marker.on("click", (event) => {
+      L.DomEvent.stopPropagation(event);
+      organizerSelectedPointIndex = index;
+      if (organizerRouteEditMode && organizerRoutePoints[index]) {
+        organizerRoutePoints[index].type = sanitizeRouteType(organizerSelectedType);
+      }
+      renderOrganizerRouteMap();
+    });
+    if (organizerRouteEditMode) {
+      marker.on("dragend", (dragEvent) => {
+        const latlng = dragEvent.target.getLatLng();
+        organizerRoutePoints[index].lat = Number(latlng.lat.toFixed(6));
+        organizerRoutePoints[index].lng = Number(latlng.lng.toFixed(6));
+        organizerSelectedPointIndex = index;
+        renderOrganizerRouteMap();
+      });
+    }
+  });
+  renderOrganizerRouteControls();
+}
+
+function renderOrganizerRouteControls() {
+  if (dom.orgRouteEdit) dom.orgRouteEdit.classList.toggle("active", organizerRouteEditMode);
+  if (dom.orgRouteUndo) dom.orgRouteUndo.disabled = !organizerRoutePoints.length;
+  if (dom.orgRouteClear) dom.orgRouteClear.disabled = !organizerRoutePoints.length;
+  if (dom.orgRouteSave) dom.orgRouteSave.disabled = organizerRoutePoints.length < 2;
+  if (dom.orgMapClose) dom.orgMapClose.hidden = !organizerMapExpanded;
+  updateOrganizerTypeButtons();
+}
+
+function setOrganizerRouteEditing(enabled) {
+  organizerRouteEditMode = Boolean(enabled);
+  if (!organizerRouteEditMode) organizerSelectedPointIndex = null;
+  renderOrganizerRouteMap();
+  showToast(t(enabled ? "toast_route_editing" : "toast_route_done"));
+}
+
+function undoOrganizerRoutePoint() {
+  if (!organizerRoutePoints.length) {
+    showToast(t("toast_route_undo_empty"));
+    return;
+  }
+  organizerRoutePoints.pop();
+  organizerSelectedPointIndex = organizerRoutePoints.length ? organizerRoutePoints.length - 1 : null;
+  renderOrganizerRouteMap();
+  showToast(t("toast_route_undo"));
+}
+
+function clearOrganizerRoutePlan() {
+  organizerRoutePoints = [];
+  organizerSelectedPointIndex = null;
+  renderOrganizerRouteMap();
+}
+
+function toggleOrganizerMapExpand() {
+  const mapCard = dom.organizerRouteMap?.closest(".organizer-map-card");
+  if (!mapCard) return;
+  organizerMapExpanded = !organizerMapExpanded;
+  mapCard.classList.toggle("expanded", organizerMapExpanded);
+  document.body.classList.toggle("organizer-map-expanded", organizerMapExpanded);
+  if (dom.orgMapClose) dom.orgMapClose.hidden = !organizerMapExpanded;
+  setTimeout(() => organizerMap?.invalidateSize(), 40);
+}
+
+function closeOrganizerMapExpand() {
+  if (!organizerMapExpanded) return;
+  toggleOrganizerMapExpand();
+}
+
+function updateOrganizerTypeButtons() {
+  if (!dom.orgMapTypes) return;
+  dom.orgMapTypes.querySelectorAll("[data-org-plan-type]").forEach((button) => {
+    const type = sanitizeRouteType(button.dataset.orgPlanType || "checkpoint");
+    button.classList.toggle("active", type === organizerSelectedType);
+  });
+  if (dom.orgMapTypeHint) {
+    dom.orgMapTypeHint.textContent = t(`map_picker_hint_${organizerSelectedType}`);
+  }
+}
+
+function saveOrganizerRoutePlan() {
+  if (organizerRoutePoints.length < 2) {
+    showToast(t("toast_route_empty"));
+    return;
+  }
+  showToast(t("toast_route_saved"));
 }
 
 function renderCityMarkers() {

@@ -248,17 +248,19 @@
                 <div class="route-saved-list" id="route-saved-list"></div>
               </div>
             </div>
+            <div class="event-map-hints">
+              <div class="map-footnote" data-i18n="map_footnote">
+                Complete all checkpoints to unlock the Route Explorer badge.
+              </div>
+              <div class="map-footnote" data-i18n="map_plan_note">
+                Tap map to open fullscreen planner and add running points with guided tips.
+              </div>
+              <div class="map-footnote" id="route-edit-hint" data-i18n="map_edit_hint">
+                Press Edit Current Route, then tap the map to add route points.
+              </div>
+            </div>
             <div class="route-map" id="route-map" role="img" aria-label="Route map"></div>
             <div class="checkpoint-list" id="checkpoint-list"></div>
-            <div class="map-footnote" data-i18n="map_footnote">
-              Complete all checkpoints to unlock the Route Explorer badge.
-            </div>
-            <div class="map-footnote" data-i18n="map_plan_note">
-              Tap map to open fullscreen planner and add running points with guided tips.
-            </div>
-            <div class="map-footnote" id="route-edit-hint" data-i18n="map_edit_hint">
-              Press Edit Current Route, then tap the map to add route points.
-            </div>
           </div>
         </div>
       </section>
@@ -482,6 +484,68 @@
             <div class="attendance" id="attendance-list"></div>
             <div class="notice" id="organizer-notice" data-i18n="org_notice">
               No update sent yet. Tap "Send Update" to broadcast a warm-up reminder.
+            </div>
+            <div class="map-card organizer-map-card">
+              <div class="map-header">
+                <p class="card-title" data-i18n="org_map_title">Route Planner</p>
+                <button
+                  class="ghost-button org-map-close"
+                  id="org-map-close"
+                  type="button"
+                  data-i18n="map_picker_close"
+                  hidden
+                >
+                  Close
+                </button>
+              </div>
+              <div class="button-row">
+                <button class="outline-button" id="org-map-expand" type="button" data-i18n="button_map_expand">
+                  Expand Planner
+                </button>
+                <button class="primary-button active" id="org-route-edit" type="button" data-i18n="button_route_edit">
+                  Edit Current Route
+                </button>
+                <button class="primary-button" id="org-route-save" type="button" data-i18n="button_route_save">
+                  Save Route
+                </button>
+                <button class="outline-button" id="org-route-done" type="button" data-i18n="button_route_done">
+                  Finish Editing
+                </button>
+                <button class="outline-button" id="org-route-undo" type="button" data-i18n="button_route_undo">
+                  Undo Point
+                </button>
+                <button class="ghost-button" id="org-route-clear" type="button" data-i18n="button_plan_clear">
+                  Clear Plan
+                </button>
+              </div>
+              <div class="picker-types organizer-types" id="org-map-types" role="group" aria-label="Organizer marker type">
+                <button class="pill-button active" type="button" data-org-plan-type="checkpoint" data-i18n="type_checkpoint">
+                  Checkpoint
+                </button>
+                <button class="pill-button" type="button" data-org-plan-type="water" data-i18n="type_water">Water</button>
+                <button class="pill-button" type="button" data-org-plan-type="photo" data-i18n="type_photo">Photo</button>
+                <button class="pill-button" type="button" data-org-plan-type="start" data-i18n="type_start">Start</button>
+                <button class="pill-button" type="button" data-org-plan-type="finish" data-i18n="type_finish">Finish</button>
+              </div>
+              <div class="organizer-hints">
+                <p class="picker-tip" id="org-map-type-hint" data-i18n="map_picker_hint_checkpoint">
+                  Good for pace reminders and team regroup points.
+                </p>
+                <div class="map-footnote" data-i18n="org_type_hint">
+                  Select type first, then click map to add; click an existing point to change its type.
+                </div>
+                <div class="map-footnote" id="org-route-hint" data-i18n="org_map_hint">
+                  Empty map: click to add route points. Drag markers to adjust the route.
+                </div>
+              </div>
+              <div class="organizer-route-shell">
+                <div
+                  class="route-map organizer-route-map"
+                  id="organizer-route-map"
+                  role="img"
+                  aria-label="Organizer route map"
+                ></div>
+              </div>
             </div>
           </div>
         </div>

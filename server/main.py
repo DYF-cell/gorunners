@@ -1055,7 +1055,7 @@ def get_event(event_id: int, session: Session = Depends(get_session)):
     return event_to_dict(event)
 
 
-@app.post("/events", dependencies=[Depends(require_admin)])
+@app.post("/events")
 def create_event(event_in: EventInput, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     event = Event(
         name=event_in.name,
@@ -1080,14 +1080,15 @@ def create_event(event_in: EventInput, session: Session = Depends(get_session), 
     )
     session.add(event)
     session.flush()
-    log_admin_action(
-        session,
-        admin_user_id=user.id or 0,
-        action_type="create_event",
-        target_type="event",
-        target_id=event.id,
-        note=event.name,
-    )
+    if user.role == "admin":
+        log_admin_action(
+            session,
+            admin_user_id=user.id or 0,
+            action_type="create_event",
+            target_type="event",
+            target_id=event.id,
+            note=event.name,
+        )
     session.commit()
     session.refresh(event)
     return event_to_dict(event)
