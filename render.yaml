@@ -9,5 +9,6 @@ services:
     envVars:
       - key: GORUNNERS_SECRET
         generateValue: true
-      - key: GORUNNERS_DB
-        value: sqlite:///gorunners.db
+      # Configure MySQL in Render dashboard with either:
+      # 1) GORUNNERS_DB=mysql+pymysql://user:password@host:3306/gorunners?charset=utf8mb4
+      # 2) MYSQL_HOST / MYSQL_PORT / MYSQL_USER / MYSQL_PASSWORD / MYSQL_DATABASE

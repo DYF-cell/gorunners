@@ -12,16 +12,24 @@ import urllib.request
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
+from urllib.parse import quote_plus
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlalchemy import inspect, text
 
 BASE_DIR = Path(__file__).resolve().parent
-DATABASE_URL = os.getenv("GORUNNERS_DB", f"sqlite:///{BASE_DIR / 'gorunners.db'}")
+PROJECT_DIR = BASE_DIR.parent
+
+# Load repo-level env files so local startup does not require hardcoded secrets.
+load_dotenv(PROJECT_DIR / ".env")
+load_dotenv(PROJECT_DIR / ".env.local", override=True)
+
 SECRET_KEY = os.getenv("GORUNNERS_SECRET", "change-this-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
@@ -33,6 +41,27 @@ DIFY_BASE_URL = os.getenv("DIFY_BASE_URL", "").rstrip("/")
 DIFY_API_KEY = os.getenv("DIFY_API_KEY", "")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+
+def build_database_url() -> str:
+    explicit_url = os.getenv("GORUNNERS_DB", "").strip()
+    if explicit_url:
+        return explicit_url
+
+    mysql_host = os.getenv("MYSQL_HOST", "").strip()
+    if mysql_host:
+        mysql_port = os.getenv("MYSQL_PORT", "3306").strip() or "3306"
+        mysql_user = quote_plus(os.getenv("MYSQL_USER", "root").strip() or "root")
+        mysql_password = quote_plus(os.getenv("MYSQL_PASSWORD", ""))
+        mysql_database = os.getenv("MYSQL_DATABASE", "gorunners").strip() or "gorunners"
+        credentials = mysql_user if not mysql_password else f"{mysql_user}:{mysql_password}"
+        return f"mysql+pymysql://{credentials}@{mysql_host}:{mysql_port}/{mysql_database}?charset=utf8mb4"
+
+    return f"sqlite:///{BASE_DIR / 'gorunners.db'}"
+
+
+DATABASE_URL = build_database_url()
+DATABASE_BACKEND = "mysql" if DATABASE_URL.startswith("mysql") else "sqlite"
 
 
 def now_utc() -> datetime:
@@ -87,7 +116,10 @@ class User(SQLModel, table=True):
     name: str
     password_hash: str
     role: str = "user"
+    is_active: bool = True
+    last_login_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=now_utc)
+    updated_at: datetime = Field(default_factory=now_utc)
 
 
 class Event(SQLModel, table=True):
@@ -112,6 +144,7 @@ class Event(SQLModel, table=True):
     route_coords_json: str = "[]"
     created_by: Optional[int] = None
     created_at: datetime = Field(default_factory=now_utc)
+    updated_at: datetime = Field(default_factory=now_utc)
 
 
 class Checkpoint(SQLModel, table=True):
@@ -168,6 +201,16 @@ class Comment(SQLModel, table=True):
     post_id: int = Field(index=True)
     user_id: int = Field(index=True)
     text: str
+    created_at: datetime = Field(default_factory=now_utc)
+
+
+class AdminActionLog(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    admin_user_id: int = Field(index=True)
+    action_type: str
+    target_type: str
+    target_id: Optional[int] = Field(default=None, index=True)
+    note: str = ""
     created_at: datetime = Field(default_factory=now_utc)
 
 
@@ -241,6 +284,12 @@ class RoleUpdate(SQLModel):
     role: str
 
 
+class AdminUserUpdate(SQLModel):
+    name: Optional[str] = None
+    role: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
 class AiChatRequest(SQLModel):
     message: str
     conversation_id: str = ""
@@ -286,7 +335,13 @@ def dify_request(path: str, payload: Optional[dict] = None, method: str = "GET")
         raise HTTPException(status_code=502, detail="Invalid AI response")
 
 
-engine = create_engine(DATABASE_URL, echo=False)
+engine_kwargs = {"echo": False}
+if DATABASE_BACKEND == "sqlite":
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    engine_kwargs["pool_pre_ping"] = True
+
+engine = create_engine(DATABASE_URL, **engine_kwargs)
 
 app = FastAPI(title="GoRunners API", version="1.0.0")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -300,6 +355,82 @@ app.add_middleware(
 )
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+
+def quote_identifier(identifier: str) -> str:
+    if DATABASE_BACKEND == "mysql":
+        return f"`{identifier}`"
+    return f'"{identifier}"'
+
+
+def ensure_legacy_columns() -> None:
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    if "user" not in existing_tables:
+        return
+
+    user_columns = {column["name"] for column in inspector.get_columns("user")}
+    user_table = quote_identifier("user")
+
+    statements = []
+    if "is_active" not in user_columns:
+        statements.append(
+            f"ALTER TABLE {user_table} ADD COLUMN {quote_identifier('is_active')} BOOLEAN NOT NULL DEFAULT 1"
+        )
+    if "last_login_at" not in user_columns:
+        statements.append(
+            f"ALTER TABLE {user_table} ADD COLUMN {quote_identifier('last_login_at')} DATETIME"
+        )
+    if "updated_at" not in user_columns:
+        statements.append(
+            f"ALTER TABLE {user_table} ADD COLUMN {quote_identifier('updated_at')} DATETIME"
+        )
+
+    event_columns = {column["name"] for column in inspector.get_columns("event")} if "event" in existing_tables else set()
+    event_table = quote_identifier("event")
+    if "updated_at" not in event_columns and "event" in existing_tables:
+        statements.append(
+            f"ALTER TABLE {event_table} ADD COLUMN {quote_identifier('updated_at')} DATETIME"
+        )
+
+    if not statements:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    f"UPDATE {user_table} SET {quote_identifier('is_active')} = 1 "
+                    f"WHERE {quote_identifier('is_active')} IS NULL"
+                )
+            )
+            connection.execute(
+                text(
+                    f"UPDATE {user_table} SET {quote_identifier('updated_at')} = {quote_identifier('created_at')} "
+                    f"WHERE {quote_identifier('updated_at')} IS NULL"
+                )
+            )
+        return
+
+    with engine.begin() as connection:
+        for statement in statements:
+            connection.execute(text(statement))
+        connection.execute(
+            text(
+                f"UPDATE {user_table} SET {quote_identifier('is_active')} = 1 "
+                f"WHERE {quote_identifier('is_active')} IS NULL"
+            )
+        )
+        connection.execute(
+            text(
+                f"UPDATE {user_table} SET {quote_identifier('updated_at')} = {quote_identifier('created_at')} "
+                f"WHERE {quote_identifier('updated_at')} IS NULL"
+            )
+        )
+        if "event" in existing_tables:
+            connection.execute(
+                text(
+                    f"UPDATE {event_table} SET {quote_identifier('updated_at')} = {quote_identifier('created_at')} "
+                    f"WHERE {quote_identifier('updated_at')} IS NULL"
+                )
+            )
 
 
 def get_session():
@@ -316,6 +447,8 @@ def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Dep
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account disabled")
     return user
 
 
@@ -323,6 +456,45 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return user
+
+
+def serialize_user(user: User, registration_count: int = 0, post_count: int = 0, event_count: int = 0) -> dict:
+    return {
+        "id": user.id,
+        "email": user.email,
+        "name": user.name,
+        "role": user.role,
+        "is_active": user.is_active,
+        "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+        "updated_at": user.updated_at.isoformat() if user.updated_at else None,
+        "registration_count": registration_count,
+        "post_count": post_count,
+        "event_count": event_count,
+    }
+
+
+def log_admin_action(
+    session: Session,
+    admin_user_id: int,
+    action_type: str,
+    target_type: str,
+    target_id: Optional[int] = None,
+    note: str = "",
+) -> None:
+    session.add(
+        AdminActionLog(
+            admin_user_id=admin_user_id,
+            action_type=action_type,
+            target_type=target_type,
+            target_id=target_id,
+            note=note,
+        )
+    )
+
+
+def get_registration_count(session: Session, event_id: int) -> int:
+    return len(session.exec(select(Registration).where(Registration.event_id == event_id)).all())
 
 
 def event_to_dict(event: Event) -> dict:
@@ -363,17 +535,62 @@ def spot_to_dict(spot: Spot) -> dict:
     }
 
 
+def serialize_event_admin(event: Event, registration_count: int, checkpoint_count: int, created_by_name: str = "") -> dict:
+    data = event_to_dict(event)
+    data.update(
+        {
+            "created_by": event.created_by,
+            "created_by_name": created_by_name,
+            "created_at": event.created_at.isoformat() if event.created_at else None,
+            "updated_at": event.updated_at.isoformat() if event.updated_at else None,
+            "registration_count": registration_count,
+            "checkpoint_count": checkpoint_count,
+        }
+    )
+    return data
+
+
+def serialize_post_admin(
+    post: Post,
+    comment_count: int,
+    user_name: str = "",
+    user_email: str = "",
+    spot_name: str = "",
+) -> dict:
+    return {
+        "id": post.id,
+        "spot_id": post.spot_id,
+        "spot_name": spot_name,
+        "user_id": post.user_id,
+        "user_name": user_name,
+        "user_email": user_email,
+        "text": post.text,
+        "image_url": post.image_url,
+        "likes": post.likes,
+        "comment_count": comment_count,
+        "created_at": post.created_at.isoformat() if post.created_at else None,
+    }
+
+
 def seed_data(session: Session) -> None:
     admin_email = os.getenv("GORUNNERS_ADMIN_EMAIL", "admin@gorunners.com")
     admin_password = os.getenv("GORUNNERS_ADMIN_PASSWORD", "gorunners123")
     existing_admin = session.exec(select(User).where(User.email == admin_email)).first()
     if existing_admin:
         existing_admin.role = "admin"
+        existing_admin.is_active = True
         existing_admin.password_hash = hash_password(admin_password)
+        existing_admin.updated_at = now_utc()
         session.add(existing_admin)
         session.commit()
     else:
-        admin = User(email=admin_email, name="Admin", password_hash=hash_password(admin_password), role="admin")
+        admin = User(
+            email=admin_email,
+            name="Admin",
+            password_hash=hash_password(admin_password),
+            role="admin",
+            is_active=True,
+        )
         session.add(admin)
         session.commit()
 
@@ -570,13 +787,14 @@ def seed_data(session: Session) -> None:
 def on_startup() -> None:
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     SQLModel.metadata.create_all(engine)
+    ensure_legacy_columns()
     with Session(engine) as session:
         seed_data(session)
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "database_backend": DATABASE_BACKEND}
 
 
 @app.post("/ai/chat", response_model=AiChatResponse)
@@ -613,6 +831,7 @@ def register(user_in: UserCreate, session: Session = Depends(get_session)):
         name=user_in.name,
         password_hash=hash_password(user_in.password),
         role="user",
+        is_active=True,
     )
     session.add(user)
     session.commit()
@@ -626,35 +845,200 @@ def login(user_in: UserLogin, session: Session = Depends(get_session)):
     user = session.exec(select(User).where(User.email == user_in.email)).first()
     if not user or not verify_password(user_in.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Account disabled")
+    user.last_login_at = now_utc()
+    user.updated_at = now_utc()
+    session.add(user)
+    session.commit()
     token = create_access_token({"sub": str(user.id)})
     return Token(access_token=token)
 
 
 @app.get("/auth/me")
 def me(current_user: User = Depends(get_current_user)):
-    return {"id": current_user.id, "email": current_user.email, "name": current_user.name, "role": current_user.role}
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "name": current_user.name,
+        "role": current_user.role,
+        "is_active": current_user.is_active,
+        "last_login_at": current_user.last_login_at.isoformat() if current_user.last_login_at else None,
+    }
 
 
-@app.get("/admin/users", dependencies=[Depends(require_admin)])
-def list_users(session: Session = Depends(get_session)):
+@app.get("/admin/dashboard")
+def admin_dashboard(session: Session = Depends(get_session), admin_user: User = Depends(require_admin)):
     users = session.exec(select(User)).all()
+    events = session.exec(select(Event)).all()
+    posts = session.exec(select(Post)).all()
+    registrations = session.exec(select(Registration)).all()
+    comments = session.exec(select(Comment)).all()
+    recent_logs = session.exec(select(AdminActionLog).order_by(AdminActionLog.created_at.desc())).all()[:8]
+
+    user_map = {user.id: user for user in users}
+    recent_actions = [
+        {
+            "id": log.id,
+            "action_type": log.action_type,
+            "target_type": log.target_type,
+            "target_id": log.target_id,
+            "note": log.note,
+            "created_at": log.created_at.isoformat() if log.created_at else None,
+            "admin_name": user_map.get(log.admin_user_id).name if user_map.get(log.admin_user_id) else "Admin",
+        }
+        for log in recent_logs
+    ]
+
+    return {
+        "database_backend": DATABASE_BACKEND,
+        "viewer": serialize_user(admin_user),
+        "stats": {
+            "user_total": len(users),
+            "active_user_total": len([user for user in users if user.is_active]),
+            "admin_total": len([user for user in users if user.role == "admin"]),
+            "event_total": len(events),
+            "registration_total": len(registrations),
+            "post_total": len(posts),
+            "comment_total": len(comments),
+        },
+        "recent_actions": recent_actions,
+    }
+
+
+@app.get("/admin/users")
+def list_users(session: Session = Depends(get_session), _: User = Depends(require_admin)):
+    users = session.exec(select(User).order_by(User.created_at.desc())).all()
+    registrations = session.exec(select(Registration)).all()
+    posts = session.exec(select(Post)).all()
+    events = session.exec(select(Event)).all()
+
+    registration_counts: dict[int, int] = {}
+    post_counts: dict[int, int] = {}
+    event_counts: dict[int, int] = {}
+
+    for registration in registrations:
+        registration_counts[registration.user_id] = registration_counts.get(registration.user_id, 0) + 1
+    for post in posts:
+        post_counts[post.user_id] = post_counts.get(post.user_id, 0) + 1
+    for event in events:
+        if event.created_by:
+            event_counts[event.created_by] = event_counts.get(event.created_by, 0) + 1
+
     return [
-        {"id": user.id, "email": user.email, "name": user.name, "role": user.role, "created_at": user.created_at}
+        serialize_user(
+            user,
+            registration_count=registration_counts.get(user.id or 0, 0),
+            post_count=post_counts.get(user.id or 0, 0),
+            event_count=event_counts.get(user.id or 0, 0),
+        )
         for user in users
     ]
 
 
-@app.put("/admin/users/{user_id}/role", dependencies=[Depends(require_admin)])
-def update_user_role(user_id: int, role_in: RoleUpdate, session: Session = Depends(get_session)):
+@app.patch("/admin/users/{user_id}")
+def update_admin_user(
+    user_id: int,
+    user_in: AdminUserUpdate,
+    session: Session = Depends(get_session),
+    admin_user: User = Depends(require_admin),
+):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if role_in.role not in {"admin", "user"}:
-        raise HTTPException(status_code=400, detail="Invalid role")
-    user.role = role_in.role
+
+    if user_in.role is not None:
+        if user_in.role not in {"admin", "user"}:
+            raise HTTPException(status_code=400, detail="Invalid role")
+        if user.id == admin_user.id and user_in.role != "admin":
+            raise HTTPException(status_code=400, detail="Cannot remove your own admin role")
+        user.role = user_in.role
+
+    if user_in.is_active is not None:
+        if user.id == admin_user.id and user_in.is_active is False:
+            raise HTTPException(status_code=400, detail="Cannot disable your own account")
+        user.is_active = user_in.is_active
+
+    if user_in.name is not None and user_in.name.strip():
+        user.name = user_in.name.strip()
+
+    user.updated_at = now_utc()
     session.add(user)
+    log_admin_action(
+        session,
+        admin_user_id=admin_user.id or 0,
+        action_type="update_user",
+        target_type="user",
+        target_id=user.id,
+        note=f"role={user.role}, active={user.is_active}",
+    )
     session.commit()
-    return {"status": "updated", "role": user.role}
+    registration_count = len(session.exec(select(Registration).where(Registration.user_id == user.id)).all())
+    post_count = len(session.exec(select(Post).where(Post.user_id == user.id)).all())
+    event_count = len(session.exec(select(Event).where(Event.created_by == user.id)).all())
+    return serialize_user(user, registration_count=registration_count, post_count=post_count, event_count=event_count)
+
+
+@app.put("/admin/users/{user_id}/role")
+def update_user_role(
+    user_id: int,
+    role_in: RoleUpdate,
+    session: Session = Depends(get_session),
+    admin_user: User = Depends(require_admin),
+):
+    return update_admin_user(
+        user_id=user_id,
+        user_in=AdminUserUpdate(role=role_in.role),
+        session=session,
+        admin_user=admin_user,
+    )
+
+
+@app.get("/admin/events")
+def admin_list_events(session: Session = Depends(get_session), _: User = Depends(require_admin)):
+    events = session.exec(select(Event).order_by(Event.created_at.desc())).all()
+    checkpoints = session.exec(select(Checkpoint)).all()
+    users = session.exec(select(User)).all()
+
+    checkpoint_counts: dict[int, int] = {}
+    for checkpoint in checkpoints:
+        checkpoint_counts[checkpoint.event_id] = checkpoint_counts.get(checkpoint.event_id, 0) + 1
+
+    user_map = {user.id: user.name for user in users}
+    return [
+        serialize_event_admin(
+            event,
+            registration_count=get_registration_count(session, event.id or 0),
+            checkpoint_count=checkpoint_counts.get(event.id or 0, 0),
+            created_by_name=user_map.get(event.created_by, ""),
+        )
+        for event in events
+    ]
+
+
+@app.get("/admin/posts")
+def admin_list_posts(session: Session = Depends(get_session), _: User = Depends(require_admin)):
+    posts = session.exec(select(Post).order_by(Post.created_at.desc())).all()
+    comments = session.exec(select(Comment)).all()
+    users = session.exec(select(User)).all()
+    spots = session.exec(select(Spot)).all()
+
+    comment_counts: dict[int, int] = {}
+    for comment in comments:
+        comment_counts[comment.post_id] = comment_counts.get(comment.post_id, 0) + 1
+
+    user_map = {user.id: user for user in users}
+    spot_map = {spot.id: spot for spot in spots}
+    return [
+        serialize_post_admin(
+            post,
+            comment_count=comment_counts.get(post.id or 0, 0),
+            user_name=user_map.get(post.user_id).name if user_map.get(post.user_id) else "",
+            user_email=user_map.get(post.user_id).email if user_map.get(post.user_id) else "",
+            spot_name=spot_to_dict(spot_map.get(post.spot_id)).get("name", "") if spot_map.get(post.spot_id) else "",
+        )
+        for post in posts
+    ]
 
 
 @app.get("/events")
@@ -695,6 +1079,15 @@ def create_event(event_in: EventInput, session: Session = Depends(get_session), 
         created_by=user.id,
     )
     session.add(event)
+    session.flush()
+    log_admin_action(
+        session,
+        admin_user_id=user.id or 0,
+        action_type="create_event",
+        target_type="event",
+        target_id=event.id,
+        note=event.name,
+    )
     session.commit()
     session.refresh(event)
     return event_to_dict(event)
@@ -722,18 +1115,36 @@ def update_event(event_id: int, event_in: EventInput, session: Session = Depends
     event.lat = event_in.lat
     event.lng = event_in.lng
     event.route_coords_json = encode_list(event_in.route_coords)
-    if event.spots_left > event.capacity:
-        event.spots_left = event.capacity
+    event.updated_at = now_utc()
+    registrations_used = get_registration_count(session, event_id)
+    event.spots_left = max(event.capacity - registrations_used, 0)
     session.add(event)
     session.commit()
     return event_to_dict(event)
 
 
 @app.delete("/events/{event_id}", dependencies=[Depends(require_admin)])
-def delete_event(event_id: int, session: Session = Depends(get_session)):
+def delete_event(event_id: int, session: Session = Depends(get_session), admin_user: User = Depends(get_current_user)):
     event = session.get(Event, event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
+    checkpoints = session.exec(select(Checkpoint).where(Checkpoint.event_id == event_id)).all()
+    registrations = session.exec(select(Registration).where(Registration.event_id == event_id)).all()
+    checkins = session.exec(select(Checkin).where(Checkin.event_id == event_id)).all()
+    for checkpoint in checkpoints:
+        session.delete(checkpoint)
+    for registration in registrations:
+        session.delete(registration)
+    for checkin in checkins:
+        session.delete(checkin)
+    log_admin_action(
+        session,
+        admin_user_id=admin_user.id or 0,
+        action_type="delete_event",
+        target_type="event",
+        target_id=event.id,
+        note=event.name,
+    )
     session.delete(event)
     session.commit()
     return {"status": "deleted"}
@@ -895,6 +1306,34 @@ def list_posts(spot_id: int, session: Session = Depends(get_session)):
             }
         )
     return output
+
+
+@app.delete("/admin/posts/{post_id}")
+def admin_delete_post(
+    post_id: int,
+    session: Session = Depends(get_session),
+    admin_user: User = Depends(require_admin),
+):
+    post = session.get(Post, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    comments = session.exec(select(Comment).where(Comment.post_id == post_id)).all()
+    for comment in comments:
+        session.delete(comment)
+
+    note = post.text[:80]
+    log_admin_action(
+        session,
+        admin_user_id=admin_user.id or 0,
+        action_type="delete_post",
+        target_type="post",
+        target_id=post.id,
+        note=note,
+    )
+    session.delete(post)
+    session.commit()
+    return {"status": "deleted"}
 
 
 @app.post("/spots/{spot_id}/posts")
