@@ -4,3 +4,4 @@ sqlmodel==0.0.22
 python-jose==3.3.0
 python-multipart==0.0.9
 PyMySQL==1.1.1
+python-dotenv==1.0.1

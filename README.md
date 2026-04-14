@@ -56,6 +56,26 @@ cd /Users/fake/gorunners
 ```
 
 ### 3) Backend startup (FastAPI)
+Before the first backend run, copy the example env file and edit it:
+
+macOS/Linux:
+```bash
+cd /path/to/gorunners
+cp .env.example .env
+```
+
+Windows PowerShell:
+```powershell
+cd D:\PythonCode1\Gorunner\gorunners
+Copy-Item .env.example .env
+```
+
+Recommended database setup:
+- Preferred: MySQL via `.env`
+- Fallback for quick local preview: SQLite if no MySQL env vars are provided
+
+The backend auto-loads `.env` and `.env.local` from the repository root.
+
 Run from `gorunners/server`:
 
 Windows PowerShell:
@@ -76,36 +96,41 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Recommended database setup:
-- Preferred: MySQL via `GORUNNERS_DB`
-- Fallback for quick local preview: SQLite if no MySQL env vars are provided
+Recommended `.env` examples:
 
-MySQL example:
+MySQL via a full connection URL:
 ```bash
-export GORUNNERS_DB="mysql+pymysql://root:password@127.0.0.1:3306/gorunners?charset=utf8mb4"
+GORUNNERS_DB="mysql+pymysql://root:password@127.0.0.1:3306/gorunners?charset=utf8mb4"
+```
+
+MySQL via separate env vars:
+```bash
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=password
+MYSQL_DATABASE=gorunners
+```
+
+SQLite for quick local preview:
+```bash
+GORUNNERS_SECRET=change-this-in-production
+```
+
+Then start the backend normally:
+```bash
+cd /path/to/gorunners/server
+source .venv/bin/activate
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Current local MySQL startup script already writes in your database settings:
+Quick start script on macOS/Linux:
 ```bash
 cd /Users/fake/gorunners
 ./start-backend.sh
 ```
 
-The script uses:
-```bash
-export GORUNNERS_DB="mysql+pymysql://root:Dyfsyz666@127.0.0.1:3306/GORUNNERS_DB?charset=utf8mb4"
-```
-
-Alternative MySQL env vars:
-```bash
-export MYSQL_HOST=127.0.0.1
-export MYSQL_PORT=3306
-export MYSQL_USER=root
-export MYSQL_PASSWORD=password
-export MYSQL_DATABASE=gorunners
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
+`start-backend.sh` now reads the root `.env` / `.env.local` file instead of hardcoding one machine's MySQL credentials. If `MYSQL_HOST` is set and the `mysql` CLI is installed, it will also create the database automatically before starting FastAPI.
 
 Backend API URL:
 `http://localhost:8000`

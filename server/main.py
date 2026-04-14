@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Optional
 from urllib.parse import quote_plus
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
@@ -23,6 +24,12 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 from sqlalchemy import inspect, text
 
 BASE_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = BASE_DIR.parent
+
+# Load repo-level env files so local startup does not require hardcoded secrets.
+load_dotenv(PROJECT_DIR / ".env")
+load_dotenv(PROJECT_DIR / ".env.local", override=True)
+
 SECRET_KEY = os.getenv("GORUNNERS_SECRET", "change-this-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
