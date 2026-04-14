@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>GoRunners Admin Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=admin-console-1" />
+  </head>
+  <body class="admin-shell">
+    <div class="ambient-grid" aria-hidden="true"></div>
+
+    <main class="admin-page">
+      <section class="admin-login-panel" id="admin-login-panel">
+        <div class="admin-login-copy">
+          <p class="eyebrow">GoRunners Admin</p>
+          <h1>独立管理员后台</h1>
+          <p class="lead">
+            这里单独处理用户管理、活动查看与社区内容审核。管理员登录后不会再和普通用户共用同一套操作界面。
+          </p>
+          <div class="admin-login-points">
+            <span class="pill">用户信息管理</span>
+            <span class="pill">活动总览与删除</span>
+            <span class="pill">不当帖子清理</span>
+            <span class="pill">MySQL 优先接入</span>
+          </div>
+        </div>
+
+        <div class="card admin-login-card">
+          <div class="card-header">
+            <div>
+              <p class="card-title">管理员登录</p>
+              <p class="card-subtitle">使用管理员账号进入后台控制台</p>
+            </div>
+            <a class="ghost-button" href="index.html">返回主站</a>
+          </div>
+
+          <form id="admin-login-form" class="form-card">
+            <label>
+              <span>邮箱</span>
+              <input type="email" name="email" placeholder="admin@gorunners.com" required />
+            </label>
+            <label>
+              <span>密码</span>
+              <input type="password" name="password" placeholder="请输入管理员密码" required />
+            </label>
+            <button class="primary-button" type="submit">进入后台</button>
+          </form>
+
+          <div class="notice" id="admin-login-message">默认管理员账号请查看 README。</div>
+        </div>
+      </section>
+
+      <section class="admin-console" id="admin-console" hidden>
+        <header class="admin-topbar">
+          <div>
+            <p class="eyebrow">Management</p>
+            <h2>GoRunners Admin Console</h2>
+            <p class="section-subtitle" id="admin-viewer-meta">
+              管理员后台已连接数据接口，可统一处理用户、活动和社区帖子。
+            </p>
+          </div>
+          <div class="admin-top-actions">
+            <span class="db-badge" id="db-badge">DB</span>
+            <a class="outline-button" href="index.html">返回主站</a>
+            <button class="ghost-button" id="admin-refresh" type="button">刷新数据</button>
+            <button class="primary-button" id="admin-logout" type="button">退出登录</button>
+          </div>
+        </header>
+
+        <section class="admin-stats-grid">
+          <article class="card admin-stat-card">
+            <p class="eyebrow">Users</p>
+            <p class="admin-stat-value" id="stat-users">0</p>
+            <p class="body">注册用户总数</p>
+          </article>
+          <article class="card admin-stat-card">
+            <p class="eyebrow">Events</p>
+            <p class="admin-stat-value" id="stat-events">0</p>
+            <p class="body">当前活动数量</p>
+          </article>
+          <article class="card admin-stat-card">
+            <p class="eyebrow">Posts</p>
+            <p class="admin-stat-value" id="stat-posts">0</p>
+            <p class="body">社区帖子总数</p>
+          </article>
+          <article class="card admin-stat-card">
+            <p class="eyebrow">Registrations</p>
+            <p class="admin-stat-value" id="stat-registrations">0</p>
+            <p class="body">累计报名记录</p>
+          </article>
+        </section>
+
+        <div class="admin-layout">
+          <section class="card admin-section">
+            <div class="card-header">
+              <div>
+                <p class="card-title">用户管理</p>
+                <p class="card-subtitle">查看账号状态、角色与活跃信息</p>
+              </div>
+              <label class="input-pill admin-search">
+                <input id="user-search" type="search" placeholder="搜索姓名或邮箱" />
+              </label>
+            </div>
+            <div class="admin-list" id="admin-users"></div>
+          </section>
+
+          <section class="card admin-section">
+            <div class="card-header">
+              <div>
+                <p class="card-title">活动管理</p>
+                <p class="card-subtitle">创建活动并查看报名情况</p>
+              </div>
+            </div>
+
+            <form id="admin-event-form" class="admin-mini-form">
+              <label>
+                <span>活动名称</span>
+                <input type="text" name="name" placeholder="环湖晨跑" required />
+              </label>
+              <label>
+                <span>集合地点</span>
+                <input type="text" name="location" placeholder="独墅湖 Gate A" required />
+              </label>
+              <label>
+                <span>时间</span>
+                <input type="text" name="time" placeholder="07:00 - Sat" required />
+              </label>
+              <label>
+                <span>距离 (km)</span>
+                <input type="number" name="distance" min="1" step="0.5" required />
+              </label>
+              <label>
+                <span>难度</span>
+                <select name="level" required>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </label>
+              <label>
+                <span>人数上限</span>
+                <input type="number" name="capacity" min="5" step="1" required />
+              </label>
+              <button class="primary-button" type="submit">发布新活动</button>
+            </form>
+
+            <div class="admin-list" id="admin-events"></div>
+          </section>
+
+          <section class="card admin-section admin-section-full">
+            <div class="card-header">
+              <div>
+                <p class="card-title">社区帖子审核</p>
+                <p class="card-subtitle">发现不当内容后可直接删除</p>
+              </div>
+            </div>
+            <div class="admin-list" id="admin-posts"></div>
+          </section>
+
+          <section class="card admin-section admin-section-full">
+            <div class="card-header">
+              <div>
+                <p class="card-title">最近管理操作</p>
+                <p class="card-subtitle">保留后台处理痕迹，方便追踪改动</p>
+              </div>
+            </div>
+            <div class="admin-list" id="admin-actions"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="admin-toast" role="status" aria-live="polite"></div>
+
+    <script src="config.js?v=admin-console-1"></script>
+    <script src="admin.js?v=admin-console-1"></script>
+  </body>
+</html>

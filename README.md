@@ -10,19 +10,19 @@ A playful, human-centric web app for onsite running activities inspired by Wumin
 - Suzhou live map with location-based check-ins
 - Community spot threads with camera-enabled posts
 - Organizer dashboard for lightweight event management
-- Admin tools for user management and recommended checkpoints
+- Separate admin console for user management, event oversight, and post moderation
 - Responsive UI for mobile and desktop
 
 ## Tech
 - HTML5 + CSS3
 - Vanilla JavaScript
 - Leaflet + OpenStreetMap tiles for the live map
-- LocalStorage "DB" for registrations, points, badges, and organizer updates
+- LocalStorage for frontend session/cache data such as points, badges, and route drafts
 
 ## Local startup and run configuration
 This project has two parts:
-- Frontend static page (`index.html`, `app.js`, `styles.css`, ...)
-- Backend API (`server/main.py`, FastAPI + SQLite)
+- Frontend static pages (`index.html`, `admin.html`, `app.js`, `admin.js`, `styles.css`, ...)
+- Backend API (`server/main.py`, FastAPI + SQLModel, MySQL-first configuration)
 
 You can run frontend-only, or run frontend + backend together.
 
@@ -49,6 +49,12 @@ python3 -m http.server 5173
 Open in browser:
 `http://localhost:5173/`
 
+Quick start script:
+```bash
+cd /Users/fake/gorunners
+./start-frontend.sh
+```
+
 ### 3) Backend startup (FastAPI)
 Run from `gorunners/server`:
 
@@ -70,6 +76,37 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
+Recommended database setup:
+- Preferred: MySQL via `GORUNNERS_DB`
+- Fallback for quick local preview: SQLite if no MySQL env vars are provided
+
+MySQL example:
+```bash
+export GORUNNERS_DB="mysql+pymysql://root:password@127.0.0.1:3306/gorunners?charset=utf8mb4"
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Current local MySQL startup script already writes in your database settings:
+```bash
+cd /Users/fake/gorunners
+./start-backend.sh
+```
+
+The script uses:
+```bash
+export GORUNNERS_DB="mysql+pymysql://root:Dyfsyz666@127.0.0.1:3306/GORUNNERS_DB?charset=utf8mb4"
+```
+
+Alternative MySQL env vars:
+```bash
+export MYSQL_HOST=127.0.0.1
+export MYSQL_PORT=3306
+export MYSQL_USER=root
+export MYSQL_PASSWORD=password
+export MYSQL_DATABASE=gorunners
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
 Backend API URL:
 `http://localhost:8000`
 
@@ -79,6 +116,10 @@ Swagger docs:
 Default admin:
 - Email: `admin@gorunners.com`
 - Password: `gorunners123`
+
+Admin console:
+- `http://localhost:5173/admin.html`
+- Admin login redirects to the dedicated console instead of keeping the same user-facing page
 
 ### 4) Run frontend + backend together
 Use two terminals:
@@ -98,7 +139,20 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 Then open:
 - Frontend: `http://localhost:5173/`
+- Admin console: `http://localhost:5173/admin.html`
 - Backend docs: `http://localhost:8000/docs`
+
+Quick start on macOS/Linux:
+```bash
+cd /Users/fake/gorunners
+./start-frontend.sh
+```
+
+Open another terminal:
+```bash
+cd /Users/fake/gorunners
+./start-backend.sh
+```
 
 ### 5) API endpoint configuration in frontend
 The frontend defaults to `http://localhost:8000`.
@@ -137,7 +191,9 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 2. In GitHub: `Settings -> Pages -> Build and deployment`, select **GitHub Actions**.
 3. The workflow at `.github/workflows/deploy-pages.yml` publishes:
    - `index.html`
+   - `admin.html`
    - `app.js`
+   - `admin.js`
    - `data.js`
    - `styles.css`
    - `config.js`
@@ -145,16 +201,20 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ### Backend (Render)
 1. Create a Render **Web Service** from this repo.
 2. It will auto-detect `render.yaml` (root).
-3. After deploy, set the API URL in `config.js`:
+3. In Render environment variables, configure MySQL using either:
+   - `GORUNNERS_DB=mysql+pymysql://user:password@host:3306/gorunners?charset=utf8mb4`
+   - or `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`
+4. After deploy, set the API URL in `config.js`:
    ```js
    window.GORUNNERS_API = "https://your-service-name.onrender.com";
    ```
-4. Commit and push again to update GitHub Pages.
+5. Commit and push again to update GitHub Pages.
 
 ## Data handling
 - Seed events are stored in `data.js`.
-- User interactions are stored in `localStorage` (`gorunners_state_v2` and `gorunners_events_v2`).
-- Server state is stored in `gorunners/server/gorunners.db` (SQLite).
+- User interactions and UI cache are stored in `localStorage` (`gorunners_state_v2`, `gorunners_events_v2`, `gorunners_token`).
+- Server state is stored in MySQL when configured.
+- If no MySQL configuration is provided, the backend falls back to `gorunners/server/gorunners.db` for local compatibility.
 
 ## Notes
 - Geolocation and camera capture require HTTPS or localhost in modern browsers.

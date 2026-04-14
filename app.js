@@ -35,6 +35,7 @@ const i18n = {
     nav_ai_trainer: "AI Trainer",
     header_location: "Enable Location",
     header_join: "Join Next Run",
+    header_admin_console: "Admin Console",
     header_login: "Login",
     header_logout: "Logout",
     ai_eyebrow: "AI",
@@ -197,6 +198,11 @@ const i18n = {
     org_attendance: "Live Attendance",
     org_users: "User Management",
     org_users_load: "Refresh",
+    org_admin_console: "Admin Console",
+    org_admin_open: "Open Console",
+    org_admin_description: "Admins manage users, events, and post moderation in the dedicated console.",
+    org_admin_guest: "Login with an admin account to enter the dedicated management console.",
+    org_admin_ready: "Admin access detected. Open the dedicated console for user, event, and moderation tools.",
     org_update: "Send Update",
     org_notice: "No update sent yet. Tap \"Send Update\" to broadcast a warm-up reminder.",
     footer_title: "GoRunners - Wuming Run Crew",
@@ -246,6 +252,7 @@ const i18n = {
     toast_logout: "Logged out.",
     toast_register_success: "Account created.",
     toast_admin_required: "Admin access required.",
+    toast_admin_redirect: "Admin login detected. Redirecting to Admin Console.",
     toast_recommend_done: "Recommended checkpoints added.",
     toast_plan_added: "Planning marker saved.",
     toast_route_editing: "Route editing enabled. Tap the map to add points.",
@@ -276,6 +283,7 @@ const i18n = {
     nav_ai_trainer: "AI训练师选择",
     header_location: "开启定位",
     header_join: "加入下一场",
+    header_admin_console: "管理后台",
     header_login: "登录",
     header_logout: "退出",
     ai_eyebrow: "AI",
@@ -433,6 +441,11 @@ const i18n = {
     org_attendance: "签到情况",
     org_users: "用户管理",
     org_users_load: "刷新",
+    org_admin_console: "管理后台",
+    org_admin_open: "打开后台",
+    org_admin_description: "管理员请在独立后台中统一管理用户、活动和社区帖子。",
+    org_admin_guest: "请使用管理员账号登录后进入独立管理后台。",
+    org_admin_ready: "已识别管理员身份，请进入独立后台处理用户、活动和内容审核。",
     org_update: "发送通知",
     org_notice: "暂无通知，点击发送提醒热身。",
     footer_title: "GoRunners - 无名跑团",
@@ -482,6 +495,7 @@ const i18n = {
     toast_logout: "已退出。",
     toast_register_success: "账号已创建。",
     toast_admin_required: "需要管理员权限。",
+    toast_admin_redirect: "已识别管理员账号，正在跳转到管理后台。",
     toast_recommend_done: "已生成推荐打卡点。",
     toast_plan_added: "规划标注已保存。",
     toast_route_editing: "已进入路线编辑，点击地图添加点位。",
@@ -566,8 +580,9 @@ const dom = {
   attendanceList: document.getElementById("attendance-list"),
   sendUpdate: document.getElementById("send-update"),
   organizerNotice: document.getElementById("organizer-notice"),
-  usersList: document.getElementById("users-list"),
-  loadUsers: document.getElementById("load-users"),
+  adminConsoleLink: document.getElementById("admin-console-link"),
+  openAdminConsole: document.getElementById("open-admin-console"),
+  adminConsoleState: document.getElementById("admin-console-state"),
   createEventForm: document.getElementById("create-event-form"),
   searchInput: document.getElementById("search-input"),
   filterDistance: document.getElementById("filter-distance"),
@@ -1251,6 +1266,13 @@ function setUserUI() {
     dom.userChip.hidden = true;
     dom.loginButton.hidden = false;
     dom.userName.textContent = "Guest";
+  }
+  const isAdmin = currentUser?.role === "admin";
+  if (dom.adminConsoleLink) {
+    dom.adminConsoleLink.hidden = !isAdmin;
+  }
+  if (dom.adminConsoleState) {
+    dom.adminConsoleState.textContent = isAdmin ? t("org_admin_ready") : t("org_admin_guest");
   }
 }
 
@@ -2226,7 +2248,7 @@ function sendOrganizerUpdate() {
   showToast(t("toast_update_sent"));
 }
 
-async function fetchUsers() {
+function openAdminConsole() {
   if (!authToken) {
     showToast(t("toast_login_required"));
     openAuthModal("login");
@@ -2236,21 +2258,7 @@ async function fetchUsers() {
     showToast(t("toast_admin_required"));
     return;
   }
-  try {
-    const users = await apiRequest("/admin/users");
-    dom.usersList.innerHTML = users
-      .map(
-        (user) => `
-        <div class="list-item">
-          <strong>${user.name}</strong>
-          <span>${user.email} - ${user.role}</span>
-        </div>
-      `
-      )
-      .join("");
-  } catch (error) {
-    dom.usersList.innerHTML = `<p class="body">${error.message}</p>`;
-  }
+  window.location.href = "admin.html";
 }
 
 async function handleRecommendCheckpoints() {
@@ -2314,7 +2322,8 @@ async function handleAuthSubmit(event) {
     closeAuthModal();
     setUserUI();
     if (currentUser?.role === "admin") {
-      fetchUsers();
+      showToast(t("toast_admin_redirect"));
+      setTimeout(() => openAdminConsole(), 300);
     }
   } catch (error) {
     showToast(error.message || t("toast_login_required"));
@@ -2412,7 +2421,6 @@ function initActions() {
     showToast(t("toast_cleared"));
   });
   dom.sendUpdate.addEventListener("click", sendOrganizerUpdate);
-  dom.loadUsers.addEventListener("click", fetchUsers);
   dom.createEventForm.addEventListener("submit", handleCreateEvent);
   dom.locationToggle.addEventListener("click", toggleLocation);
   dom.quickRegister.addEventListener("click", () => registerEvent(activeEvent.id));
@@ -2424,6 +2432,21 @@ function initActions() {
   dom.postImage.addEventListener("change", handleImagePreview);
   dom.cameraButton.addEventListener("click", () => dom.postImage.click());
   dom.loginButton.addEventListener("click", () => openAuthModal("login"));
+  dom.adminConsoleLink?.addEventListener("click", (event) => {
+    if (!currentUser || currentUser.role !== "admin") {
+      event.preventDefault();
+      showToast(t("toast_admin_required"));
+    }
+  });
+  dom.openAdminConsole?.addEventListener("click", (event) => {
+    if (!currentUser || currentUser.role !== "admin") {
+      event.preventDefault();
+      showToast(t("toast_admin_required"));
+      return;
+    }
+    event.preventDefault();
+    openAdminConsole();
+  });
   dom.logoutButton.addEventListener("click", handleLogout);
   dom.authClose.addEventListener("click", closeAuthModal);
   dom.authToggle.addEventListener("click", () => {
@@ -3240,9 +3263,6 @@ async function init() {
   await ensureApiBase();
   await fetchCurrentUser();
   setUserUI();
-  if (currentUser?.role === "admin") {
-    fetchUsers();
-  }
   fetchEventsFromServer();
   fetchSpotsFromServer();
 }

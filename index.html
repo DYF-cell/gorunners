@@ -17,7 +17,7 @@
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=admin-console-1" />
   </head>
   <body>
     <a class="skip-link" href="#home">Skip to content</a>
@@ -52,6 +52,9 @@
         <button class="primary-button" id="quick-register" data-i18n="header_join">
           Join Next Run
         </button>
+        <a class="outline-button" id="admin-console-link" href="admin.html" hidden data-i18n="header_admin_console">
+          Admin Console
+        </a>
         <div class="user-chip" id="user-chip" hidden>
           <span id="user-name">Guest</span>
           <button class="ghost-button" id="logout-button" data-i18n="header_logout">Logout</button>
@@ -484,10 +487,17 @@
         </div>
         <div class="card admin-card">
           <div class="card-header">
-            <p class="card-title" data-i18n="org_users">User Management</p>
-            <button class="ghost-button" id="load-users" data-i18n="org_users_load">Refresh</button>
+            <p class="card-title" data-i18n="org_admin_console">Admin Console</p>
+            <a class="ghost-button" id="open-admin-console" href="admin.html" data-i18n="org_admin_open">
+              Open Console
+            </a>
           </div>
-          <div class="list" id="users-list"></div>
+          <p class="body" data-i18n="org_admin_description">
+            Admins manage users, events, and post moderation in the dedicated console.
+          </p>
+          <div class="notice" id="admin-console-state" data-i18n="org_admin_guest">
+            Login with an admin account to enter the dedicated management console.
+          </div>
         </div>
       </section>
 
@@ -642,8 +652,8 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="data.js?v=route-editor-3"></script>
-    <script src="config.js?v=route-editor-3"></script>
-    <script src="app.js?v=route-editor-3"></script>
+    <script src="data.js?v=admin-console-1"></script>
+    <script src="config.js?v=admin-console-1"></script>
+    <script src="app.js?v=admin-console-1"></script>
   </body>
 </html>
