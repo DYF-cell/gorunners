@@ -377,9 +377,6 @@ def seed_data(session: Session) -> None:
         session.add(admin)
         session.commit()
 
-    if session.exec(select(Event)).first():
-        return
-
     seed_events = [
         {
             "name": "Sunset 5K Campus Run",
@@ -459,33 +456,34 @@ def seed_data(session: Session) -> None:
         },
     ]
 
-    for item in seed_events:
-        event = Event(
-            name=item["name"],
-            name_zh=item["name_zh"],
-            description=item["description"],
-            description_zh=item["description_zh"],
-            time_label=item["time_label"],
-            time_label_zh=item["time_label_zh"],
-            location=item["location"],
-            location_zh=item["location_zh"],
-            distance=item["distance"],
-            level=item["level"],
-            pace=item["pace"],
-            capacity=item["capacity"],
-            spots_left=item["capacity"],
-            tags_json=encode_list(item["tags"]),
-            tags_zh_json=encode_list(item["tags_zh"]),
-            lat=item["lat"],
-            lng=item["lng"],
-            route_coords_json=encode_list(item["route_coords"]),
-        )
-        session.add(event)
+    if not session.exec(select(Event)).first():
+        for item in seed_events:
+            event = Event(
+                name=item["name"],
+                name_zh=item["name_zh"],
+                description=item["description"],
+                description_zh=item["description_zh"],
+                time_label=item["time_label"],
+                time_label_zh=item["time_label_zh"],
+                location=item["location"],
+                location_zh=item["location_zh"],
+                distance=item["distance"],
+                level=item["level"],
+                pace=item["pace"],
+                capacity=item["capacity"],
+                spots_left=item["capacity"],
+                tags_json=encode_list(item["tags"]),
+                tags_zh_json=encode_list(item["tags_zh"]),
+                lat=item["lat"],
+                lng=item["lng"],
+                route_coords_json=encode_list(item["route_coords"]),
+            )
+            session.add(event)
 
     seed_spots = [
         {
             "name": "Dushu Lake",
-            "name_zh": "",
+            "name_zh": "独墅湖",
             "description": "Lakeside breeze, sunset reflections, easy loops.",
             "description_zh": "",
             "vibe": "Campus Lakeside",
@@ -495,7 +493,7 @@ def seed_data(session: Session) -> None:
         },
         {
             "name": "Jinji Lake",
-            "name_zh": "",
+            "name_zh": "金鸡湖",
             "description": "Wide paths and city skyline views for group runs.",
             "description_zh": "",
             "vibe": "City Skyline",
@@ -505,7 +503,7 @@ def seed_data(session: Session) -> None:
         },
         {
             "name": "Pingjiang Road",
-            "name_zh": "",
+            "name_zh": "平江路",
             "description": "Historic alleys with photo checkpoints.",
             "description_zh": "",
             "vibe": "Heritage Story",
@@ -513,9 +511,46 @@ def seed_data(session: Session) -> None:
             "lat": 31.312,
             "lng": 120.625,
         },
+        {
+            "name": "Shantang Street",
+            "name_zh": "山塘街",
+            "description": "Canal-side night views with lively old-town atmosphere.",
+            "description_zh": "沿河夜景与古城烟火气，适合夜跑打卡。",
+            "vibe": "Night Market",
+            "vibe_zh": "夜市氛围",
+            "lat": 31.334,
+            "lng": 120.59,
+        },
+        {
+            "name": "Humble Administrator's Garden",
+            "name_zh": "拙政园",
+            "description": "A classic Suzhou garden area for calm, easy loops.",
+            "description_zh": "经典苏式园林区域，适合舒缓慢跑。",
+            "vibe": "Garden Calm",
+            "vibe_zh": "园林静谧",
+            "lat": 31.324,
+            "lng": 120.627,
+        },
+        {
+            "name": "Tiger Hill",
+            "name_zh": "虎丘",
+            "description": "Historic hill routes with gentle elevation challenge.",
+            "description_zh": "历史名胜坡道路线，带来轻度爬升挑战。",
+            "vibe": "Hill Challenge",
+            "vibe_zh": "坡度挑战",
+            "lat": 31.34,
+            "lng": 120.587,
+        },
     ]
 
+    existing_spots = {spot.name: spot for spot in session.exec(select(Spot)).all()}
     for spot_item in seed_spots:
+        existing_spot = existing_spots.get(spot_item["name"])
+        if existing_spot:
+            if spot_item["name_zh"] and existing_spot.name_zh != spot_item["name_zh"]:
+                existing_spot.name_zh = spot_item["name_zh"]
+                session.add(existing_spot)
+            continue
         spot = Spot(
             name=spot_item["name"],
             name_zh=spot_item["name_zh"],
@@ -836,6 +871,11 @@ def list_posts(spot_id: int, session: Session = Depends(get_session)):
     output = []
     for post in posts:
         comments = session.exec(select(Comment).where(Comment.post_id == post.id)).all()
+        comment_user_ids = {comment.user_id for comment in comments}
+        comment_users = {}
+        if comment_user_ids:
+            users = session.exec(select(User).where(User.id.in_(comment_user_ids))).all()
+            comment_users = {user.id: user.name for user in users}
         output.append(
             {
                 "id": post.id,
@@ -845,7 +885,13 @@ def list_posts(spot_id: int, session: Session = Depends(get_session)):
                 "image_url": post.image_url,
                 "likes": post.likes,
                 "created_at": post.created_at.isoformat(),
-                "comments": [comment.model_dump() for comment in comments],
+                "comments": [
+                    {
+                        **comment.model_dump(),
+                        "user_name": comment_users.get(comment.user_id, "Runner"),
+                    }
+                    for comment in comments
+                ],
             }
         )
     return output
@@ -882,7 +928,8 @@ def comment_post(post_id: int, comment_in: CommentInput, user: User = Depends(ge
     comment = Comment(post_id=post_id, user_id=user.id, text=comment_in.text)
     session.add(comment)
     session.commit()
-    return {"status": "commented"}
+    session.refresh(comment)
+    return {"status": "commented", "comment": {**comment.model_dump(), "user_name": user.name}}
 
 
 @app.post("/uploads")

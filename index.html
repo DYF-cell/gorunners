@@ -17,7 +17,7 @@
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=route-editor-4" />
   </head>
   <body>
     <a class="skip-link" href="#home">Skip to content</a>
@@ -583,8 +583,7 @@
           <button class="ghost-button" id="map-picker-close" data-i18n="map_picker_close">Close</button>
         </div>
         <div class="map-picker-body">
-          <div class="map-picker-canvas" id="map-picker" role="img" aria-label="Expanded route planner map"></div>
-          <aside class="map-picker-panel">
+          <aside class="map-picker-panel" id="map-picker-panel">
             <p class="picker-heading" data-i18n="map_picker_steps_title">How to choose a location</p>
             <ol class="picker-steps">
               <li data-i18n="map_picker_step_1">Choose marker type</li>
@@ -616,6 +615,9 @@
               <button class="primary-button" id="map-picker-edit" type="button" data-i18n="button_route_edit">
                 Edit Current Route
               </button>
+              <button class="outline-button" id="map-picker-clear" type="button" data-i18n="button_plan_clear">
+                Clear Plan
+              </button>
               <button class="outline-button" id="map-picker-undo" type="button" data-i18n="button_route_undo">
                 Undo Point
               </button>
@@ -629,6 +631,14 @@
             <select id="map-picker-route-select" class="input-pill" aria-label="Saved planner routes"></select>
             <div class="route-saved-list" id="map-picker-route-list"></div>
           </aside>
+          <div
+            class="map-picker-resize-handle"
+            id="map-picker-resize-handle"
+            role="separator"
+            aria-label="Resize panel"
+            aria-orientation="horizontal"
+          ></div>
+          <div class="map-picker-canvas" id="map-picker" role="img" aria-label="Expanded route planner map"></div>
         </div>
       </div>
     </div>
@@ -640,6 +650,6 @@
     ></script>
     <script src="data.js?v=route-editor-3"></script>
     <script src="config.js?v=route-editor-3"></script>
-    <script src="app.js?v=route-editor-3"></script>
+    <script src="app.js?v=route-editor-4"></script>
   </body>
 </html>
