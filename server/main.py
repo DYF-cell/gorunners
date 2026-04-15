@@ -688,6 +688,61 @@ def serialize_match_chat_message(message: MatchChatMessage, user_lookup: dict[in
     }
 
 
+def build_leaderboard(session: Session) -> list[dict]:
+    users = session.exec(select(User).where(User.is_active == True)).all()
+    registrations = session.exec(select(Registration)).all()
+    checkins = session.exec(select(Checkin)).all()
+    posts = session.exec(select(Post).where(Post.is_hidden == False)).all()
+    comments = session.exec(select(Comment).where(Comment.is_hidden == False)).all()
+    events = session.exec(select(Event)).all()
+
+    registration_counts: dict[int, int] = {}
+    checkin_counts: dict[int, int] = {}
+    post_counts: dict[int, int] = {}
+    comment_counts: dict[int, int] = {}
+    event_counts: dict[int, int] = {}
+
+    for item in registrations:
+        registration_counts[item.user_id] = registration_counts.get(item.user_id, 0) + 1
+    for item in checkins:
+        checkin_counts[item.user_id] = checkin_counts.get(item.user_id, 0) + 1
+    for item in posts:
+        post_counts[item.user_id] = post_counts.get(item.user_id, 0) + 1
+    for item in comments:
+        comment_counts[item.user_id] = comment_counts.get(item.user_id, 0) + 1
+    for item in events:
+        if item.created_by:
+            event_counts[item.created_by] = event_counts.get(item.created_by, 0) + 1
+
+    board = []
+    for user in users:
+        if user.id is None:
+            continue
+        registration_total = registration_counts.get(user.id, 0)
+        checkin_total = checkin_counts.get(user.id, 0)
+        post_total = post_counts.get(user.id, 0)
+        comment_total = comment_counts.get(user.id, 0)
+        event_total = event_counts.get(user.id, 0)
+        points = registration_total * 25 + checkin_total * 20 + post_total * 12 + comment_total * 6 + event_total * 30
+        board.append(
+            {
+                "user_id": user.id,
+                "name": user.name,
+                "points": points,
+                "registration_count": registration_total,
+                "checkin_count": checkin_total,
+                "post_count": post_total,
+                "comment_count": comment_total,
+                "event_count": event_total,
+            }
+        )
+
+    board.sort(key=lambda item: (-item["points"], item["name"].lower(), item["user_id"]))
+    for index, item in enumerate(board, start=1):
+        item["rank"] = index
+    return board
+
+
 def log_admin_action(
     session: Session,
     admin_user_id: int,
@@ -1121,6 +1176,11 @@ def me(current_user: User = Depends(get_current_user)):
         "is_active": current_user.is_active,
         "last_login_at": current_user.last_login_at.isoformat() if current_user.last_login_at else None,
     }
+
+
+@app.get("/leaderboard")
+def leaderboard(session: Session = Depends(get_session)):
+    return {"leaders": build_leaderboard(session)}
 
 
 @app.get("/match/preferences")

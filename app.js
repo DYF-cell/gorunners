@@ -193,8 +193,15 @@ const i18n = {
     myrun_points: "Total Points",
     myrun_points_hint: "Earn points for each registration, checkpoint, and team run.",
     myrun_badges: "Badges Unlocked",
+    myrun_badges_subtitle: "Your recent achievements and unlocked moments.",
     myrun_upcoming: "Upcoming Runs",
     myrun_clear: "Clear All",
+    myrun_rank_label: "My Rank",
+    myrun_leaderboard_summary: "See how your score compares with the whole running crew.",
+    myrun_leaderboard_empty: "No rankings yet. Invite more runners to join the board.",
+    myrun_badges_empty: "No badges yet. Join a run to unlock your first achievement.",
+    myrun_rank_fallback: "Join and log in to appear in the ranking.",
+    myrun_points_breakdown: "{count} runners on the board",
     org_eyebrow: "Organizer",
     org_title: "Lightweight Activity Management",
     org_subtitle:
@@ -455,8 +462,15 @@ const i18n = {
     myrun_points: "累计积分",
     myrun_points_hint: "报名、打卡、组队均可获得积分。",
     myrun_badges: "徽章解锁",
+    myrun_badges_subtitle: "把你已经达成的跑步成就集中展示出来。",
     myrun_upcoming: "已报名活动",
     myrun_clear: "清空",
+    myrun_rank_label: "我的排名",
+    myrun_leaderboard_summary: "查看你的积分和整个跑团成员的排名对比。",
+    myrun_leaderboard_empty: "暂时还没有排行榜数据，邀请更多跑者加入吧。",
+    myrun_badges_empty: "暂时还没有获得徽章，先去参加一场活动吧。",
+    myrun_rank_fallback: "登录并参与活动后会出现在排行榜中。",
+    myrun_points_breakdown: "当前共有 {count} 位跑者上榜",
     org_eyebrow: "组织者",
     org_title: "轻量活动管理",
     org_subtitle: "创建活动、签到管理、现场通知，一站式管理。",
@@ -616,6 +630,9 @@ const dom = {
   streakCount: document.getElementById("streak-count"),
   pointsCount: document.getElementById("points-count"),
   badgeGrid: document.getElementById("badge-grid"),
+  leaderboardRank: document.getElementById("leaderboard-rank"),
+  leaderboardSummary: document.getElementById("leaderboard-summary"),
+  leaderboardList: document.getElementById("leaderboard-list"),
   registrationsList: document.getElementById("registrations-list"),
   clearRegistrations: document.getElementById("clear-registrations"),
   attendanceList: document.getElementById("attendance-list"),
@@ -704,6 +721,7 @@ let currentUser = null;
 let lastMatchResult = null;
 let matchChatPollId = null;
 let lastMatchChatGroupKey = "";
+let leaderboardData = [];
 let authMode = "login";
 let eventMap;
 let cityMap;
@@ -2032,6 +2050,7 @@ async function registerEvent(eventId) {
   }
   saveState();
   saveEvents();
+  fetchLeaderboard().then(renderMyRun);
   renderMyRun();
   renderEvents();
   renderEventDetail();
@@ -2052,21 +2071,99 @@ function unlockBadge(badgeId) {
   }
 }
 
+function getBadgeVisual(badgeId) {
+  const map = {
+    "first-finish": "FF",
+    "route-explorer": "RX",
+    "team-spirit": "TS",
+    momentum: "MO",
+    "night-owl": "NO",
+    "city-explorer": "CE",
+  };
+  return map[badgeId] || "GR";
+}
+
+function getBadgeCover(badgeId) {
+  const map = {
+    "first-finish": "assets/badges/first-run.png",
+    "team-spirit": "assets/badges/team-spirit.png",
+    momentum: "assets/badges/streak.png",
+    "night-owl": "assets/badges/night-owl.png",
+  };
+  return map[badgeId] || "";
+}
+
+async function fetchLeaderboard() {
+  try {
+    const result = await apiRequest("/leaderboard");
+    leaderboardData = Array.isArray(result?.leaders) ? result.leaders : [];
+  } catch (error) {
+    leaderboardData = [];
+  }
+}
+
 function renderMyRun() {
   dom.streakCount.textContent = `${state.streak} ${currentLang === "zh" ? "次" : "runs"}`;
-  dom.pointsCount.textContent = `${state.points} ${currentLang === "zh" ? "分" : "pts"}`;
+  const currentLeader = leaderboardData.find((entry) => currentUser && String(entry.user_id) === String(currentUser.id));
+  const visiblePoints = currentLeader?.points ?? state.points;
+  dom.pointsCount.textContent = `${visiblePoints} ${currentLang === "zh" ? "分" : "pts"}`;
+  if (dom.leaderboardRank) {
+    dom.leaderboardRank.textContent = currentLeader ? `#${currentLeader.rank}` : "--";
+  }
+  if (dom.leaderboardSummary) {
+    dom.leaderboardSummary.textContent = leaderboardData.length
+      ? currentLeader
+        ? `${t("myrun_points_breakdown", { count: String(leaderboardData.length) })} · ${currentLang === "zh" ? "你已进入排行榜" : "you are on the board"}`
+        : t("myrun_rank_fallback")
+      : t("myrun_leaderboard_summary");
+  }
 
-  dom.badgeGrid.innerHTML = DEFAULT_BADGES.map((badge) => {
-    const unlocked = state.badges.includes(badge.id);
-    const name = currentLang === "zh" ? badge.nameZh : badge.name;
-    const hint = currentLang === "zh" ? badge.hintZh : badge.hint;
-    return `
-      <div class="badge-item">
-        <span>${name}</span>
-        <strong>${unlocked ? t("badge_unlocked") : hint}</strong>
-      </div>
-    `;
-  }).join("");
+  const unlockedBadges = DEFAULT_BADGES.filter((badge) => state.badges.includes(badge.id));
+  dom.badgeGrid.innerHTML = unlockedBadges.length
+    ? unlockedBadges
+        .map((badge) => {
+          const name = currentLang === "zh" ? badge.nameZh : badge.name;
+          const hint = currentLang === "zh" ? badge.hintZh : badge.hint;
+          const cover = getBadgeCover(badge.id);
+          return `
+            <article class="badge-item badge-card">
+              <div class="badge-emblem${cover ? " image" : ""}">
+                ${
+                  cover
+                    ? `<img src="${cover}" alt="${escapeHtml(name)}" loading="lazy" onerror="this.closest('.badge-emblem').classList.remove('image'); this.remove();" />`
+                    : getBadgeVisual(badge.id)
+                }
+              </div>
+              <div class="badge-copy">
+                <strong>${escapeHtml(name)}</strong>
+                <span>${escapeHtml(hint)}</span>
+              </div>
+              <div class="badge-state">${t("badge_unlocked")}</div>
+            </article>
+          `;
+        })
+        .join("")
+    : `<p class="body">${t("myrun_badges_empty")}</p>`;
+
+  if (dom.leaderboardList) {
+    dom.leaderboardList.innerHTML = leaderboardData.length
+      ? leaderboardData
+          .map((entry) => {
+            const isCurrentUser = currentUser && String(entry.user_id) === String(currentUser.id);
+            return `
+              <article class="list-item leaderboard-item${isCurrentUser ? " active" : ""}">
+                <div class="leaderboard-rank">#${entry.rank}</div>
+                <div class="leaderboard-copy">
+                  <strong>${escapeHtml(entry.name)}${isCurrentUser ? ` (${currentLang === "zh" ? "你" : "You"})` : ""}</strong>
+                  <span>${entry.registration_count} ${currentLang === "zh" ? "次报名" : "registrations"} · ${entry.checkin_count} ${currentLang === "zh" ? "次签到" : "check-ins"}</span>
+                </div>
+                <div class="leaderboard-points">${entry.points} ${currentLang === "zh" ? "分" : "pts"}</div>
+              </article>
+            `;
+          })
+          .join("")
+      : `<p class="body">${t("myrun_leaderboard_empty")}</p>`;
+  }
 
   dom.registrationsList.innerHTML = state.registrations
     .map((eventId) => events.find((event) => event.id === eventId))
@@ -2559,6 +2656,7 @@ async function handleAuthSubmit(event) {
       authToken = result.access_token;
       localStorage.setItem(tokenKey, authToken);
       await fetchCurrentUser();
+      await fetchLeaderboard();
       showToast(t("toast_register_success"));
     } else {
       const result = await apiRequest("/auth/login", {
@@ -2568,11 +2666,13 @@ async function handleAuthSubmit(event) {
       authToken = result.access_token;
       localStorage.setItem(tokenKey, authToken);
       await fetchCurrentUser();
+      await fetchLeaderboard();
       showToast(t("toast_login_success"));
     }
     closeAuthModal();
     setUserUI();
     await loadSavedMatchPreference();
+    renderMyRun();
     if (currentUser?.role === "admin") {
       showToast(t("toast_admin_redirect"));
       setTimeout(() => openAdminConsole(), 300);
@@ -2585,9 +2685,11 @@ async function handleAuthSubmit(event) {
 function handleLogout() {
   authToken = "";
   currentUser = null;
+  leaderboardData = [];
   localStorage.removeItem(tokenKey);
   setUserUI();
   renderMatchResult(null);
+  renderMyRun();
   showToast(t("toast_logout"));
 }
 
@@ -3062,6 +3164,7 @@ async function handleCheckin() {
   if (distance <= 0.6) {
     try {
       await apiRequest(`/spots/${spot.id}/checkin`, { method: "POST" });
+      fetchLeaderboard().then(renderMyRun);
     } catch (error) {
       // allow local badge even if server fails
     }
@@ -3174,6 +3277,7 @@ async function handlePostSubmit(event) {
   dom.postPreview.src = "";
   dom.postPreview.style.display = "none";
   await fetchPostsFromServer(spotId);
+  fetchLeaderboard().then(renderMyRun);
   renderPosts();
   showToast(t("toast_posted"));
 }
@@ -3282,6 +3386,7 @@ async function handleReply(postId) {
   try {
     const result = await apiRequest(`/posts/${postId}/comment`, { method: "POST", body: JSON.stringify({ text: replyText }) });
     post.comments.push(result?.comment || { text: replyText, user_name: currentUser?.name || "Runner" });
+    fetchLeaderboard().then(renderMyRun);
   } catch (error) {
     post.comments.push({ text: replyText, user_name: currentUser?.name || "Runner" });
   }
@@ -3897,8 +4002,10 @@ async function init() {
   setLanguage(currentLang);
   await ensureApiBase();
   await fetchCurrentUser();
+  await fetchLeaderboard();
   setUserUI();
   await loadSavedMatchPreference();
+  renderMyRun();
   fetchEventsFromServer();
   fetchSpotsFromServer();
 }
