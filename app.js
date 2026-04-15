@@ -1,5 +1,6 @@
 ﻿const stateKey = "gorunners_state_v2";
 const eventsKey = "gorunners_events_v2";
+let activeStateKey = `${stateKey}:guest`;
 
 const defaultState = {
   registrations: [],
@@ -236,6 +237,7 @@ const i18n = {
     button_details: "View details",
     button_register_short: "Register",
     badge_unlocked: "Unlocked",
+    badge_locked: "Locked",
     no_registrations: "No registrations yet. Pick a run to get started.",
     no_attendance: "No attendees yet. Publish a run to start.",
     no_posts: "No posts yet. Be the first to share a tip.",
@@ -504,6 +506,7 @@ const i18n = {
     button_details: "查看详情",
     button_register_short: "报名",
     badge_unlocked: "已解锁",
+    badge_locked: "未解锁",
     no_registrations: "暂无报名活动，先选择一场吧。",
     no_attendance: "暂无签到，先发布活动。",
     no_posts: "还没有帖子，快来第一个分享吧。",
@@ -1182,13 +1185,16 @@ function initAiTrainer() {
 }
 
 function loadState() {
-  const saved = localStorage.getItem(stateKey);
-  if (!saved) return { ...defaultState };
+  const saved = localStorage.getItem(activeStateKey);
+  if (!saved) return getDefaultState();
   try {
-    const parsed = { ...defaultState, ...JSON.parse(saved) };
+    const parsed = { ...getDefaultState(), ...JSON.parse(saved) };
     parsed.registrations = Array.isArray(parsed.registrations)
       ? parsed.registrations.map((id) => String(id))
       : [];
+    parsed.badges = Array.isArray(parsed.badges) ? parsed.badges.map((id) => String(id)) : [];
+    parsed.points = Number.isFinite(Number(parsed.points)) ? Number(parsed.points) : 0;
+    parsed.streak = Number.isFinite(Number(parsed.streak)) ? Number(parsed.streak) : 0;
     parsed.routePlans = parsed.routePlans && typeof parsed.routePlans === "object" ? parsed.routePlans : {};
     parsed.draftRoutes = parsed.draftRoutes && typeof parsed.draftRoutes === "object" ? parsed.draftRoutes : {};
     parsed.savedRoutes = parsed.savedRoutes && typeof parsed.savedRoutes === "object" ? parsed.savedRoutes : {};
@@ -1196,12 +1202,29 @@ function loadState() {
     parsed.routeMode = "idle";
     return parsed;
   } catch (error) {
-    return { ...defaultState };
+    return getDefaultState();
   }
 }
 
 function saveState() {
-  localStorage.setItem(stateKey, JSON.stringify(state));
+  localStorage.setItem(activeStateKey, JSON.stringify(state));
+}
+
+function getDefaultState() {
+  return JSON.parse(JSON.stringify(defaultState));
+}
+
+function getUserStateKey(user = currentUser) {
+  return user?.id ? `${stateKey}:user:${user.id}` : `${stateKey}:guest`;
+}
+
+function switchStateForCurrentUser() {
+  const language = currentLang || state.language || "en";
+  activeStateKey = getUserStateKey();
+  state = loadState();
+  state.language = language;
+  currentLang = language;
+  saveState();
 }
 
 function loadEvents() {
@@ -1276,11 +1299,13 @@ async function fetchCurrentUser() {
   try {
     const me = await apiRequest("/auth/me");
     currentUser = me;
+    switchStateForCurrentUser();
     return me;
   } catch (error) {
     currentUser = null;
     authToken = "";
     localStorage.removeItem(tokenKey);
+    switchStateForCurrentUser();
     return null;
   }
 }
@@ -2064,6 +2089,7 @@ function addPoints(amount) {
 }
 
 function unlockBadge(badgeId) {
+  if (!currentUser) return;
   if (!state.badges.includes(badgeId)) {
     state.badges.push(badgeId);
     saveState();
@@ -2118,32 +2144,29 @@ function renderMyRun() {
       : t("myrun_leaderboard_summary");
   }
 
-  const unlockedBadges = DEFAULT_BADGES.filter((badge) => state.badges.includes(badge.id));
-  dom.badgeGrid.innerHTML = unlockedBadges.length
-    ? unlockedBadges
-        .map((badge) => {
-          const name = currentLang === "zh" ? badge.nameZh : badge.name;
-          const hint = currentLang === "zh" ? badge.hintZh : badge.hint;
-          const cover = getBadgeCover(badge.id);
-          return `
-            <article class="badge-item badge-card">
-              <div class="badge-emblem${cover ? " image" : ""}">
-                ${
-                  cover
-                    ? `<img src="${cover}" alt="${escapeHtml(name)}" loading="lazy" onerror="this.closest('.badge-emblem').classList.remove('image'); this.remove();" />`
-                    : getBadgeVisual(badge.id)
-                }
-              </div>
-              <div class="badge-copy">
-                <strong>${escapeHtml(name)}</strong>
-                <span>${escapeHtml(hint)}</span>
-              </div>
-              <div class="badge-state">${t("badge_unlocked")}</div>
-            </article>
-          `;
-        })
-        .join("")
-    : `<p class="body">${t("myrun_badges_empty")}</p>`;
+  const unlockedBadgeIds = new Set(currentUser ? state.badges : []);
+  dom.badgeGrid.innerHTML = DEFAULT_BADGES.map((badge) => {
+    const name = currentLang === "zh" ? badge.nameZh : badge.name;
+    const hint = currentLang === "zh" ? badge.hintZh : badge.hint;
+    const cover = getBadgeCover(badge.id);
+    const unlocked = unlockedBadgeIds.has(badge.id);
+    return `
+      <article class="badge-item badge-card ${unlocked ? "unlocked" : "locked"}">
+        <div class="badge-emblem${cover ? " image" : ""}">
+          ${
+            cover
+              ? `<img src="${cover}" alt="${escapeHtml(name)}" loading="lazy" onerror="this.closest('.badge-emblem').classList.remove('image'); this.remove();" />`
+              : getBadgeVisual(badge.id)
+          }
+        </div>
+        <div class="badge-copy">
+          <strong>${escapeHtml(name)}</strong>
+          <span>${escapeHtml(hint)}</span>
+        </div>
+        <div class="badge-state">${unlocked ? t("badge_unlocked") : t("badge_locked")}</div>
+      </article>
+    `;
+  }).join("");
 
   if (dom.leaderboardList) {
     dom.leaderboardList.innerHTML = leaderboardData.length
@@ -2687,6 +2710,7 @@ function handleLogout() {
   currentUser = null;
   leaderboardData = [];
   localStorage.removeItem(tokenKey);
+  switchStateForCurrentUser();
   setUserUI();
   renderMatchResult(null);
   renderMyRun();
