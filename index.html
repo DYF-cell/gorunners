@@ -25,11 +25,7 @@
 
     <header class="site-header">
       <div class="brand">
-        <span class="brand-mark">GR</span>
-        <div>
-          <p class="brand-title">GoRunners</p>
-          <p class="brand-subtitle">Playful Onsite Run Experiences</p>
-        </div>
+        <a class="brand-logo" href="#home" aria-label="sunrun home">sunrun</a>
       </div>
       <nav class="main-nav" aria-label="Primary">
         <button class="nav-link" data-target="home" data-i18n="nav_home">Home</button>
@@ -42,15 +38,9 @@
         <button class="nav-link" data-target="ai-trainer" data-i18n="nav_ai_trainer">AI Trainer</button>
       </nav>
       <div class="header-actions">
-        <div class="lang-toggle" role="group" aria-label="Language">
-          <button class="ghost-button lang-button active" data-lang="en">EN</button>
-          <button class="ghost-button lang-button" data-lang="zh">中文</button>
-        </div>
+        <button class="ghost-button lang-button" id="lang-toggle-button" type="button" aria-label="Toggle language">EN</button>
         <button class="ghost-button" id="location-toggle" data-i18n="header_location">
           Enable Location
-        </button>
-        <button class="primary-button" id="quick-register" data-i18n="header_join">
-          Join Next Run
         </button>
         <a class="outline-button" id="admin-console-link" href="admin.html" hidden data-i18n="header_admin_console">
           Admin Console
@@ -65,60 +55,63 @@
 
     <main>
       <section id="home" class="section hero">
-        <div class="hero-content">
-          <p class="eyebrow" data-i18n="hero_eyebrow">C1 Go Runners - Wuming Run Crew Edition</p>
-          <h1 data-i18n="hero_title">
-            Run together, feel connected, play the route.
-          </h1>
-          <p class="lead" data-i18n="hero_lead">
-            GoRunners is a playful web platform that helps runners discover onsite events,
-            match with pace-friendly groups, and unlock rewards along interactive routes.
-          </p>
-          <div class="hero-actions">
-            <button class="primary-button" data-target="explore" data-i18n="hero_cta_explore">Explore Runs</button>
-            <button class="outline-button" data-target="match" data-i18n="hero_cta_match">Find My Pace</button>
-          </div>
-          <div class="hero-stats">
-            <div>
-              <p class="stat-label" data-i18n="hero_stat_members">Active Members</p>
-              <p class="stat-value" id="stat-members">1,042</p>
+        <div class="hero-overlay" aria-hidden="true"></div>
+        <div class="hero-inner">
+          <div class="hero-content">
+            <p class="eyebrow" data-i18n="hero_eyebrow">C1 Go Runners - Wuming Run Crew Edition</p>
+            <h1 data-i18n="hero_title">
+              Run together, feel connected, play the route.
+            </h1>
+            <p class="lead" data-i18n="hero_lead">
+              GoRunners is a playful web platform that helps runners discover onsite events,
+              match with pace-friendly groups, and unlock rewards along interactive routes.
+            </p>
+            <div class="hero-actions">
+              <button class="primary-button" data-target="explore" data-i18n="hero_cta_explore">Explore Runs</button>
+              <button class="outline-button" data-target="match" data-i18n="hero_cta_match">Find My Pace</button>
             </div>
-            <div>
-              <p class="stat-label" data-i18n="hero_stat_runs">Runs This Week</p>
-              <p class="stat-value" id="stat-runs">12</p>
-            </div>
-            <div>
-              <p class="stat-label" data-i18n="hero_stat_badges">Badges Earned</p>
-              <p class="stat-value" id="stat-badges">38</p>
-            </div>
-          </div>
-        </div>
-        <div class="hero-card">
-          <div class="hero-card-header">
-            <p class="card-title" data-i18n="spotlight_title">Tonight's Spotlight</p>
-            <p class="card-subtitle" id="spotlight-title">Sunset 5K Campus Run</p>
-          </div>
-          <div class="hero-card-body">
-            <div class="info-row">
-              <span data-i18n="label_time">Time</span>
-              <strong id="spotlight-time">18:30</strong>
-            </div>
-            <div class="info-row">
-              <span data-i18n="label_meetup">Meet-up</span>
-              <strong id="spotlight-location">Dushu Lake Gate A</strong>
-            </div>
-            <div class="info-row">
-              <span data-i18n="label_pace">Pace</span>
-              <strong id="spotlight-pace">6'30"-7'30" / km</strong>
-            </div>
-            <div class="info-row">
-              <span data-i18n="label_perks">Playful Perks</span>
-              <strong id="spotlight-perks">3 checkpoints - 1 badge</strong>
+            <div class="hero-stats">
+              <div class="hero-stat-item">
+                <p class="stat-label" data-i18n="hero_stat_members">Active Members</p>
+                <p class="stat-value" id="stat-members">1,042</p>
+              </div>
+              <div class="hero-stat-item">
+                <p class="stat-label" data-i18n="hero_stat_runs">Runs This Week</p>
+                <p class="stat-value" id="stat-runs">12</p>
+              </div>
+              <div class="hero-stat-item">
+                <p class="stat-label" data-i18n="hero_stat_badges">Badges Earned</p>
+                <p class="stat-value" id="stat-badges">38</p>
+              </div>
             </div>
           </div>
-          <button class="primary-button full" id="spotlight-cta" data-i18n="spotlight_cta">
-            Reserve a Spot
-          </button>
+          <aside class="hero-card" aria-label="Tonight spotlight">
+            <div class="hero-card-header">
+              <p class="card-title" data-i18n="spotlight_title">Tonight's Spotlight</p>
+              <p class="card-subtitle" id="spotlight-title">Sunset 5K Campus Run</p>
+            </div>
+            <div class="hero-card-body">
+              <div class="info-row">
+                <span data-i18n="label_time">Time</span>
+                <strong id="spotlight-time">18:30</strong>
+              </div>
+              <div class="info-row">
+                <span data-i18n="label_meetup">Meet-up</span>
+                <strong id="spotlight-location">Dushu Lake Gate A</strong>
+              </div>
+              <div class="info-row">
+                <span data-i18n="label_pace">Pace</span>
+                <strong id="spotlight-pace">6'30"-7'30" / km</strong>
+              </div>
+              <div class="info-row">
+                <span data-i18n="label_perks">Playful Perks</span>
+                <strong id="spotlight-perks">3 checkpoints - 1 badge</strong>
+              </div>
+            </div>
+            <button class="primary-button full" id="spotlight-cta" data-i18n="spotlight_cta">
+              Reserve a Spot
+            </button>
+          </aside>
         </div>
       </section>
 

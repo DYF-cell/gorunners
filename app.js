@@ -34,7 +34,6 @@ const i18n = {
     nav_organizer: "Organizer",
     nav_ai_trainer: "AI Trainer",
     header_location: "Enable Location",
-    header_join: "Join Next Run",
     header_admin_console: "Admin Console",
     header_login: "Login",
     header_logout: "Logout",
@@ -301,7 +300,6 @@ const i18n = {
     nav_organizer: "组织者",
     nav_ai_trainer: "AI训练师选择",
     header_location: "开启定位",
-    header_join: "加入下一场",
     header_admin_console: "管理后台",
     header_login: "登录",
     header_logout: "退出",
@@ -573,7 +571,7 @@ const defaultAiTrainer = {
 const dom = {
   navLinks: document.querySelectorAll(".nav-link"),
   sections: document.querySelectorAll("main section"),
-  langButtons: document.querySelectorAll(".lang-button"),
+  langToggleButton: document.getElementById("lang-toggle-button"),
   aiTrainerIframe: document.getElementById("ai-trainer-iframe"),
   aiTrainerEmpty: document.getElementById("ai-trainer-empty"),
   aiTrainerName: document.getElementById("ai-trainer-name"),
@@ -642,7 +640,6 @@ const dom = {
   filterLevel: document.getElementById("filter-level"),
   filterTime: document.getElementById("filter-time"),
   locationToggle: document.getElementById("location-toggle"),
-  quickRegister: document.getElementById("quick-register"),
   spotlightTitle: document.getElementById("spotlight-title"),
   spotlightTime: document.getElementById("spotlight-time"),
   spotlightLocation: document.getElementById("spotlight-location"),
@@ -779,9 +776,10 @@ function setLanguage(lang) {
   state.language = lang;
   saveState();
   document.documentElement.lang = lang === "zh" ? "zh" : "en";
-  dom.langButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.lang === lang);
-  });
+  if (dom.langToggleButton) {
+    dom.langToggleButton.textContent = lang === "zh" ? "中文" : "EN";
+    dom.langToggleButton.setAttribute("aria-label", lang === "zh" ? "切换语言" : "Toggle language");
+  }
   applyTranslations();
   updateLocationButton();
   updateAuthModal();
@@ -2634,8 +2632,8 @@ function initFilters() {
 }
 
 function initLanguageToggle() {
-  dom.langButtons.forEach((button) => {
-    button.addEventListener("click", () => setLanguage(button.dataset.lang));
+  dom.langToggleButton?.addEventListener("click", () => {
+    setLanguage(currentLang === "zh" ? "en" : "zh");
   });
 }
 
@@ -2692,7 +2690,6 @@ function initActions() {
   dom.orgRouteClear?.addEventListener("click", clearOrganizerRoutePlan);
   dom.createEventForm.addEventListener("submit", handleCreateEvent);
   dom.locationToggle.addEventListener("click", toggleLocation);
-  dom.quickRegister.addEventListener("click", () => registerEvent(activeEvent.id));
   dom.spotlightCta.addEventListener("click", () => registerEvent(activeEvent.id));
   dom.locateButton.addEventListener("click", locateUser);
   dom.checkinButton.addEventListener("click", handleCheckin);
