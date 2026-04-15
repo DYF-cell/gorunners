@@ -1067,6 +1067,58 @@ body.organizer-map-expanded::before {
   margin: 0;
 }
 
+.myrun-grid {
+  align-items: start;
+}
+
+.myrun-panel-head {
+  align-items: start;
+  gap: 16px;
+}
+
+.myrun-badges-card,
+.myrun-leaderboard-card {
+  display: grid;
+  gap: 18px;
+  min-height: 100%;
+}
+
+.myrun-badges-card {
+  background: linear-gradient(180deg, rgba(255, 248, 240, 0.96), rgba(255, 255, 255, 0.94));
+}
+
+.myrun-leaderboard-card {
+  background: linear-gradient(180deg, rgba(248, 255, 231, 0.92), rgba(255, 255, 255, 0.96));
+}
+
+.myrun-mini-stat,
+.myrun-rank-chip {
+  display: grid;
+  gap: 4px;
+  min-width: 120px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(24, 20, 18, 0.05);
+}
+
+.myrun-mini-stat span,
+.myrun-rank-chip span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.myrun-mini-stat strong,
+.myrun-rank-chip strong {
+  font-size: 1.2rem;
+}
+
+.badge-gallery {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  padding: 2px;
+  align-items: stretch;
+}
+
 .badge-grid {
   display: grid;
   gap: 10px;
@@ -1079,6 +1131,153 @@ body.organizer-map-expanded::before {
   padding: 10px 12px;
   border-radius: 12px;
   background: rgba(31, 122, 140, 0.1);
+}
+
+.badge-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 13px;
+  min-height: 250px;
+  padding: 22px 16px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 247, 240, 0.96)),
+    linear-gradient(135deg, rgba(255, 106, 61, 0.2), rgba(31, 41, 55, 0.08));
+  border: 1px solid rgba(255, 106, 61, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 12px 24px rgba(24, 20, 18, 0.06);
+  overflow: hidden;
+  text-align: center;
+}
+
+.badge-card::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(31, 41, 55, 0.07);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.badge-emblem {
+  width: 124px;
+  height: 124px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at top, rgba(255, 208, 112, 0.92), rgba(255, 106, 61, 0.88));
+  color: #fffaf4;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 12px 22px rgba(24, 20, 18, 0.12);
+  overflow: hidden;
+  flex: 0 0 auto;
+  transform: translateX(6px);
+}
+
+.badge-emblem.image {
+  background: #fff;
+  box-shadow: 0 12px 24px rgba(24, 20, 18, 0.1);
+}
+
+.badge-emblem img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.badge-copy {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.badge-copy strong,
+.badge-copy span {
+  overflow-wrap: anywhere;
+}
+
+.badge-copy strong {
+  line-height: 1.25;
+}
+
+.badge-copy span {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.badge-state {
+  justify-self: center;
+  margin-top: 2px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(215, 245, 106, 0.38);
+  color: #214b2f;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.myrun-score-hero {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(31, 122, 140, 0.08);
+}
+
+.leaderboard-list {
+  gap: 10px;
+}
+
+.leaderboard-item {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(24, 20, 18, 0.05);
+}
+
+.leaderboard-item.active {
+  background: linear-gradient(135deg, rgba(255, 106, 61, 0.12), rgba(255, 255, 255, 0.92));
+  border-color: rgba(255, 106, 61, 0.16);
+}
+
+.leaderboard-rank {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(31, 122, 140, 0.12);
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.leaderboard-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.leaderboard-copy span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.leaderboard-points {
+  font-weight: 800;
+  color: #1f3b4d;
+  white-space: nowrap;
 }
 
 .list {
@@ -1099,6 +1298,37 @@ body.organizer-map-expanded::before {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+}
+
+@media (max-width: 900px) {
+  .myrun-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .leaderboard-item {
+    grid-template-columns: 1fr;
+  }
+
+  .badge-gallery {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .badge-card {
+    min-height: 224px;
+    padding: 18px 14px;
+  }
+
+  .badge-emblem {
+    width: 108px;
+    height: 108px;
+  }
+
+  .leaderboard-rank,
+  .leaderboard-points {
+    justify-self: start;
+  }
 }
 
 .attendance {
