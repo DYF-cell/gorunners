@@ -427,24 +427,42 @@
           </p>
         </div>
 
-        <div class="grid three">
-          <div class="card">
-            <p class="card-title" data-i18n="myrun_streak">Weekly Streak</p>
-            <p class="stat-highlight" id="streak-count">0 runs</p>
-            <p class="body" data-i18n="myrun_streak_hint">
-              Join 3 runs in a row to unlock the Momentum badge.
-            </p>
+        <div class="grid two myrun-grid">
+          <div class="card myrun-badges-card">
+            <div class="card-header myrun-panel-head">
+              <div>
+                <p class="card-title" data-i18n="myrun_badges">Badges Unlocked</p>
+                <p class="card-subtitle" data-i18n="myrun_badges_subtitle">
+                  Your recent achievements and unlocked moments.
+                </p>
+              </div>
+              <div class="myrun-mini-stat">
+                <span data-i18n="myrun_streak">Weekly Streak</span>
+                <strong id="streak-count">0 runs</strong>
+              </div>
+            </div>
+            <div class="badge-grid badge-gallery" id="badge-grid"></div>
           </div>
-          <div class="card">
-            <p class="card-title" data-i18n="myrun_points">Total Points</p>
-            <p class="stat-highlight" id="points-count">0 pts</p>
-            <p class="body" data-i18n="myrun_points_hint">
-              Earn points for each registration, checkpoint, and team run.
-            </p>
-          </div>
-          <div class="card">
-            <p class="card-title" data-i18n="myrun_badges">Badges Unlocked</p>
-            <div class="badge-grid" id="badge-grid"></div>
+          <div class="card myrun-leaderboard-card">
+            <div class="card-header myrun-panel-head">
+              <div>
+                <p class="card-title" data-i18n="myrun_points">Total Points</p>
+                <p class="card-subtitle" data-i18n="myrun_points_hint">
+                  Earn points for each registration, checkpoint, and team run.
+                </p>
+              </div>
+              <div class="myrun-rank-chip">
+                <span data-i18n="myrun_rank_label">My Rank</span>
+                <strong id="leaderboard-rank">--</strong>
+              </div>
+            </div>
+            <div class="myrun-score-hero">
+              <p class="stat-highlight" id="points-count">0 pts</p>
+              <p class="body" id="leaderboard-summary" data-i18n="myrun_leaderboard_summary">
+                See how your score compares with the whole running crew.
+              </p>
+            </div>
+            <div class="list leaderboard-list" id="leaderboard-list"></div>
           </div>
         </div>
 
