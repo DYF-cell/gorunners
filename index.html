@@ -277,7 +277,7 @@
           </p>
         </div>
 
-        <div class="grid two">
+        <div class="grid two match-grid">
           <form class="card form-card" id="match-form">
             <label>
               <span data-i18n="match_experience_label">Experience Level</span>
@@ -325,9 +325,38 @@
             <p class="result-body" id="match-body">
               We will suggest a pace-friendly group, a nearby run, and the playful rewards you can unlock.
             </p>
+            <p class="match-status" id="match-status">
+              Save your running preferences to start matching with real runners.
+            </p>
             <div class="result-badges" id="match-badges"></div>
+            <div class="match-members" id="match-members"></div>
           </div>
         </div>
+        <section class="card match-chat-card match-chat-card-wide">
+          <div class="match-chat-head">
+            <div>
+              <p class="card-title" data-i18n="match_chat_title">Group Chat</p>
+              <p class="card-subtitle" data-i18n="match_chat_hint">
+                Use this shared thread to coordinate warm-up, meet-up time, or route plans.
+              </p>
+            </div>
+          </div>
+          <div class="match-chat-feed" id="match-chat-feed">
+            <p class="match-chat-empty" data-i18n="match_chat_empty">
+              No messages yet. Start the conversation for this group.
+            </p>
+          </div>
+          <form class="match-chat-form" id="match-chat-form">
+            <input
+              id="match-chat-input"
+              type="text"
+              maxlength="500"
+              data-i18n-placeholder="match_chat_placeholder"
+              placeholder="Say hi to your pace group..."
+            />
+            <button class="primary-button" type="submit" data-i18n="match_chat_send">Post</button>
+          </form>
+        </section>
       </section>
 
       <section id="community" class="section">

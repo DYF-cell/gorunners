@@ -152,6 +152,19 @@ const i18n = {
     match_result_default: "Complete the form to see recommendations.",
     match_result_body:
       "We will suggest a pace-friendly group, a nearby run, and the playful rewards you can unlock.",
+    match_status_idle: "Save your running preferences to start matching with real runners.",
+    match_status_waiting: "Your preferences are saved. We're waiting for more runners with the same choices.",
+    match_status_success: "Match successful. These runners chose the same pace and goals.",
+    match_group_title: "Matching Group",
+    match_group_empty: "No matching runners yet.",
+    match_member_you: "You",
+    match_member_count: "{count} runners in this group",
+    match_saved_note: "Your choices have been saved to the matching pool.",
+    match_chat_title: "Group Chat",
+    match_chat_hint: "Use this shared thread to coordinate warm-up, meet-up time, or route plans.",
+    match_chat_empty: "No messages yet. Start the conversation for this group.",
+    match_chat_placeholder: "Say hi to your pace group...",
+    match_chat_send: "Post",
     community_eyebrow: "Community",
     community_title: "Suzhou Runner Map & Threads",
     community_subtitle:
@@ -276,6 +289,7 @@ const i18n = {
     toast_checkin_removed: "Check-in removed.",
     toast_geo_needed: "Enable location to check in.",
     header_location_on: "Location Enabled",
+    toast_match_saved: "Matching preferences saved.",
   },
   zh: {
     nav_home: "首页",
@@ -402,6 +416,19 @@ const i18n = {
     match_result_title: "你的匹配",
     match_result_default: "完成表单后查看推荐结果。",
     match_result_body: "我们将推荐合适的小组、附近活动以及可解锁奖励。",
+    match_status_idle: "先保存你的跑步意向，系统才会开始和真实用户匹配。",
+    match_status_waiting: "你的意向已保存，正在等待更多选择相同条件的跑者。",
+    match_status_success: "匹配成功，以下跑者选择了相同的配速和目标。",
+    match_group_title: "同好小组",
+    match_group_empty: "暂时还没有匹配到其他跑者。",
+    match_member_you: "你",
+    match_member_count: "这个小组里有 {count} 位跑者",
+    match_saved_note: "你的选择已经写入匹配库。",
+    match_chat_title: "组内交流",
+    match_chat_hint: "这个共享帖子可以用来约集合时间、热身方式和跑步路线。",
+    match_chat_empty: "还没有消息，来发第一条吧。",
+    match_chat_placeholder: "和同组跑者打个招呼...",
+    match_chat_send: "发送",
     community_eyebrow: "社区",
     community_title: "苏州跑步地图与互动贴",
     community_subtitle: "探索苏州真实地点，现场签到并分享跑者心得。",
@@ -524,6 +551,7 @@ const i18n = {
     toast_checkin_removed: "已取消签到。",
     toast_geo_needed: "请先开启定位再签到。",
     header_location_on: "定位已开启",
+    toast_match_saved: "匹配意向已保存。",
   },
 };
 
@@ -582,6 +610,11 @@ const dom = {
   matchTitle: document.getElementById("match-title"),
   matchBody: document.getElementById("match-body"),
   matchBadges: document.getElementById("match-badges"),
+  matchStatus: document.getElementById("match-status"),
+  matchMembers: document.getElementById("match-members"),
+  matchChatFeed: document.getElementById("match-chat-feed"),
+  matchChatForm: document.getElementById("match-chat-form"),
+  matchChatInput: document.getElementById("match-chat-input"),
   streakCount: document.getElementById("streak-count"),
   pointsCount: document.getElementById("points-count"),
   badgeGrid: document.getElementById("badge-grid"),
@@ -671,6 +704,9 @@ let activeEvent = events[0];
 let currentLang = state.language || "en";
 let authToken = localStorage.getItem(tokenKey) || "";
 let currentUser = null;
+let lastMatchResult = null;
+let matchChatPollId = null;
+let lastMatchChatGroupKey = "";
 let authMode = "login";
 let eventMap;
 let cityMap;
@@ -726,8 +762,7 @@ function applyTranslations() {
     const key = element.dataset.i18nPlaceholder;
     element.placeholder = t(key);
   });
-  dom.matchTitle.textContent = t("match_result_default");
-  dom.matchBody.textContent = t("match_result_body");
+  renderMatchResult(lastMatchResult);
   updatePickerTypeButtons();
   if (!pickerSelectedLatLng) {
     dom.mapPickerCoords.textContent = t("map_picker_coords_empty");
@@ -2108,48 +2143,243 @@ function applyFilters(list) {
   });
 }
 
-function handleMatch(event) {
-  event.preventDefault();
-  const formData = new FormData(dom.matchForm);
-  const experience = formData.get("experience");
-  const goal = formData.get("goal");
-  const pace = parseFloat(formData.get("pace"));
-  const style = formData.get("style");
+function formatMatchPaceLabel(value) {
+  const map = {
+    "7.5": "7'30\"+",
+    "6.5": "6'00\"-7'30\"",
+    "5.5": "5'00\"-6'00\"",
+    "4.8": "4'00\"-5'00\"",
+  };
+  return map[String(value)] || String(value || "");
+}
 
-  const bestEvent = events
+function getBestEventForMatch(experience, goal, pace) {
+  return events
     .map((eventItem) => {
       let score = 0;
       if (eventItem.level === experience) score += 3;
-      if (eventItem.tags.some((tag) => tag.toLowerCase().includes(goal.toLowerCase()))) score += 2;
-      const paceTarget = pace;
+      if (eventItem.tags.some((tag) => tag.toLowerCase().includes(String(goal).toLowerCase()))) score += 2;
+      const paceTarget = parseFloat(pace);
       if (eventItem.pace.includes("6'30") && paceTarget >= 6.5) score += 2;
       if (eventItem.pace.includes("5'30") && paceTarget <= 5.5) score += 2;
       if (eventItem.distance <= 5 && experience === "Beginner") score += 2;
       return { eventItem, score };
     })
     .sort((a, b) => b.score - a.score)[0]?.eventItem;
+}
 
+function renderMatchResult(matchResult = null) {
+  lastMatchResult = matchResult || null;
+  const matchChatButton = dom.matchChatForm?.querySelector("button[type='submit']");
+  if (!matchResult) {
+    dom.matchTitle.textContent = t("match_result_default");
+    dom.matchBody.textContent = t("match_result_body");
+    if (dom.matchStatus) dom.matchStatus.textContent = t("match_status_idle");
+    if (dom.matchMembers) dom.matchMembers.innerHTML = "";
+    dom.matchBadges.innerHTML = "";
+    if (dom.matchChatFeed) dom.matchChatFeed.innerHTML = `<p class="match-chat-empty">${t("match_chat_empty")}</p>`;
+    if (dom.matchChatInput) dom.matchChatInput.value = "";
+    if (dom.matchChatInput) dom.matchChatInput.disabled = true;
+    if (matchChatButton) matchChatButton.disabled = true;
+    if (matchChatPollId) {
+      clearInterval(matchChatPollId);
+      matchChatPollId = null;
+    }
+    lastMatchChatGroupKey = "";
+    return;
+  }
+
+  const { criteria = {}, members = [], matched, match_count: matchCount = 0 } = matchResult;
   const goalKeyMap = {
     Social: "goal_social",
     "Stress Relief": "goal_stress",
     Training: "goal_training",
     PB: "goal_pb",
   };
-  const goalKey = goalKeyMap[goal] || "goal_social";
-  const groupName = `${t(`level_${experience.toLowerCase()}`)} ${t(`style_${style.toLowerCase()}`)}`;
-  const rewardText = bestEvent ? getEventText(bestEvent, "rewards") : "";
+  const experienceKey = `level_${String(criteria.experience || "").toLowerCase()}`;
+  const styleKey = `style_${String(criteria.style || "").toLowerCase()}`;
+  const goalKey = goalKeyMap[criteria.goal] || "goal_social";
+  const bestEvent = getBestEventForMatch(criteria.experience, criteria.goal, criteria.pace);
+  const groupName = `${t(experienceKey)} ${t(styleKey)} - ${t(goalKey)}`;
   const eventName = bestEvent ? getEventText(bestEvent, "name") : "";
   const eventTime = bestEvent ? getEventText(bestEvent, "timeLabel") : "";
-  const eventPace = bestEvent ? bestEvent.pace : "";
+  const eventPace = bestEvent ? bestEvent.pace : formatMatchPaceLabel(criteria.pace);
+  const body = bestEvent
+    ? `${t("match_result_prefix")} "${eventName}" (${eventTime}), ${eventPace}. ${t("match_saved_note")}`
+    : t("match_saved_note");
 
-  dom.matchTitle.textContent = `${groupName} - ${t(goalKey)}`;
-  dom.matchBody.textContent = bestEvent
-    ? `${t("match_result_prefix")} "${eventName}" (${eventTime}), ${eventPace}. ${rewardText}.`
-    : t("match_result_body");
-
-  dom.matchBadges.innerHTML = ["Warm-up Buddy", "Pace Shield", "Welcome Gift"]
-    .map((item) => `<span class="pill">${currentLang === "zh" ? translateBadge(item) : item}</span>`)
+  dom.matchTitle.textContent = groupName;
+  dom.matchBody.textContent = body;
+  if (dom.matchStatus) {
+    dom.matchStatus.textContent = matched ? t("match_status_success") : t("match_status_waiting");
+  }
+  dom.matchBadges.innerHTML = [
+    t(goalKey),
+    formatMatchPaceLabel(criteria.pace),
+    t("match_member_count", { count: String(matchCount) }),
+  ]
+    .map((item) => `<span class="pill">${item}</span>`)
     .join("");
+  if (dom.matchMembers) {
+    dom.matchMembers.innerHTML = members.length
+      ? members
+          .map((member) => {
+            const isCurrentUser = currentUser && String(member.id) === String(currentUser.id);
+            const displayName = isCurrentUser ? `${member.name} (${t("match_member_you")})` : member.name;
+            return `
+              <div class="match-member">
+                <div>
+                  <strong>${escapeHtml(displayName || "Runner")}</strong>
+                  <p>${escapeHtml(t(`level_${String(member.experience || "").toLowerCase()}`))} / ${escapeHtml(
+              t(`style_${String(member.style || "").toLowerCase()}`)
+            )}</p>
+                </div>
+                <div class="match-member-meta">
+                  <span>${escapeHtml(t(goalKeyMap[member.goal] || "goal_social"))}</span>
+                  <span>${escapeHtml(formatMatchPaceLabel(member.pace))}</span>
+                </div>
+              </div>
+            `;
+          })
+          .join("")
+      : `<p class="match-empty">${t("match_group_empty")}</p>`;
+  }
+  if (dom.matchChatInput) dom.matchChatInput.disabled = !authToken;
+  if (matchChatButton) matchChatButton.disabled = !authToken;
+  syncMatchChatFeed();
+}
+
+function renderMatchChat(messages = []) {
+  if (!dom.matchChatFeed) return;
+  dom.matchChatFeed.innerHTML = messages.length
+    ? messages
+        .map((message) => {
+          const isCurrentUser = currentUser && String(message.user_id) === String(currentUser.id);
+          return `
+            <article class="match-chat-message${isCurrentUser ? " self" : ""}">
+              <div class="match-chat-meta">
+                <strong>${escapeHtml(message.user_name || "Runner")}</strong>
+                <span>${escapeHtml(formatMessageTime(message.created_at))}</span>
+              </div>
+              <p>${escapeHtml(message.text || "")}</p>
+            </article>
+          `;
+        })
+        .join("")
+    : `<p class="match-chat-empty">${t("match_chat_empty")}</p>`;
+  dom.matchChatFeed.scrollTop = dom.matchChatFeed.scrollHeight;
+}
+
+function formatMessageTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString(currentLang === "zh" ? "zh-CN" : "en-US", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+async function loadMatchChat() {
+  if (!authToken || !lastMatchResult?.group_key) {
+    renderMatchChat([]);
+    return;
+  }
+  try {
+    const result = await apiRequest("/match/chat");
+    lastMatchChatGroupKey = result?.group_key || "";
+    renderMatchChat(result?.messages || []);
+  } catch (error) {
+    renderMatchChat([]);
+  }
+}
+
+function syncMatchChatFeed() {
+  if (!authToken || !lastMatchResult?.group_key) {
+    renderMatchChat([]);
+    return;
+  }
+  const currentGroupKey = String(lastMatchResult.group_key || "");
+  if (currentGroupKey !== lastMatchChatGroupKey) {
+    loadMatchChat();
+  }
+  if (matchChatPollId) {
+    clearInterval(matchChatPollId);
+  }
+  matchChatPollId = setInterval(() => {
+    if (!authToken || !lastMatchResult?.group_key) return;
+    loadMatchChat();
+  }, 15000);
+}
+
+async function handleMatchChatSubmit(event) {
+  event.preventDefault();
+  if (!authToken) {
+    showToast(t("toast_login_required"));
+    openAuthModal("login");
+    return;
+  }
+  const text = String(dom.matchChatInput?.value || "").trim();
+  if (!text) return;
+  try {
+    await apiRequest("/match/chat", {
+      method: "POST",
+      body: JSON.stringify({ text }),
+    });
+    dom.matchChatInput.value = "";
+    await loadMatchChat();
+  } catch (error) {
+    showToast(error.message || "Request failed");
+  }
+}
+
+async function loadSavedMatchPreference() {
+  if (!authToken) {
+    renderMatchResult(null);
+    return;
+  }
+  try {
+    const result = await apiRequest("/match/preferences");
+    const preference = result?.preference;
+    if (preference && dom.matchForm) {
+      dom.matchForm.elements.experience.value = preference.experience || "Beginner";
+      dom.matchForm.elements.goal.value = preference.goal || "Social";
+      dom.matchForm.elements.pace.value = preference.pace || "6.5";
+      dom.matchForm.elements.style.value = preference.style || "Buddy";
+      dom.matchForm.elements.wearable.checked = Boolean(preference.wearable);
+    }
+    renderMatchResult(result?.match_result || null);
+  } catch (error) {
+    renderMatchResult(null);
+  }
+}
+
+async function handleMatch(event) {
+  event.preventDefault();
+  if (!authToken) {
+    showToast(t("toast_login_required"));
+    openAuthModal("login");
+    return;
+  }
+  const formData = new FormData(dom.matchForm);
+  try {
+    const result = await apiRequest("/match/preferences", {
+      method: "POST",
+      body: JSON.stringify({
+        experience: formData.get("experience"),
+        goal: formData.get("goal"),
+        pace: String(formData.get("pace")),
+        style: formData.get("style"),
+        wearable: formData.get("wearable") === "on",
+      }),
+    });
+    renderMatchResult(result?.match_result || null);
+    showToast(t("toast_match_saved"));
+  } catch (error) {
+    showToast(error.message || "Request failed");
+  }
 }
 
 function translateBadge(label) {
@@ -2344,6 +2574,7 @@ async function handleAuthSubmit(event) {
     }
     closeAuthModal();
     setUserUI();
+    await loadSavedMatchPreference();
     if (currentUser?.role === "admin") {
       showToast(t("toast_admin_redirect"));
       setTimeout(() => openAdminConsole(), 300);
@@ -2358,6 +2589,7 @@ function handleLogout() {
   currentUser = null;
   localStorage.removeItem(tokenKey);
   setUserUI();
+  renderMatchResult(null);
   showToast(t("toast_logout"));
 }
 
@@ -2433,6 +2665,7 @@ function initActions() {
     showToast(t("toast_route_preview"));
   });
   dom.matchForm.addEventListener("submit", handleMatch);
+  dom.matchChatForm?.addEventListener("submit", handleMatchChatSubmit);
   dom.clearRegistrations.addEventListener("click", () => {
     state.registrations = [];
     state.streak = 0;
@@ -3668,6 +3901,7 @@ async function init() {
   await ensureApiBase();
   await fetchCurrentUser();
   setUserUI();
+  await loadSavedMatchPreference();
   fetchEventsFromServer();
   fetchSpotsFromServer();
 }

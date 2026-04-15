@@ -186,6 +186,26 @@ class Registration(SQLModel, table=True):
     created_at: datetime = Field(default_factory=now_utc)
 
 
+class MatchPreference(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(index=True)
+    experience: str
+    goal: str
+    pace: str
+    style: str
+    wearable: bool = False
+    created_at: datetime = Field(default_factory=now_utc)
+    updated_at: datetime = Field(default_factory=now_utc)
+
+
+class MatchChatMessage(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    group_key: str = Field(index=True)
+    user_id: int = Field(index=True)
+    text: str
+    created_at: datetime = Field(default_factory=now_utc)
+
+
 class Checkin(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     event_id: Optional[int] = Field(default=None, index=True)
@@ -254,6 +274,18 @@ class UserCreate(SQLModel):
 class UserLogin(SQLModel):
     email: str
     password: str
+
+
+class MatchPreferenceInput(SQLModel):
+    experience: str
+    goal: str
+    pace: str
+    style: str
+    wearable: bool = False
+
+
+class MatchChatMessageInput(SQLModel):
+    text: str
 
 
 class EventInput(SQLModel):
@@ -579,6 +611,80 @@ def serialize_user(user: User, registration_count: int = 0, post_count: int = 0,
         "registration_count": registration_count,
         "post_count": post_count,
         "event_count": event_count,
+    }
+
+
+def serialize_match_member(user: User, preference: MatchPreference) -> dict:
+    return {
+        "id": user.id,
+        "name": user.name,
+        "experience": preference.experience,
+        "goal": preference.goal,
+        "pace": preference.pace,
+        "style": preference.style,
+        "wearable": preference.wearable,
+        "updated_at": preference.updated_at.isoformat() if preference.updated_at else None,
+    }
+
+
+def get_match_group_key(preference: MatchPreference) -> str:
+    return "|".join([preference.experience, preference.goal, preference.pace, preference.style])
+
+
+def build_match_response(session: Session, preference: MatchPreference) -> dict:
+    matches = session.exec(
+        select(MatchPreference).where(
+            MatchPreference.experience == preference.experience,
+            MatchPreference.goal == preference.goal,
+            MatchPreference.pace == preference.pace,
+            MatchPreference.style == preference.style,
+        )
+    ).all()
+
+    users = {
+        user.id: user
+        for user in session.exec(select(User).where(User.id.in_([item.user_id for item in matches]))).all()
+        if user.id is not None
+    }
+
+    members = [
+        serialize_match_member(user, item)
+        for item in sorted(matches, key=lambda item: item.updated_at, reverse=True)
+        if (user := users.get(item.user_id))
+    ]
+
+    return {
+        "matched": len(members) > 1,
+        "group_key": get_match_group_key(preference),
+        "criteria": {
+            "experience": preference.experience,
+            "goal": preference.goal,
+            "pace": preference.pace,
+            "style": preference.style,
+            "wearable": preference.wearable,
+        },
+        "match_count": len(members),
+        "members": members,
+    }
+
+
+def get_user_match_preference(session: Session, user_id: Optional[int]) -> MatchPreference:
+    if not user_id:
+        raise HTTPException(status_code=400, detail="Invalid user")
+    preference = session.exec(select(MatchPreference).where(MatchPreference.user_id == user_id)).first()
+    if not preference:
+        raise HTTPException(status_code=404, detail="Match preference not found")
+    return preference
+
+
+def serialize_match_chat_message(message: MatchChatMessage, user_lookup: dict[int, User]) -> dict:
+    author = user_lookup.get(message.user_id)
+    return {
+        "id": message.id,
+        "text": message.text,
+        "user_id": message.user_id,
+        "user_name": author.name if author else "Runner",
+        "created_at": message.created_at.isoformat() if message.created_at else None,
     }
 
 
@@ -1014,6 +1120,106 @@ def me(current_user: User = Depends(get_current_user)):
         "role": current_user.role,
         "is_active": current_user.is_active,
         "last_login_at": current_user.last_login_at.isoformat() if current_user.last_login_at else None,
+    }
+
+
+@app.get("/match/preferences")
+def get_match_preference(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    preference = session.exec(select(MatchPreference).where(MatchPreference.user_id == current_user.id)).first()
+    if not preference:
+        return {
+            "preference": None,
+            "match_result": None,
+        }
+    return {
+        "preference": {
+            "experience": preference.experience,
+            "goal": preference.goal,
+            "pace": preference.pace,
+            "style": preference.style,
+            "wearable": preference.wearable,
+        },
+        "match_result": build_match_response(session, preference),
+    }
+
+
+@app.post("/match/preferences")
+def save_match_preference(
+    payload: MatchPreferenceInput,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    preference = session.exec(select(MatchPreference).where(MatchPreference.user_id == current_user.id)).first()
+    if preference:
+        preference.experience = payload.experience
+        preference.goal = payload.goal
+        preference.pace = payload.pace
+        preference.style = payload.style
+        preference.wearable = payload.wearable
+        preference.updated_at = now_utc()
+    else:
+        preference = MatchPreference(
+            user_id=current_user.id,
+            experience=payload.experience,
+            goal=payload.goal,
+            pace=payload.pace,
+            style=payload.style,
+            wearable=payload.wearable,
+        )
+    session.add(preference)
+    session.commit()
+    session.refresh(preference)
+    return {
+        "message": "Preference saved",
+        "match_result": build_match_response(session, preference),
+    }
+
+
+@app.get("/match/chat")
+def get_match_chat(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    preference = get_user_match_preference(session, current_user.id)
+    group_key = get_match_group_key(preference)
+    messages = session.exec(
+        select(MatchChatMessage).where(MatchChatMessage.group_key == group_key).order_by(MatchChatMessage.created_at.asc())
+    ).all()
+    user_ids = [message.user_id for message in messages]
+    users = {
+        user.id: user
+        for user in session.exec(select(User).where(User.id.in_(user_ids))).all()
+        if user.id is not None
+    } if user_ids else {}
+    return {
+        "group_key": group_key,
+        "messages": [serialize_match_chat_message(message, users) for message in messages],
+    }
+
+
+@app.post("/match/chat")
+def create_match_chat_message(
+    payload: MatchChatMessageInput,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    text_value = payload.text.strip()
+    if not text_value:
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+    preference = get_user_match_preference(session, current_user.id)
+    message = MatchChatMessage(
+        group_key=get_match_group_key(preference),
+        user_id=current_user.id or 0,
+        text=text_value[:500],
+    )
+    session.add(message)
+    session.commit()
+    session.refresh(message)
+    return {
+        "message": serialize_match_chat_message(message, {current_user.id: current_user}),
     }
 
 
