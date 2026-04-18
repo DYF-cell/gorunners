@@ -1,5 +1,9 @@
 window.GORUNNERS_API = "http://127.0.0.1:8000";
 
+// Optional. Add a Google Maps JavaScript API key to enable Street View in Run Mode.
+// Without a key, Run Mode falls back to the device camera plus the 2D route map.
+window.GORUNNERS_GOOGLE_MAPS_KEY = "";
+
 window.GORUNNERS_AI_TRAINERS = [
   {
     id: "default",

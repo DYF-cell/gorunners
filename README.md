@@ -7,6 +7,9 @@ A playful, human-centric web app for onsite running activities inspired by Wumin
 - EN/ZH language toggle for key UI content
 - Pace-based group matching with supportive recommendations
 - Interactive route checkpoints and badge rewards
+- 3D event route map with draggable route points and an animated runner marker
+- Live run tracking that records the user's GPS route after Start Run
+- Immersive full-screen Run Mode with Google Street View support, camera fallback, AR-style route cue, and a 2D tactical minimap
 - Suzhou live map with location-based check-ins
 - Community spot threads with camera-enabled posts
 - Organizer dashboard for lightweight event management
@@ -16,7 +19,10 @@ A playful, human-centric web app for onsite running activities inspired by Wumin
 ## Tech
 - HTML5 + CSS3
 - Vanilla JavaScript
-- Leaflet + OpenStreetMap tiles for the live map
+- MapLibre GL + OpenStreetMap tiles for the 3D event route map, with Leaflet fallback when WebGL is unavailable
+- Leaflet + OpenStreetMap tiles for community and planner maps
+- Optional Google Maps JavaScript API Street View scene for Run Mode
+- Browser Geolocation API for live run tracking and route recording
 - LocalStorage for frontend session/cache data such as points, badges, and route drafts
 
 ## Local startup and run configuration
@@ -194,7 +200,16 @@ localStorage.removeItem("gorunners_api");
 location.reload();
 ```
 
-### 6) Common startup issues
+### 6) Optional Google Street View for Run Mode
+Run Mode works without Google Maps by using the device camera plus the 2D route map. To enable Google Street View as the main real-world scene, set a Maps JavaScript API key in `config.js`:
+
+```js
+window.GORUNNERS_GOOGLE_MAPS_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
+```
+
+The browser still needs geolocation permission, and camera fallback needs camera permission.
+
+### 7) Common startup issues
 1. `python` command not found:
 - Check Python installation and PATH.
 - Try `py -m http.server 5173` on Windows.

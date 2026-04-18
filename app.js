@@ -22,6 +22,14 @@ const defaultState = {
   savedRoutes: {},
   selectedRoutes: {},
   routeMode: "idle",
+  runTracking: {
+    active: false,
+    eventId: "",
+    startedAt: 0,
+    elapsedMs: 0,
+    distanceKm: 0,
+    route: [],
+  },
 };
 
 const i18n = {
@@ -94,6 +102,30 @@ const i18n = {
     button_register: "Register Now",
     button_preview: "Preview Route",
     map_title: "Interactive Route Map",
+    run_distance_label: "Distance",
+    run_time_label: "Time",
+    run_status_label: "Status",
+    run_status_idle: "GPS idle",
+    run_status_tracking: "Tracking",
+    run_status_waiting: "Waiting for GPS",
+    button_run_start: "Start Run",
+    button_run_stop: "End Run",
+    button_run_follow: "Follow Runner",
+    button_run_camera: "Camera",
+    button_run_exit_view: "Exit View",
+    run_mode_label: "RUN MODE",
+    run_mode_fallback_title: "Live route view",
+    run_mode_fallback_body: "Add a Google Maps key or allow camera access for the immersive scene.",
+    run_mode_camera_on: "Camera guide on",
+    run_mode_camera_blocked: "Camera access is unavailable.",
+    run_mode_map_ready: "Live route map is active.",
+    run_mode_google_loading: "Loading Google Street View...",
+    run_mode_google_ready: "Google Street View route locked.",
+    run_mode_google_missing: "Google Maps key missing. Using camera route guide.",
+    run_mode_google_unavailable: "Street View is unavailable here. Using camera route guide.",
+    run_cue_waiting: "Locking route...",
+    run_cue_next: "Next route point",
+    run_cue_finish: "Finish route",
     button_reset: "Reset Checkpoints",
     button_recommend: "Recommend Points",
     button_plan_clear: "Clear Plan",
@@ -296,6 +328,13 @@ const i18n = {
     toast_checkin_confirm: "Check-in confirmed.",
     toast_checkin_removed: "Check-in removed.",
     toast_geo_needed: "Enable location to check in.",
+    toast_run_started: "Run tracking started.",
+    toast_run_stopped: "Run saved: {distance} km.",
+    toast_run_already_active: "Run tracking is already active.",
+    toast_run_not_active: "Start a run first.",
+    toast_run_position: "Runner position updated.",
+    toast_run_mode_opened: "Immersive run mode opened.",
+    toast_run_mode_closed: "Immersive view closed. Tracking continues.",
     header_location_on: "Location Enabled",
     toast_match_saved: "Matching preferences saved.",
   },
@@ -367,6 +406,30 @@ const i18n = {
     button_register: "立即报名",
     button_preview: "预览路线",
     map_title: "互动路线地图",
+    run_distance_label: "距离",
+    run_time_label: "用时",
+    run_status_label: "状态",
+    run_status_idle: "GPS 待命",
+    run_status_tracking: "追踪中",
+    run_status_waiting: "等待 GPS",
+    button_run_start: "开始跑步",
+    button_run_stop: "结束跑步",
+    button_run_follow: "跟随小人",
+    button_run_camera: "摄像头",
+    button_run_exit_view: "退出视图",
+    run_mode_label: "跑步模式",
+    run_mode_fallback_title: "实时路线视图",
+    run_mode_fallback_body: "配置 Google Maps Key 或允许摄像头权限后可进入实景画面。",
+    run_mode_camera_on: "摄像头路线识别已开启",
+    run_mode_camera_blocked: "无法访问摄像头。",
+    run_mode_map_ready: "实时路线地图已开启。",
+    run_mode_google_loading: "正在加载 Google 实景地图...",
+    run_mode_google_ready: "已锁定 Google 实景路线。",
+    run_mode_google_missing: "未配置 Google Maps Key，已使用摄像头路线视图。",
+    run_mode_google_unavailable: "当前位置暂无街景，已使用摄像头路线视图。",
+    run_cue_waiting: "正在锁定路线...",
+    run_cue_next: "下一个路线点",
+    run_cue_finish: "终点路线",
     button_reset: "重置打卡",
     button_recommend: "推荐打卡点",
     button_plan_clear: "清空规划",
@@ -565,6 +628,13 @@ const i18n = {
     toast_checkin_confirm: "签到已确认。",
     toast_checkin_removed: "已取消签到。",
     toast_geo_needed: "请先开启定位再签到。",
+    toast_run_started: "已开始跑步追踪。",
+    toast_run_stopped: "跑步已保存：{distance} 公里。",
+    toast_run_already_active: "跑步追踪已开启。",
+    toast_run_not_active: "请先开始跑步。",
+    toast_run_position: "跑者位置已更新。",
+    toast_run_mode_opened: "已进入沉浸式跑步模式。",
+    toast_run_mode_closed: "已退出沉浸视图，跑步追踪继续。",
     header_location_on: "定位已开启",
     toast_match_saved: "匹配意向已保存。",
   },
@@ -621,6 +691,31 @@ const dom = {
   routeSavedList: document.getElementById("route-saved-list"),
   routeEditHint: document.getElementById("route-edit-hint"),
   routePreview: document.getElementById("route-preview"),
+  runTrackerPanel: document.getElementById("run-tracker-panel"),
+  runStart: document.getElementById("run-start"),
+  runStop: document.getElementById("run-stop"),
+  runFollow: document.getElementById("run-follow"),
+  runDistance: document.getElementById("run-distance"),
+  runDuration: document.getElementById("run-duration"),
+  runStatus: document.getElementById("run-status"),
+  runMode: document.getElementById("run-mode"),
+  runModeScene: document.getElementById("run-mode-scene"),
+  runStreetView: document.getElementById("run-street-view"),
+  runWorldMap: document.getElementById("run-world-map"),
+  runCamera: document.getElementById("run-camera"),
+  runSceneFallback: document.getElementById("run-scene-fallback"),
+  runSceneStatus: document.getElementById("run-scene-status"),
+  runArArrow: document.getElementById("run-ar-arrow"),
+  runModeEvent: document.getElementById("run-mode-event"),
+  runModeCamera: document.getElementById("run-mode-camera"),
+  runModeClose: document.getElementById("run-mode-close"),
+  runModeStop: document.getElementById("run-mode-stop"),
+  runMiniMap: document.getElementById("run-mini-map"),
+  runCueLabel: document.getElementById("run-cue-label"),
+  runCueDistance: document.getElementById("run-cue-distance"),
+  runModeDistance: document.getElementById("run-mode-distance"),
+  runModeDuration: document.getElementById("run-mode-duration"),
+  runModeStatus: document.getElementById("run-mode-status"),
   matchForm: document.getElementById("match-form"),
   matchTitle: document.getElementById("match-title"),
   matchBody: document.getElementById("match-body"),
@@ -737,6 +832,32 @@ let pickerPlanLayer;
 let pickerSelectionLayer;
 let pickerSelectionMarker;
 let userMarker;
+let eventMapIs3D = false;
+let eventMapLoaded = false;
+let eventRouteMarkers = [];
+let eventCenterMarker = null;
+let eventRunnerMarker = null;
+let eventLeafletRunLayer = null;
+let eventLeafletRunnerMarker = null;
+let runWatchId = null;
+let runTimerId = null;
+let runFollowMode = true;
+let runModeOpen = false;
+let runMiniMap = null;
+let runMiniRouteLayer = null;
+let runMiniLiveLayer = null;
+let runMiniRunnerMarker = null;
+let runWorldMap = null;
+let runWorldRouteLayer = null;
+let runWorldLiveLayer = null;
+let runWorldRunnerMarker = null;
+let runCameraStream = null;
+let runSceneMode = "fallback";
+let googleMapsPromise = null;
+let streetViewPanorama = null;
+let streetViewService = null;
+let streetViewLastUpdate = 0;
+let deviceHeading = null;
 let organizerMap;
 let organizerRouteLayer;
 let pickerSelectedType = "checkpoint";
@@ -761,6 +882,38 @@ const suzhouBounds = window.L
       [31.7, 121.1],
     ])
   : null;
+const event3DLayerIds = {
+  routeSource: "gorunners-event-route",
+  routeGlow: "gorunners-event-route-glow",
+  routeLine: "gorunners-event-route-line",
+  runSource: "gorunners-live-run",
+  runGlow: "gorunners-live-run-glow",
+  runLine: "gorunners-live-run-line",
+  buildingsSource: "gorunners-activity-buildings",
+  buildings: "gorunners-activity-buildings-layer",
+};
+const event3DMapStyle = {
+  version: 8,
+  sources: {
+    osm: {
+      type: "raster",
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: "&copy; OpenStreetMap contributors",
+    },
+  },
+  layers: [
+    {
+      id: "osm",
+      type: "raster",
+      source: "osm",
+      paint: {
+        "raster-saturation": 0.02,
+        "raster-contrast": 0.08,
+      },
+    },
+  ],
+};
 
 function t(key, vars = {}) {
   const dict = i18n[currentLang] || i18n.en;
@@ -813,6 +966,7 @@ function setLanguage(lang) {
   renderPosts();
   updateSpotlight(activeEvent);
   renderCityMarkers();
+  renderRunTracking();
   renderAiTrainer();
   if (dom.mapPickerModal.classList.contains("show")) {
     renderPickerMap();
@@ -1184,6 +1338,28 @@ function initAiTrainer() {
   renderAiTrainer();
 }
 
+function normalizeRunTracking(runTracking) {
+  const source = runTracking && typeof runTracking === "object" ? runTracking : {};
+  const route = Array.isArray(source.route)
+    ? source.route
+        .map((point) => ({
+          lat: Number(point?.lat ?? point?.[0]),
+          lng: Number(point?.lng ?? point?.[1]),
+          timestamp: Number(point?.timestamp || Date.now()),
+          accuracy: Number(point?.accuracy || 0),
+        }))
+        .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng))
+    : [];
+  return {
+    active: Boolean(source.active),
+    eventId: source.eventId ? String(source.eventId) : "",
+    startedAt: Number.isFinite(Number(source.startedAt)) ? Number(source.startedAt) : 0,
+    elapsedMs: Number.isFinite(Number(source.elapsedMs)) ? Number(source.elapsedMs) : 0,
+    distanceKm: Number.isFinite(Number(source.distanceKm)) ? Number(source.distanceKm) : 0,
+    route,
+  };
+}
+
 function loadState() {
   const saved = localStorage.getItem(activeStateKey);
   if (!saved) return getDefaultState();
@@ -1199,6 +1375,9 @@ function loadState() {
     parsed.draftRoutes = parsed.draftRoutes && typeof parsed.draftRoutes === "object" ? parsed.draftRoutes : {};
     parsed.savedRoutes = parsed.savedRoutes && typeof parsed.savedRoutes === "object" ? parsed.savedRoutes : {};
     parsed.selectedRoutes = parsed.selectedRoutes && typeof parsed.selectedRoutes === "object" ? parsed.selectedRoutes : {};
+    parsed.runTracking = normalizeRunTracking(parsed.runTracking);
+    parsed.runTracking.active = false;
+    parsed.runTracking.startedAt = 0;
     parsed.routeMode = "idle";
     return parsed;
   } catch (error) {
@@ -2782,12 +2961,20 @@ function initActions() {
   dom.checkpointRecommend.addEventListener("click", handleRecommendCheckpoints);
   dom.routePreview.addEventListener("click", () => {
     if (eventMap) {
-      eventMap.invalidateSize();
-      eventMap.scrollWheelZoom.enable();
-      eventMap.flyTo([activeEvent.lat, activeEvent.lng], 14);
+      resizeEventMap();
+      if (!hasEvent3DMap()) {
+        eventMap.scrollWheelZoom.enable();
+      }
+      focusEventMap({ lat: activeEvent.lat, lng: activeEvent.lng }, 14);
     }
     showToast(t("toast_route_preview"));
   });
+  dom.runStart?.addEventListener("click", startRunTracking);
+  dom.runStop?.addEventListener("click", stopRunTracking);
+  dom.runFollow?.addEventListener("click", focusRunPosition);
+  dom.runModeClose?.addEventListener("click", () => closeRunMode({ toast: true }));
+  dom.runModeStop?.addEventListener("click", stopRunTracking);
+  dom.runModeCamera?.addEventListener("click", () => initCameraScene(t("run_mode_camera_on")));
   dom.matchForm.addEventListener("submit", handleMatch);
   dom.matchChatForm?.addEventListener("submit", handleMatchChatSubmit);
   dom.clearRegistrations.addEventListener("click", () => {
@@ -2866,6 +3053,7 @@ function initActions() {
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && organizerMapExpanded) closeOrganizerMapExpand();
+    if (event.key === "Escape" && runModeOpen) closeRunMode({ toast: true });
   });
   document.addEventListener("mousedown", (event) => {
     if (!organizerMapExpanded) return;
@@ -2926,12 +3114,1055 @@ function initMapPickerPanelResize() {
   });
 }
 
+function hasEvent3DMap() {
+  return Boolean(eventMapIs3D && eventMap && window.maplibregl);
+}
+
+function createFeatureCollection(features = []) {
+  return {
+    type: "FeatureCollection",
+    features,
+  };
+}
+
+function createLineCollection(points) {
+  const coords = normalizeRunTracking({ route: points }).route.map((point) => [point.lng, point.lat]);
+  if (coords.length < 2) return createFeatureCollection();
+  return createFeatureCollection([
+    {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "LineString",
+        coordinates: coords,
+      },
+    },
+  ]);
+}
+
+function createBuildingCollection(route, event = activeEvent) {
+  const center = event?.lat && event?.lng ? { lat: Number(event.lat), lng: Number(event.lng) } : { lat: 31.3, lng: 120.62 };
+  const anchors = route.length ? route : [center];
+  const features = [];
+  anchors.slice(0, 10).forEach((point, anchorIndex) => {
+    const baseLat = Number(point.lat ?? point[0] ?? center.lat);
+    const baseLng = Number(point.lng ?? point[1] ?? center.lng);
+    for (let offsetIndex = 0; offsetIndex < 3; offsetIndex += 1) {
+      const side = offsetIndex - 1;
+      const lat = baseLat + (side * 0.0011) + ((anchorIndex % 2) * 0.00035);
+      const lng = baseLng + ((offsetIndex + 1) * 0.001) + (((anchorIndex % 3) - 1) * 0.00055);
+      const sizeLat = 0.00022 + ((anchorIndex + offsetIndex) % 3) * 0.00005;
+      const sizeLng = 0.00028 + ((anchorIndex + offsetIndex) % 2) * 0.00008;
+      const height = 18 + ((anchorIndex * 11 + offsetIndex * 17) % 58);
+      features.push({
+        type: "Feature",
+        properties: {
+          height,
+          color: offsetIndex === 1 ? "#f9a66c" : "#9fb7c9",
+        },
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [lng - sizeLng, lat - sizeLat],
+              [lng + sizeLng, lat - sizeLat],
+              [lng + sizeLng, lat + sizeLat],
+              [lng - sizeLng, lat + sizeLat],
+              [lng - sizeLng, lat - sizeLat],
+            ],
+          ],
+        },
+      });
+    }
+  });
+  return createFeatureCollection(features);
+}
+
+function ensure3DSource(sourceId, data) {
+  if (!hasEvent3DMap() || !eventMapLoaded) return;
+  const existing = eventMap.getSource(sourceId);
+  if (existing) {
+    existing.setData(data);
+    return;
+  }
+  eventMap.addSource(sourceId, {
+    type: "geojson",
+    data,
+  });
+}
+
+function add3DLayerOnce(layer) {
+  if (!hasEvent3DMap() || !eventMapLoaded || eventMap.getLayer(layer.id)) return;
+  eventMap.addLayer(layer);
+}
+
+function ensureEvent3DLayers() {
+  if (!hasEvent3DMap() || !eventMapLoaded) return;
+  ensure3DSource(event3DLayerIds.routeSource, createFeatureCollection());
+  ensure3DSource(event3DLayerIds.runSource, createFeatureCollection());
+  ensure3DSource(event3DLayerIds.buildingsSource, createFeatureCollection());
+
+  add3DLayerOnce({
+    id: event3DLayerIds.buildings,
+    type: "fill-extrusion",
+    source: event3DLayerIds.buildingsSource,
+    paint: {
+      "fill-extrusion-color": ["get", "color"],
+      "fill-extrusion-height": ["get", "height"],
+      "fill-extrusion-base": 0,
+      "fill-extrusion-opacity": 0.72,
+    },
+  });
+  add3DLayerOnce({
+    id: event3DLayerIds.routeGlow,
+    type: "line",
+    source: event3DLayerIds.routeSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#ffffff",
+      "line-width": 13,
+      "line-opacity": 0.62,
+      "line-blur": 3,
+    },
+  });
+  add3DLayerOnce({
+    id: event3DLayerIds.routeLine,
+    type: "line",
+    source: event3DLayerIds.routeSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#ff6a3d",
+      "line-width": 6,
+      "line-opacity": 0.96,
+    },
+  });
+  add3DLayerOnce({
+    id: event3DLayerIds.runGlow,
+    type: "line",
+    source: event3DLayerIds.runSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#111827",
+      "line-width": 12,
+      "line-opacity": 0.36,
+      "line-blur": 2,
+    },
+  });
+  add3DLayerOnce({
+    id: event3DLayerIds.runLine,
+    type: "line",
+    source: event3DLayerIds.runSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#17bebb",
+      "line-width": 5,
+      "line-opacity": 0.95,
+    },
+  });
+}
+
+function clearEvent3DMarkers() {
+  eventRouteMarkers.forEach((marker) => marker.remove());
+  eventRouteMarkers = [];
+  if (eventCenterMarker) {
+    eventCenterMarker.remove();
+    eventCenterMarker = null;
+  }
+}
+
+function createRoutePointElement(point, index, total) {
+  const element = document.createElement("div");
+  element.className = `route-point-marker map-3d-route-point${selectedRoutePointIndex === index ? " selected" : ""}`;
+  element.innerHTML = `<span>${getRoutePointShortLabel(point, index, total)}</span>`;
+  return element;
+}
+
+function drawEvent3DRoutePoint(point, index, total, source = "auto") {
+  if (!hasEvent3DMap()) return;
+  const element = createRoutePointElement(point, index, total);
+  element.addEventListener("click", (event) => {
+    event.stopPropagation();
+    selectRoutePoint(index);
+  });
+  const marker = new maplibregl.Marker({
+    element,
+    draggable: canEditVisibleRoute(),
+    anchor: "center",
+  })
+    .setLngLat([Number(point.lng), Number(point.lat)])
+    .addTo(eventMap);
+  if (canEditVisibleRoute()) {
+    marker.on("dragend", () => {
+      const lngLat = marker.getLngLat();
+      updateRoutePoint(index, { lat: lngLat.lat, lng: lngLat.lng }, source);
+    });
+  }
+  eventRouteMarkers.push(marker);
+}
+
+function focusEventMap(latlng, zoom = 15) {
+  if (!latlng || !Number.isFinite(Number(latlng.lat)) || !Number.isFinite(Number(latlng.lng))) return;
+  if (hasEvent3DMap()) {
+    eventMap.easeTo({
+      center: [Number(latlng.lng), Number(latlng.lat)],
+      zoom,
+      pitch: 62,
+      bearing: -24,
+      duration: 650,
+    });
+    return;
+  }
+  eventMap?.setView([Number(latlng.lat), Number(latlng.lng)], zoom);
+}
+
+function fitEventMapToRoute(route, fallbackCenter) {
+  if (!route.length) {
+    focusEventMap({ lat: fallbackCenter[0], lng: fallbackCenter[1] }, 14);
+    return;
+  }
+  if (hasEvent3DMap()) {
+    if (!eventMapLoaded) return;
+    if (route.length === 1) {
+      focusEventMap(route[0], 15);
+      return;
+    }
+    const bounds = new maplibregl.LngLatBounds();
+    route.forEach((point) => bounds.extend([Number(point.lng), Number(point.lat)]));
+    eventMap.fitBounds(bounds, {
+      padding: 78,
+      maxZoom: 16.5,
+      pitch: 62,
+      bearing: -24,
+      duration: 650,
+    });
+    return;
+  }
+  const latLngRoute = route.map((point) => routePointToLatLng(point));
+  if (latLngRoute.length > 1) {
+    const routeLine = L.polyline(latLngRoute);
+    eventMap.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
+  } else {
+    eventMap.setView(latLngRoute[0], 14);
+  }
+}
+
+function resizeEventMap() {
+  if (hasEvent3DMap()) {
+    eventMap.resize();
+    return;
+  }
+  eventMap?.invalidateSize();
+}
+
+function createAnimeRunnerHtml(active = false) {
+  return `
+    <div class="runner-shadow"></div>
+    <div class="runner-figure${active ? " active" : ""}">
+      <span class="runner-hair"></span>
+      <span class="runner-head"></span>
+      <span class="runner-torso"></span>
+      <span class="runner-arm left"></span>
+      <span class="runner-arm right"></span>
+      <span class="runner-leg left"></span>
+      <span class="runner-leg right"></span>
+    </div>
+  `;
+}
+
+function createAnimeRunnerElement(active = false) {
+  const element = document.createElement("div");
+  element.className = `anime-runner-marker${active ? " tracking" : ""}`;
+  element.innerHTML = createAnimeRunnerHtml(active);
+  return element;
+}
+
+function createAnimeRunnerIcon(active = false) {
+  return L.divIcon({
+    className: `anime-runner-leaflet${active ? " tracking" : ""}`,
+    html: createAnimeRunnerHtml(active),
+    iconSize: [62, 72],
+    iconAnchor: [31, 63],
+  });
+}
+
+function getLatestRunPoint() {
+  const route = normalizeRunTracking(state.runTracking).route;
+  return route[route.length - 1] || state.currentLocation || null;
+}
+
+function formatRunDuration(ms) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const mm = String(minutes).padStart(2, "0");
+  const ss = String(seconds).padStart(2, "0");
+  return hours ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
+}
+
+function getCurrentRunElapsedMs() {
+  const run = normalizeRunTracking(state.runTracking);
+  if (!run.active || !run.startedAt) return run.elapsedMs;
+  return run.elapsedMs + Math.max(0, Date.now() - run.startedAt);
+}
+
+function distanceBetweenPointsKm(a, b) {
+  const lat1 = Number(a.lat);
+  const lat2 = Number(b.lat);
+  const lon1 = Number(a.lng);
+  const lon2 = Number(b.lng);
+  if (![lat1, lat2, lon1, lon2].every(Number.isFinite)) return 0;
+  const radius = 6371;
+  const toRad = (value) => (value * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const sinLat = Math.sin(dLat / 2);
+  const sinLon = Math.sin(dLon / 2);
+  const h =
+    sinLat * sinLat +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * sinLon * sinLon;
+  return radius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+
+function appendRunPoint(coords) {
+  state.runTracking = normalizeRunTracking(state.runTracking);
+  const route = state.runTracking.route;
+  const point = {
+    lat: Number(coords.lat),
+    lng: Number(coords.lng),
+    timestamp: Number(coords.timestamp || Date.now()),
+    accuracy: Number(coords.accuracy || 0),
+  };
+  if (!Number.isFinite(point.lat) || !Number.isFinite(point.lng)) return false;
+  const last = route[route.length - 1];
+  if (last) {
+    const segmentKm = distanceBetweenPointsKm(last, point);
+    if (segmentKm < 0.004) return false;
+    state.runTracking.distanceKm += segmentKm;
+  }
+  route.push(point);
+  if (route.length > 2500) {
+    route.splice(0, route.length - 2500);
+  }
+  return true;
+}
+
+function renderRunOverlay3D(run, options = {}) {
+  if (!hasEvent3DMap() || !eventMapLoaded) return;
+  ensureEvent3DLayers();
+  const runSource = eventMap.getSource(event3DLayerIds.runSource);
+  if (runSource) runSource.setData(createLineCollection(run.route));
+  const latest = run.route[run.route.length - 1] || state.currentLocation;
+  if (!latest) {
+    if (eventRunnerMarker) {
+      eventRunnerMarker.remove();
+      eventRunnerMarker = null;
+    }
+    return;
+  }
+  if (!eventRunnerMarker) {
+    eventRunnerMarker = new maplibregl.Marker({
+      element: createAnimeRunnerElement(run.active),
+      anchor: "bottom",
+    })
+      .setLngLat([Number(latest.lng), Number(latest.lat)])
+      .addTo(eventMap);
+  } else {
+    eventRunnerMarker.setLngLat([Number(latest.lng), Number(latest.lat)]);
+    eventRunnerMarker.getElement().classList.toggle("tracking", run.active);
+    const figure = eventRunnerMarker.getElement().querySelector(".runner-figure");
+    if (figure) figure.classList.toggle("active", run.active);
+  }
+  if (options.focus && runFollowMode) {
+    focusEventMap(latest, Math.max(eventMap.getZoom(), 16));
+  }
+}
+
+function renderRunOverlayLeaflet(run, options = {}) {
+  if (!eventMap || hasEvent3DMap() || !eventLeafletRunLayer) return;
+  eventLeafletRunLayer.clearLayers();
+  const points = run.route.map((point) => [point.lat, point.lng]);
+  if (points.length > 1) {
+    L.polyline(points, {
+      color: "#17bebb",
+      weight: 6,
+      opacity: 0.95,
+    }).addTo(eventLeafletRunLayer);
+  }
+  const latest = run.route[run.route.length - 1] || state.currentLocation;
+  if (!latest) return;
+  eventLeafletRunnerMarker = L.marker([latest.lat, latest.lng], {
+    icon: createAnimeRunnerIcon(run.active),
+    zIndexOffset: 1200,
+  }).addTo(eventLeafletRunLayer);
+  if (options.focus && runFollowMode) {
+    eventMap.setView([latest.lat, latest.lng], Math.max(eventMap.getZoom(), 16));
+  }
+}
+
+function getGoogleMapsKey() {
+  return (
+    localStorage.getItem("gorunners_google_maps_key") ||
+    window.GORUNNERS_GOOGLE_MAPS_KEY ||
+    window.GOOGLE_MAPS_API_KEY ||
+    ""
+  ).trim();
+}
+
+function loadGoogleMapsApi() {
+  if (window.google?.maps?.StreetViewPanorama) return Promise.resolve(window.google.maps);
+  const key = getGoogleMapsKey();
+  if (!key) return Promise.reject(new Error("missing-google-maps-key"));
+  if (googleMapsPromise) return googleMapsPromise;
+  googleMapsPromise = new Promise((resolve, reject) => {
+    const callbackName = `gorunnersGoogleMapsReady_${Date.now()}`;
+    const script = document.createElement("script");
+    window[callbackName] = () => {
+      delete window[callbackName];
+      resolve(window.google.maps);
+    };
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&v=weekly&callback=${callbackName}`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = () => {
+      delete window[callbackName];
+      googleMapsPromise = null;
+      reject(new Error("google-maps-load-failed"));
+    };
+    document.head.appendChild(script);
+  });
+  return googleMapsPromise;
+}
+
+function setRunSceneMode(mode, statusText = "") {
+  runSceneMode = mode;
+  if (!dom.runMode) return;
+  dom.runMode.dataset.scene = mode;
+  if (dom.runStreetView) dom.runStreetView.hidden = mode !== "streetview";
+  if (dom.runWorldMap) dom.runWorldMap.hidden = mode !== "map";
+  if (dom.runCamera) dom.runCamera.hidden = mode !== "camera";
+  if (dom.runSceneFallback) {
+    dom.runSceneFallback.hidden = mode !== "fallback";
+    const label = dom.runSceneFallback.querySelector("strong");
+    if (label && statusText) label.textContent = statusText;
+  }
+  if (dom.runSceneStatus) {
+    dom.runSceneStatus.textContent = statusText || "";
+    dom.runSceneStatus.hidden = !statusText || mode === "fallback";
+  }
+}
+
+function getRunSceneStartPoint() {
+  const latest = getLatestRunPoint();
+  if (latest) return latest;
+  const route = getVisibleRoute(activeEvent);
+  if (route.length) return route[0];
+  if (activeEvent?.lat && activeEvent?.lng) return { lat: activeEvent.lat, lng: activeEvent.lng };
+  return { lat: 31.3, lng: 120.62 };
+}
+
+async function initStreetViewScene() {
+  const key = getGoogleMapsKey();
+  if (!key) {
+    initRunMapScene(t("run_mode_google_missing"));
+    return;
+  }
+  setRunSceneMode("fallback", t("run_mode_google_loading"));
+  try {
+    const maps = await loadGoogleMapsApi();
+    const start = getRunSceneStartPoint();
+    streetViewService = streetViewService || new maps.StreetViewService();
+    const request = {
+      location: { lat: Number(start.lat), lng: Number(start.lng) },
+      radius: 180,
+      preference: maps.StreetViewPreference.NEAREST,
+    };
+    const response = await streetViewService.getPanorama(request);
+    streetViewPanorama = new maps.StreetViewPanorama(dom.runStreetView, {
+      pano: response.data.location.pano,
+      pov: {
+        heading: getRouteCue(start).bearing || 0,
+        pitch: 4,
+      },
+      zoom: 1,
+      addressControl: false,
+      fullscreenControl: false,
+      linksControl: true,
+      motionTracking: false,
+      panControl: false,
+      showRoadLabels: true,
+      visible: true,
+    });
+    setRunSceneMode("streetview", t("run_mode_google_ready"));
+    renderRunMode();
+  } catch (error) {
+    initRunMapScene(t("run_mode_google_unavailable"));
+  }
+}
+
+function initRunMapScene(statusText = "") {
+  setRunSceneMode("map", statusText || t("run_mode_map_ready"));
+  initRunWorldMap();
+  renderRunWorldMap();
+  setTimeout(() => runWorldMap?.invalidateSize(), 80);
+}
+
+async function initCameraScene(statusText = "") {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    setRunSceneMode("fallback", statusText || t("run_mode_camera_blocked"));
+    return;
+  }
+  try {
+    if (!runCameraStream) {
+      runCameraStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
+    }
+    dom.runCamera.srcObject = runCameraStream;
+    await dom.runCamera.play();
+    setRunSceneMode("camera", statusText || t("run_mode_camera_on"));
+  } catch (error) {
+    initRunMapScene(statusText || t("run_mode_camera_blocked"));
+  }
+}
+
+function stopRunCameraScene() {
+  if (!runCameraStream) return;
+  runCameraStream.getTracks().forEach((track) => track.stop());
+  runCameraStream = null;
+  if (dom.runCamera) dom.runCamera.srcObject = null;
+}
+
+function initRunMiniMap() {
+  if (!dom.runMiniMap || runMiniMap || !window.L) return;
+  runMiniMap = L.map("run-mini-map", {
+    zoomControl: false,
+    attributionControl: false,
+    dragging: true,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+  }).setView([31.3, 120.62], 15);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+  }).addTo(runMiniMap);
+  runMiniRouteLayer = L.layerGroup().addTo(runMiniMap);
+  runMiniLiveLayer = L.layerGroup().addTo(runMiniMap);
+}
+
+function initRunWorldMap() {
+  if (!dom.runWorldMap || runWorldMap || !window.L) return;
+  const start = getRunSceneStartPoint();
+  runWorldMap = L.map("run-world-map", {
+    zoomControl: false,
+    attributionControl: true,
+    dragging: true,
+    scrollWheelZoom: true,
+    doubleClickZoom: true,
+  }).setView([start.lat, start.lng], 17);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors",
+  }).addTo(runWorldMap);
+  runWorldRouteLayer = L.layerGroup().addTo(runWorldMap);
+  runWorldLiveLayer = L.layerGroup().addTo(runWorldMap);
+}
+
+function drawRunSceneRoute(layer, route, options = {}) {
+  if (!layer || !window.L) return;
+  if (route.length > 1) {
+    L.polyline(route.map((point) => [point.lat, point.lng]), {
+      color: options.color || "#ff6a3d",
+      weight: options.weight || 7,
+      opacity: options.opacity || 0.95,
+      lineCap: "round",
+      lineJoin: "round",
+    }).addTo(layer);
+  }
+}
+
+function renderRunWorldMap() {
+  if (!runWorldMap || !runWorldRouteLayer || !runWorldLiveLayer) return;
+  runWorldRouteLayer.clearLayers();
+  runWorldLiveLayer.clearLayers();
+  const plannedRoute = getVisibleRoute(activeEvent);
+  const run = normalizeRunTracking(state.runTracking);
+  const latest = run.route[run.route.length - 1] || state.currentLocation;
+
+  drawRunSceneRoute(runWorldRouteLayer, plannedRoute, { color: "#ff6a3d", weight: 8, opacity: 0.94 });
+  drawRunSceneRoute(runWorldLiveLayer, run.route, { color: "#17bebb", weight: 7, opacity: 0.98 });
+
+  plannedRoute.forEach((point, index) => {
+    L.marker([point.lat, point.lng], {
+      icon: L.divIcon({
+        className: "run-world-point",
+        html: `<span>${getRoutePointShortLabel(point, index, plannedRoute.length)}</span>`,
+        iconSize: [42, 42],
+        iconAnchor: [21, 21],
+      }),
+    }).addTo(runWorldRouteLayer);
+  });
+
+  if (latest) {
+    runWorldRunnerMarker = L.marker([latest.lat, latest.lng], {
+      icon: createAnimeRunnerIcon(run.active),
+      zIndexOffset: 3000,
+    }).addTo(runWorldLiveLayer);
+    runWorldMap.setView([latest.lat, latest.lng], Math.max(runWorldMap.getZoom(), 17), { animate: true });
+  } else if (plannedRoute.length > 1) {
+    runWorldMap.fitBounds(L.latLngBounds(plannedRoute.map((point) => [point.lat, point.lng])), {
+      padding: [70, 70],
+      maxZoom: 17,
+    });
+  }
+}
+
+function renderRunMiniMap() {
+  if (!runMiniMap || !runMiniRouteLayer || !runMiniLiveLayer) return;
+  runMiniRouteLayer.clearLayers();
+  runMiniLiveLayer.clearLayers();
+
+  const plannedRoute = getVisibleRoute(activeEvent);
+  const run = normalizeRunTracking(state.runTracking);
+  const liveRoute = run.route.map((point) => [point.lat, point.lng]);
+  const latest = run.route[run.route.length - 1] || state.currentLocation;
+
+  if (plannedRoute.length > 1) {
+    L.polyline(plannedRoute.map((point) => [point.lat, point.lng]), {
+      color: "#ff6a3d",
+      weight: 4,
+      opacity: 0.95,
+    }).addTo(runMiniRouteLayer);
+  }
+
+  plannedRoute.forEach((point, index) => {
+    L.circleMarker([point.lat, point.lng], {
+      radius: index === 0 ? 5 : 4,
+      color: "#111827",
+      weight: 2,
+      fillColor: "#fff",
+      fillOpacity: 1,
+    }).addTo(runMiniRouteLayer);
+  });
+
+  if (liveRoute.length > 1) {
+    L.polyline(liveRoute, {
+      color: "#17bebb",
+      weight: 5,
+      opacity: 0.96,
+    }).addTo(runMiniLiveLayer);
+  }
+
+  if (latest) {
+    runMiniRunnerMarker = L.marker([latest.lat, latest.lng], {
+      icon: createAnimeRunnerIcon(run.active),
+      zIndexOffset: 2000,
+    }).addTo(runMiniLiveLayer);
+    runMiniMap.setView([latest.lat, latest.lng], Math.max(runMiniMap.getZoom(), 16));
+  } else if (plannedRoute.length) {
+    const bounds = L.latLngBounds(plannedRoute.map((point) => [point.lat, point.lng]));
+    runMiniMap.fitBounds(bounds, { padding: [18, 18] });
+  }
+}
+
+function bearingBetweenPoints(from, to) {
+  if (!from || !to) return 0;
+  const lat1 = (Number(from.lat) * Math.PI) / 180;
+  const lat2 = (Number(to.lat) * Math.PI) / 180;
+  const lon1 = (Number(from.lng) * Math.PI) / 180;
+  const lon2 = (Number(to.lng) * Math.PI) / 180;
+  const y = Math.sin(lon2 - lon1) * Math.cos(lat2);
+  const x =
+    Math.cos(lat1) * Math.sin(lat2) -
+    Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+  return (Math.atan2(y, x) * 180) / Math.PI + 360;
+}
+
+function getRouteCue(currentPoint = getLatestRunPoint()) {
+  const route = getVisibleRoute(activeEvent);
+  if (!currentPoint || !route.length) {
+    return { label: t("run_cue_waiting"), distanceM: null, bearing: 0, target: null };
+  }
+  let nearestIndex = 0;
+  let nearestDistance = Infinity;
+  route.forEach((point, index) => {
+    const distance = distanceBetweenPointsKm(currentPoint, point);
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestIndex = index;
+    }
+  });
+  const targetIndex = Math.min(route.length - 1, nearestDistance < 0.035 ? nearestIndex + 1 : nearestIndex);
+  const target = route[targetIndex] || route[route.length - 1];
+  const distanceM = Math.round(distanceBetweenPointsKm(currentPoint, target) * 1000);
+  return {
+    label: targetIndex >= route.length - 1 ? t("run_cue_finish") : t("run_cue_next"),
+    distanceM,
+    bearing: bearingBetweenPoints(currentPoint, target) % 360,
+    target,
+  };
+}
+
+function renderRouteCue() {
+  const current = getLatestRunPoint();
+  const cue = getRouteCue(current);
+  if (dom.runCueLabel) dom.runCueLabel.textContent = cue.label;
+  if (dom.runCueDistance) {
+    dom.runCueDistance.textContent =
+      cue.distanceM === null ? "--" : cue.distanceM >= 1000 ? `${(cue.distanceM / 1000).toFixed(1)} km` : `${cue.distanceM} m`;
+  }
+  if (dom.runArArrow) {
+    const relativeBearing = deviceHeading === null ? cue.bearing : cue.bearing - deviceHeading;
+    dom.runArArrow.style.transform = `translateX(-50%) rotate(${relativeBearing}deg)`;
+  }
+}
+
+function updateStreetViewPosition() {
+  if (runSceneMode !== "streetview" || !streetViewPanorama || !streetViewService) return;
+  const latest = getLatestRunPoint();
+  if (!latest) return;
+  const now = Date.now();
+  if (now - streetViewLastUpdate < 5000) return;
+  streetViewLastUpdate = now;
+  streetViewService
+    .getPanorama({
+      location: { lat: Number(latest.lat), lng: Number(latest.lng) },
+      radius: 120,
+      preference: google.maps.StreetViewPreference.NEAREST,
+    })
+    .then((response) => {
+      streetViewPanorama.setPano(response.data.location.pano);
+      streetViewPanorama.setPov({
+        heading: getRouteCue(latest).bearing || streetViewPanorama.getPov().heading,
+        pitch: 4,
+      });
+    })
+    .catch(() => {});
+}
+
+function renderRunMode() {
+  if (!runModeOpen) return;
+  const run = normalizeRunTracking(state.runTracking);
+  const elapsedMs = getCurrentRunElapsedMs();
+  if (dom.runModeEvent) dom.runModeEvent.textContent = getEventText(activeEvent, "name") || "Current route";
+  if (dom.runModeDistance) dom.runModeDistance.textContent = `${run.distanceKm.toFixed(2)} km`;
+  if (dom.runModeDuration) dom.runModeDuration.textContent = formatRunDuration(elapsedMs);
+  if (dom.runModeStatus) {
+    dom.runModeStatus.textContent = run.active
+      ? run.route.length
+        ? t("run_status_tracking")
+        : t("run_status_waiting")
+      : t("run_status_idle");
+  }
+  renderRouteCue();
+  renderRunMiniMap();
+  renderRunWorldMap();
+  updateStreetViewPosition();
+}
+
+function handleDeviceOrientation(event) {
+  const heading = event.webkitCompassHeading ?? (typeof event.alpha === "number" ? 360 - event.alpha : null);
+  if (heading === null || !Number.isFinite(Number(heading))) return;
+  deviceHeading = Number(heading);
+  renderRouteCue();
+}
+
+function openRunMode() {
+  if (!dom.runMode) return;
+  runModeOpen = true;
+  dom.runMode.classList.add("show");
+  dom.runMode.setAttribute("aria-hidden", "false");
+  document.body.classList.add("run-mode-active");
+  initRunMiniMap();
+  setTimeout(() => runMiniMap?.invalidateSize(), 80);
+  initStreetViewScene();
+  window.addEventListener("deviceorientation", handleDeviceOrientation, true);
+  renderRunMode();
+  showToast(t("toast_run_mode_opened"));
+}
+
+function closeRunMode(options = {}) {
+  if (!dom.runMode) return;
+  runModeOpen = false;
+  dom.runMode.classList.remove("show");
+  dom.runMode.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("run-mode-active");
+  window.removeEventListener("deviceorientation", handleDeviceOrientation, true);
+  stopRunCameraScene();
+  if (options.toast) {
+    showToast(t("toast_run_mode_closed"));
+  }
+}
+
+function renderRunTracking(options = {}) {
+  state.runTracking = normalizeRunTracking(state.runTracking);
+  const run = state.runTracking;
+  const elapsedMs = getCurrentRunElapsedMs();
+  if (dom.runDistance) dom.runDistance.textContent = `${run.distanceKm.toFixed(2)} km`;
+  if (dom.runDuration) dom.runDuration.textContent = formatRunDuration(elapsedMs);
+  if (dom.runStatus) {
+    dom.runStatus.textContent = run.active
+      ? run.route.length
+        ? t("run_status_tracking")
+        : t("run_status_waiting")
+      : t("run_status_idle");
+  }
+  if (dom.runStart) dom.runStart.disabled = run.active;
+  if (dom.runStop) dom.runStop.disabled = !run.active;
+  if (dom.runFollow) {
+    dom.runFollow.disabled = !getLatestRunPoint();
+    dom.runFollow.classList.toggle("active", runFollowMode);
+  }
+  dom.runTrackerPanel?.classList.toggle("tracking", run.active);
+  renderRunOverlay3D(run, options);
+  renderRunOverlayLeaflet(run, options);
+  renderRunMode();
+}
+
+function updateCurrentLocation(coords, options = {}) {
+  const normalized = {
+    lat: Number(coords.lat),
+    lng: Number(coords.lng),
+    accuracy: Number(coords.accuracy || 0),
+    timestamp: Number(coords.timestamp || Date.now()),
+  };
+  if (!Number.isFinite(normalized.lat) || !Number.isFinite(normalized.lng)) return;
+  state.currentLocation = normalized;
+  state.locationEnabled = true;
+  saveState();
+  if (cityMap) {
+    if (!userMarker) {
+      userMarker = L.circleMarker([normalized.lat, normalized.lng], {
+        radius: 8,
+        color: "#111827",
+        fillColor: "#ff6a3d",
+        fillOpacity: 0.9,
+      }).addTo(cityMap);
+    } else {
+      userMarker.setLatLng([normalized.lat, normalized.lng]);
+    }
+    if (options.centerCity) {
+      cityMap.setView([normalized.lat, normalized.lng], 13);
+    }
+  }
+  updateLocationButton();
+}
+
+function handleRunPosition(position) {
+  const coords = {
+    lat: position.coords.latitude,
+    lng: position.coords.longitude,
+    accuracy: position.coords.accuracy,
+    timestamp: position.timestamp || Date.now(),
+  };
+  updateCurrentLocation(coords);
+  if (state.runTracking?.active) {
+    appendRunPoint(coords);
+  }
+  saveState();
+  renderRunTracking({ focus: true });
+}
+
+function handleRunError(error) {
+  if (error?.code === error?.PERMISSION_DENIED) {
+    showToast(t("toast_geo_denied"));
+    stopRunWatch();
+    stopRunTimer();
+    if (state.runTracking?.active && !state.runTracking.route?.length) {
+      state.runTracking.active = false;
+      state.runTracking.startedAt = 0;
+      saveState();
+      renderRunTracking();
+    }
+    return;
+  }
+  if (dom.runStatus) dom.runStatus.textContent = t("run_status_waiting");
+}
+
+function stopRunWatch() {
+  if (runWatchId !== null && navigator.geolocation) {
+    navigator.geolocation.clearWatch(runWatchId);
+  }
+  runWatchId = null;
+}
+
+function startRunTimer() {
+  if (runTimerId !== null) {
+    window.clearInterval(runTimerId);
+  }
+  runTimerId = window.setInterval(() => {
+    if (!state.runTracking?.active) {
+      stopRunTimer();
+      return;
+    }
+    renderRunTracking();
+  }, 1000);
+}
+
+function stopRunTimer() {
+  if (runTimerId !== null) {
+    window.clearInterval(runTimerId);
+  }
+  runTimerId = null;
+}
+
+function startRunTracking() {
+  if (!navigator.geolocation) {
+    showToast(t("toast_geo_unsupported"));
+    return;
+  }
+  if (state.runTracking?.active) {
+    showToast(t("toast_run_already_active"));
+    return;
+  }
+  stopRunWatch();
+  runFollowMode = true;
+  state.runTracking = {
+    active: true,
+    eventId: activeEvent?.id ? String(activeEvent.id) : "",
+    startedAt: Date.now(),
+    elapsedMs: 0,
+    distanceKm: 0,
+    route: [],
+  };
+  saveState();
+  renderRunTracking();
+  startRunTimer();
+  openRunMode();
+  const geoOptions = {
+    enableHighAccuracy: true,
+    maximumAge: 1000,
+    timeout: 15000,
+  };
+  runWatchId = navigator.geolocation.watchPosition(handleRunPosition, handleRunError, geoOptions);
+  navigator.geolocation.getCurrentPosition(handleRunPosition, handleRunError, geoOptions);
+  showToast(t("toast_run_started"));
+}
+
+function stopRunTracking() {
+  if (!state.runTracking?.active) {
+    showToast(t("toast_run_not_active"));
+    return;
+  }
+  state.runTracking.elapsedMs = getCurrentRunElapsedMs();
+  state.runTracking.active = false;
+  state.runTracking.startedAt = 0;
+  stopRunWatch();
+  stopRunTimer();
+  closeRunMode();
+  saveState();
+  renderRunTracking();
+  showToast(t("toast_run_stopped", { distance: state.runTracking.distanceKm.toFixed(2) }));
+}
+
+function focusRunPosition() {
+  const latest = getLatestRunPoint();
+  if (!latest) {
+    showToast(t("toast_run_not_active"));
+    return;
+  }
+  runFollowMode = true;
+  focusEventMap(latest, 16);
+  renderRunTracking();
+  showToast(t("toast_run_position"));
+}
+
+function disableRunFollow() {
+  if (!runFollowMode) return;
+  runFollowMode = false;
+  renderRunTracking();
+}
+
+function canCreateWebGLContext() {
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(
+      canvas.getContext("webgl2") ||
+        canvas.getContext("webgl") ||
+        canvas.getContext("experimental-webgl")
+    );
+  } catch (error) {
+    return false;
+  }
+}
+
 function initMaps() {
   if (!window.L) return;
-  eventMap = L.map("route-map", { zoomControl: false, attributionControl: true }).setView(
-    [31.3, 120.62],
-    12
-  );
+  const canUseMapLibre =
+    window.maplibregl &&
+    dom.routeMap &&
+    canCreateWebGLContext() &&
+    (typeof maplibregl.supported !== "function" ||
+      maplibregl.supported({ failIfMajorPerformanceCaveat: false }));
+
+  if (canUseMapLibre) {
+    try {
+      eventMapIs3D = true;
+      dom.routeMap.classList.add("map-3d");
+      eventMap = new maplibregl.Map({
+        container: "route-map",
+        style: event3DMapStyle,
+        center: [120.62, 31.3],
+        zoom: 12,
+        pitch: 62,
+        bearing: -24,
+        attributionControl: true,
+        antialias: true,
+        maxPitch: 72,
+        maxBounds: [
+          [120.2, 30.9],
+          [121.1, 31.7],
+        ],
+      });
+      eventMap.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
+      eventMap.on("load", () => {
+        eventMapLoaded = true;
+        ensureEvent3DLayers();
+        renderEventMap(activeEvent);
+        renderRunTracking();
+      });
+      eventMap.on("click", (event) => {
+        handleEventMapClick({ lat: event.lngLat.lat, lng: event.lngLat.lng });
+      });
+      eventMap.on("dragstart", disableRunFollow);
+      eventMap.on("zoomstart", disableRunFollow);
+      eventMap.on("pitchstart", disableRunFollow);
+      eventMap.on("rotatestart", disableRunFollow);
+    } catch (error) {
+      eventMap = null;
+      eventMapIs3D = false;
+      eventMapLoaded = false;
+      dom.routeMap.classList.remove("map-3d", "maplibregl-map");
+      dom.routeMap.innerHTML = "";
+    }
+  }
+
+  if (!eventMap) {
+    eventMap = L.map("route-map", { zoomControl: true, attributionControl: true }).setView(
+      [31.3, 120.62],
+      12
+    );
+    eventMap.on("click", (event) => {
+      handleEventMapClick(event.latlng);
+    });
+    eventMap.on("dragstart zoomstart", disableRunFollow);
+  }
   cityMap = L.map("city-map", { zoomControl: true, attributionControl: true }).setView(
     [31.3, 120.62],
     11
@@ -2943,7 +4174,7 @@ function initMaps() {
     );
   }
 
-  [eventMap, cityMap, organizerMap].filter(Boolean).forEach((mapInstance) => {
+  [eventMapIs3D ? null : eventMap, cityMap, organizerMap].filter(Boolean).forEach((mapInstance) => {
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap contributors",
@@ -2953,8 +4184,11 @@ function initMaps() {
     }
   });
 
-  eventLayerGroup = L.layerGroup().addTo(eventMap);
-  planLayerGroup = L.layerGroup().addTo(eventMap);
+  if (!eventMapIs3D) {
+    eventLayerGroup = L.layerGroup().addTo(eventMap);
+    planLayerGroup = L.layerGroup().addTo(eventMap);
+    eventLeafletRunLayer = L.layerGroup().addTo(eventMap);
+  }
   cityLayerGroup = L.layerGroup().addTo(cityMap);
   if (organizerMap) {
     organizerRouteLayer = L.layerGroup().addTo(organizerMap);
@@ -2973,9 +4207,6 @@ function initMaps() {
     });
     renderOrganizerRouteMap();
   }
-  eventMap.on("click", (event) => {
-    handleEventMapClick(event.latlng);
-  });
   renderEventMap(activeEvent);
   renderCityMarkers();
   if (state.currentLocation) {
@@ -2986,6 +4217,7 @@ function initMaps() {
       fillOpacity: 0.9,
     }).addTo(cityMap);
   }
+  renderRunTracking();
 }
 
 function createOrganizerPointIcon(point, index, total, selected = false) {
@@ -3135,24 +4367,11 @@ function locateUser() {
       const coords = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+        timestamp: position.timestamp || Date.now(),
       };
-      state.currentLocation = coords;
-      state.locationEnabled = true;
-      saveState();
-      if (cityMap) {
-        if (!userMarker) {
-          userMarker = L.circleMarker([coords.lat, coords.lng], {
-            radius: 8,
-            color: "#111827",
-            fillColor: "#ff6a3d",
-            fillOpacity: 0.9,
-          }).addTo(cityMap);
-        } else {
-          userMarker.setLatLng([coords.lat, coords.lng]);
-        }
-        cityMap.setView([coords.lat, coords.lng], 13);
-      }
-      updateLocationButton();
+      updateCurrentLocation(coords, { centerCity: true });
+      renderRunTracking();
       showToast(t("toast_geo_success"));
     },
     () => {
@@ -3618,13 +4837,48 @@ function drawRoutePoint(layer, point, index, total, source = "auto", allowTypeCh
 
 function renderEventMap(event) {
   if (!eventMap) return;
-  eventLayerGroup.clearLayers();
   const draftRoute = getDraftRoute(event);
   const routeSource = getRouteMode() === "edit" && draftRoute.length >= 2 ? "draft" : "base";
   const route = getVisibleRoute(event);
   const draftPoint = getSingleDraftPoint(event);
   const center = event.lat && event.lng ? [event.lat, event.lng] : [31.3, 120.62];
 
+  if (hasEvent3DMap()) {
+    if (!eventMapLoaded) return;
+    ensureEvent3DLayers();
+    clearEvent3DMarkers();
+    const routeData = createLineCollection(route);
+    const routeSourceObject = eventMap.getSource(event3DLayerIds.routeSource);
+    const buildingsSource = eventMap.getSource(event3DLayerIds.buildingsSource);
+    if (routeSourceObject) routeSourceObject.setData(routeData);
+    if (buildingsSource) buildingsSource.setData(createBuildingCollection(route, event));
+    fitEventMapToRoute(route, center);
+
+    route.forEach((point, index) => {
+      drawEvent3DRoutePoint(point, index, route.length, routeSource);
+    });
+
+    if (draftPoint) {
+      drawEvent3DRoutePoint(draftPoint, 0, 1, "draft");
+    }
+
+    if (!route.length && !draftPoint && !hasCustomRoutePlan(event)) {
+      const markerPoint = { lat: center[0], lng: center[1], type: "start" };
+      eventCenterMarker = new maplibregl.Marker({
+        element: createRoutePointElement(markerPoint, 0, 1),
+        anchor: "center",
+      })
+        .setLngLat([center[1], center[0]])
+        .setPopup(new maplibregl.Popup({ offset: 18 }).setText(getEventText(event, "name")))
+        .addTo(eventMap);
+    }
+
+    renderRouteControls();
+    renderRunTracking();
+    return;
+  }
+
+  eventLayerGroup.clearLayers();
   if (route.length > 1) {
     const routeLine = L.polyline(
       route.map((point) => routePointToLatLng(point)),
@@ -3664,6 +4918,7 @@ function renderEventMap(event) {
   }
 
   renderRouteControls();
+  renderRunTracking();
 }
 
 function refreshRouteViews(updateCheckpoints = true) {

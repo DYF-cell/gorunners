@@ -17,6 +17,10 @@
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css"
+    />
     <link rel="stylesheet" href="styles.css?v=merge-du-1" />
   </head>
   <body>
@@ -250,6 +254,33 @@
               </div>
               <div class="map-footnote" id="route-edit-hint" data-i18n="map_edit_hint">
                 Press Edit Current Route, then tap the map to add route points.
+              </div>
+            </div>
+            <div class="run-tracker-panel" id="run-tracker-panel">
+              <div class="run-tracker-stats" aria-live="polite">
+                <div>
+                  <span data-i18n="run_distance_label">Distance</span>
+                  <strong id="run-distance">0.00 km</strong>
+                </div>
+                <div>
+                  <span data-i18n="run_time_label">Time</span>
+                  <strong id="run-duration">00:00</strong>
+                </div>
+                <div>
+                  <span data-i18n="run_status_label">Status</span>
+                  <strong id="run-status">GPS idle</strong>
+                </div>
+              </div>
+              <div class="button-row run-controls">
+                <button class="primary-button" id="run-start" type="button" data-i18n="button_run_start">
+                  Start Run
+                </button>
+                <button class="outline-button" id="run-stop" type="button" data-i18n="button_run_stop">
+                  End Run
+                </button>
+                <button class="ghost-button" id="run-follow" type="button" data-i18n="button_run_follow">
+                  Follow Runner
+                </button>
               </div>
             </div>
             <div class="route-map" id="route-map" role="img" aria-label="Route map"></div>
@@ -757,11 +788,76 @@
       </div>
     </div>
 
+    <section class="run-mode" id="run-mode" aria-hidden="true">
+      <div class="run-mode-scene" id="run-mode-scene">
+        <div class="run-street-view" id="run-street-view" aria-label="Google Street View running scene"></div>
+        <div class="run-world-map" id="run-world-map" aria-label="Live route map scene"></div>
+        <video class="run-camera" id="run-camera" playsinline muted hidden></video>
+        <div class="run-scene-fallback" id="run-scene-fallback">
+          <span data-i18n="run_mode_fallback_title">Live route view</span>
+          <strong data-i18n="run_mode_fallback_body">Add a Google Maps key or allow camera access for the immersive scene.</strong>
+        </div>
+        <div class="run-scene-status" id="run-scene-status"></div>
+        <div class="route-ar-overlay" aria-hidden="true">
+          <div class="route-ar-lane">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="route-ar-arrow" id="run-ar-arrow"></div>
+        </div>
+      </div>
+
+      <div class="run-mode-topbar">
+        <div>
+          <span data-i18n="run_mode_label">RUN MODE</span>
+          <strong id="run-mode-event">Current route</strong>
+        </div>
+        <div class="run-mode-actions">
+          <button class="ghost-button" id="run-mode-camera" type="button" data-i18n="button_run_camera">
+            Camera
+          </button>
+          <button class="outline-button" id="run-mode-close" type="button" data-i18n="button_run_exit_view">
+            Exit View
+          </button>
+          <button class="primary-button" id="run-mode-stop" type="button" data-i18n="button_run_stop">
+            End Run
+          </button>
+        </div>
+      </div>
+
+      <aside class="run-mode-minimap">
+        <div class="run-mini-map" id="run-mini-map" aria-label="2D tactical route map"></div>
+      </aside>
+
+      <div class="run-mode-hud">
+        <div class="run-cue">
+          <span id="run-cue-label" data-i18n="run_cue_waiting">Locking route...</span>
+          <strong id="run-cue-distance">--</strong>
+        </div>
+        <div class="run-mode-stat-grid">
+          <div>
+            <span data-i18n="run_distance_label">Distance</span>
+            <strong id="run-mode-distance">0.00 km</strong>
+          </div>
+          <div>
+            <span data-i18n="run_time_label">Time</span>
+            <strong id="run-mode-duration">00:00</strong>
+          </div>
+          <div>
+            <span data-i18n="run_status_label">Status</span>
+            <strong id="run-mode-status">GPS idle</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="data.js?v=merge-du-1"></script>
     <script src="config.js?v=merge-du-1"></script>
     <script src="app.js?v=merge-du-1"></script>
