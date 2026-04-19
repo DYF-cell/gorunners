@@ -30,6 +30,7 @@ const defaultState = {
     distanceKm: 0,
     route: [],
   },
+  runHistory: [],
 };
 
 const i18n = {
@@ -112,17 +113,23 @@ const i18n = {
     button_run_stop: "End Run",
     button_run_follow: "Follow Runner",
     button_run_camera: "Camera",
+    button_run_camera_flip: "Flip",
     button_run_exit_view: "Exit View",
     run_mode_label: "RUN MODE",
     run_mode_fallback_title: "Live route view",
     run_mode_fallback_body: "Add a Google Maps key or allow camera access for the immersive scene.",
     run_mode_camera_on: "Camera guide on",
+    run_mode_camera_flipped: "Camera switched.",
     run_mode_camera_blocked: "Camera access is unavailable.",
     run_mode_map_ready: "Live route map is active.",
     run_mode_google_loading: "Loading Google Street View...",
     run_mode_google_ready: "Google Street View route locked.",
     run_mode_google_missing: "Google Maps key missing. Using camera route guide.",
     run_mode_google_unavailable: "Street View is unavailable here. Using camera route guide.",
+    road_recognition_label: "ROAD LOCK",
+    road_recognition_waiting: "Scanning road surface...",
+    road_recognition_ready: "Road recognized",
+    road_recognition_low: "Searching for road",
     run_cue_waiting: "Locking route...",
     run_cue_next: "Next route point",
     run_cue_finish: "Finish route",
@@ -416,17 +423,23 @@ const i18n = {
     button_run_stop: "结束跑步",
     button_run_follow: "跟随小人",
     button_run_camera: "摄像头",
+    button_run_camera_flip: "翻转",
     button_run_exit_view: "退出视图",
     run_mode_label: "跑步模式",
     run_mode_fallback_title: "实时路线视图",
     run_mode_fallback_body: "配置 Google Maps Key 或允许摄像头权限后可进入实景画面。",
     run_mode_camera_on: "摄像头路线识别已开启",
+    run_mode_camera_flipped: "已切换摄像头。",
     run_mode_camera_blocked: "无法访问摄像头。",
     run_mode_map_ready: "实时路线地图已开启。",
     run_mode_google_loading: "正在加载 Google 实景地图...",
     run_mode_google_ready: "已锁定 Google 实景路线。",
     run_mode_google_missing: "未配置 Google Maps Key，已使用摄像头路线视图。",
     run_mode_google_unavailable: "当前位置暂无街景，已使用摄像头路线视图。",
+    road_recognition_label: "道路锁定",
+    road_recognition_waiting: "正在识别道路...",
+    road_recognition_ready: "已识别道路",
+    road_recognition_low: "正在寻找道路",
     run_cue_waiting: "正在锁定路线...",
     run_cue_next: "下一个路线点",
     run_cue_finish: "终点路线",
@@ -706,8 +719,12 @@ const dom = {
   runSceneFallback: document.getElementById("run-scene-fallback"),
   runSceneStatus: document.getElementById("run-scene-status"),
   runArArrow: document.getElementById("run-ar-arrow"),
+  roadRecognitionHud: document.getElementById("road-recognition-hud"),
+  roadRecognitionStatus: document.getElementById("road-recognition-status"),
+  roadRecognitionConfidence: document.getElementById("road-recognition-confidence"),
   runModeEvent: document.getElementById("run-mode-event"),
   runModeCamera: document.getElementById("run-mode-camera"),
+  runModeCameraFlip: document.getElementById("run-mode-camera-flip"),
   runModeClose: document.getElementById("run-mode-close"),
   runModeStop: document.getElementById("run-mode-stop"),
   runMiniMap: document.getElementById("run-mini-map"),
@@ -852,7 +869,11 @@ let runWorldRouteLayer = null;
 let runWorldLiveLayer = null;
 let runWorldRunnerMarker = null;
 let runCameraStream = null;
+let runCameraFacingMode = "environment";
 let runSceneMode = "fallback";
+let runRoadScanTimer = null;
+let roadRecognitionScore = 0.42;
+let roadScanCanvas = null;
 let googleMapsPromise = null;
 let streetViewPanorama = null;
 let streetViewService = null;
@@ -876,12 +897,141 @@ const planTypeIcons = {
   photo: "P",
   finish: "F",
 };
-const suzhouBounds = window.L
-  ? L.latLngBounds([
-      [30.9, 120.2],
-      [31.7, 121.1],
-    ])
-  : null;
+function getMapProvider() {
+  const provider = String(
+    localStorage.getItem("gorunners_map_provider") ||
+      window.GORUNNERS_MAP_PROVIDER ||
+      "amap"
+  ).toLowerCase();
+  return provider === "osm" ? "osm" : "amap";
+}
+
+function getCoordinateSystem() {
+  const system = String(window.GORUNNERS_COORDINATE_SYSTEM || "wgs84").toLowerCase();
+  return system === "gcj02" ? "gcj02" : "wgs84";
+}
+
+function isAmapProvider() {
+  return getMapProvider() === "amap";
+}
+
+function shouldConvertToGcj() {
+  return isAmapProvider() && getCoordinateSystem() === "wgs84";
+}
+
+function outOfChina(lat, lng) {
+  return lng < 72.004 || lng > 137.8347 || lat < 0.8293 || lat > 55.8271;
+}
+
+function transformLat(x, y) {
+  let ret = -100 + 2 * x + 3 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+  ret += ((20 * Math.sin(6 * x * Math.PI) + 20 * Math.sin(2 * x * Math.PI)) * 2) / 3;
+  ret += ((20 * Math.sin(y * Math.PI) + 40 * Math.sin((y / 3) * Math.PI)) * 2) / 3;
+  ret += ((160 * Math.sin((y / 12) * Math.PI) + 320 * Math.sin((y * Math.PI) / 30)) * 2) / 3;
+  return ret;
+}
+
+function transformLng(x, y) {
+  let ret = 300 + x + 2 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+  ret += ((20 * Math.sin(6 * x * Math.PI) + 20 * Math.sin(2 * x * Math.PI)) * 2) / 3;
+  ret += ((20 * Math.sin(x * Math.PI) + 40 * Math.sin((x / 3) * Math.PI)) * 2) / 3;
+  ret += ((150 * Math.sin((x / 12) * Math.PI) + 300 * Math.sin((x / 30) * Math.PI)) * 2) / 3;
+  return ret;
+}
+
+function wgs84ToGcj02(point) {
+  const lat = Number(point?.lat ?? point?.[0]);
+  const lng = Number(point?.lng ?? point?.[1]);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || outOfChina(lat, lng)) return { lat, lng };
+  const a = 6378245;
+  const ee = 0.006693421622965943;
+  let dLat = transformLat(lng - 105, lat - 35);
+  let dLng = transformLng(lng - 105, lat - 35);
+  const radLat = (lat / 180) * Math.PI;
+  let magic = Math.sin(radLat);
+  magic = 1 - ee * magic * magic;
+  const sqrtMagic = Math.sqrt(magic);
+  dLat = (dLat * 180) / (((a * (1 - ee)) / (magic * sqrtMagic)) * Math.PI);
+  dLng = (dLng * 180) / ((a / sqrtMagic) * Math.cos(radLat) * Math.PI);
+  return { lat: lat + dLat, lng: lng + dLng };
+}
+
+function gcj02ToWgs84(point) {
+  const lat = Number(point?.lat ?? point?.[0]);
+  const lng = Number(point?.lng ?? point?.[1]);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || outOfChina(lat, lng)) return { lat, lng };
+  const gcj = wgs84ToGcj02({ lat, lng });
+  return { lat: lat * 2 - gcj.lat, lng: lng * 2 - gcj.lng };
+}
+
+function toMapPoint(point) {
+  const normalized = {
+    lat: Number(point?.lat ?? point?.[0]),
+    lng: Number(point?.lng ?? point?.[1]),
+  };
+  if (!Number.isFinite(normalized.lat) || !Number.isFinite(normalized.lng)) return normalized;
+  return shouldConvertToGcj() ? wgs84ToGcj02(normalized) : normalized;
+}
+
+function toDataPoint(latlng) {
+  const normalized = {
+    lat: Number(latlng?.lat ?? latlng?.[0]),
+    lng: Number(latlng?.lng ?? latlng?.[1]),
+  };
+  if (!Number.isFinite(normalized.lat) || !Number.isFinite(normalized.lng)) return normalized;
+  return shouldConvertToGcj() ? gcj02ToWgs84(normalized) : normalized;
+}
+
+function toMapLatLng(point) {
+  const mapped = toMapPoint(point);
+  return [mapped.lat, mapped.lng];
+}
+
+function getSuzhouMapBounds() {
+  if (!window.L) return null;
+  return L.latLngBounds([
+    toMapLatLng({ lat: 30.9, lng: 120.2 }),
+    toMapLatLng({ lat: 31.7, lng: 121.1 }),
+  ]);
+}
+
+function toMapLngLat(point) {
+  const mapped = toMapPoint(point);
+  return [mapped.lng, mapped.lat];
+}
+
+function getBaseMapTileConfig() {
+  if (isAmapProvider()) {
+    return {
+      id: "amap",
+      url: "https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+      tiles: [1, 2, 3, 4].map(
+        (subdomain) =>
+          `https://webrd0${subdomain}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}`
+      ),
+      subdomains: "1234",
+      attribution: "&copy; 高德地图 AutoNavi",
+    };
+  }
+  return {
+    id: "osm",
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+    subdomains: "",
+    attribution: "&copy; OpenStreetMap contributors",
+  };
+}
+
+function addBaseTileLayer(mapInstance, options = {}) {
+  if (!window.L || !mapInstance) return null;
+  const tileConfig = getBaseMapTileConfig();
+  return L.tileLayer(tileConfig.url, {
+    maxZoom: 19,
+    subdomains: tileConfig.subdomains,
+    attribution: options.attribution === false ? "" : tileConfig.attribution,
+  }).addTo(mapInstance);
+}
+
 const event3DLayerIds = {
   routeSource: "gorunners-event-route",
   routeGlow: "gorunners-event-route-glow",
@@ -892,28 +1042,33 @@ const event3DLayerIds = {
   buildingsSource: "gorunners-activity-buildings",
   buildings: "gorunners-activity-buildings-layer",
 };
-const event3DMapStyle = {
-  version: 8,
-  sources: {
-    osm: {
-      type: "raster",
-      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-      tileSize: 256,
-      attribution: "&copy; OpenStreetMap contributors",
-    },
-  },
-  layers: [
-    {
-      id: "osm",
-      type: "raster",
-      source: "osm",
-      paint: {
-        "raster-saturation": 0.02,
-        "raster-contrast": 0.08,
+function createEvent3DMapStyle() {
+  const tileConfig = getBaseMapTileConfig();
+  return {
+    version: 8,
+    sources: {
+      [tileConfig.id]: {
+        type: "raster",
+        tiles: tileConfig.tiles,
+        tileSize: 256,
+        attribution: tileConfig.attribution,
       },
     },
-  ],
-};
+    layers: [
+      {
+        id: tileConfig.id,
+        type: "raster",
+        source: tileConfig.id,
+        paint: {
+          "raster-saturation": isAmapProvider() ? -0.08 : 0.02,
+          "raster-contrast": 0.08,
+        },
+      },
+    ],
+  };
+}
+
+const event3DMapStyle = createEvent3DMapStyle();
 
 function t(key, vars = {}) {
   const dict = i18n[currentLang] || i18n.en;
@@ -1360,6 +1515,25 @@ function normalizeRunTracking(runTracking) {
   };
 }
 
+function normalizeRunHistory(runHistory) {
+  if (!Array.isArray(runHistory)) return [];
+  return runHistory
+    .map((entry) => {
+      const run = normalizeRunTracking(entry);
+      return {
+        id: entry?.id ? String(entry.id) : `run_${entry?.finishedAt || Date.now()}`,
+        eventId: entry?.eventId ? String(entry.eventId) : run.eventId,
+        eventName: entry?.eventName ? String(entry.eventName) : "",
+        finishedAt: Number.isFinite(Number(entry?.finishedAt)) ? Number(entry.finishedAt) : Date.now(),
+        elapsedMs: run.elapsedMs,
+        distanceKm: run.distanceKm,
+        route: run.route,
+      };
+    })
+    .filter((entry) => entry.route.length > 1 || entry.distanceKm > 0)
+    .slice(0, 20);
+}
+
 function loadState() {
   const saved = localStorage.getItem(activeStateKey);
   if (!saved) return getDefaultState();
@@ -1378,6 +1552,7 @@ function loadState() {
     parsed.runTracking = normalizeRunTracking(parsed.runTracking);
     parsed.runTracking.active = false;
     parsed.runTracking.startedAt = 0;
+    parsed.runHistory = normalizeRunHistory(parsed.runHistory);
     parsed.routeMode = "idle";
     return parsed;
   } catch (error) {
@@ -1958,16 +2133,18 @@ function updatePickerTypeButtons() {
   dom.mapPickerHint.textContent = getPickerHint(pickerSelectedType);
 }
 
-function setPickerSelectedLatLng(latlng) {
+function setPickerSelectedLatLng(latlng, source = "map") {
+  const dataPoint = source === "data" ? latlng : toDataPoint(latlng);
   pickerSelectedLatLng = {
-    lat: Number(latlng.lat.toFixed(6)),
-    lng: Number(latlng.lng.toFixed(6)),
+    lat: Number(dataPoint.lat.toFixed(6)),
+    lng: Number(dataPoint.lng.toFixed(6)),
   };
+  const markerLatLng = routePointToLatLng(pickerSelectedLatLng);
   const typeLabel = t(`type_${pickerSelectedType}`);
   const iconText = planTypeIcons[pickerSelectedType] || "C";
   const iconHtml = `<div style="background:#ff6a3d;color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;border:2px solid #111827">${iconText}</div>`;
   if (!pickerSelectionMarker) {
-    pickerSelectionMarker = L.marker([pickerSelectedLatLng.lat, pickerSelectedLatLng.lng], {
+    pickerSelectionMarker = L.marker(markerLatLng, {
       icon: L.divIcon({
         className: "plan-marker",
         html: iconHtml,
@@ -1975,7 +2152,7 @@ function setPickerSelectedLatLng(latlng) {
       }),
     }).addTo(pickerSelectionLayer);
   } else {
-    pickerSelectionMarker.setLatLng([pickerSelectedLatLng.lat, pickerSelectedLatLng.lng]);
+    pickerSelectionMarker.setLatLng(markerLatLng);
     pickerSelectionMarker.setIcon(
       L.divIcon({
         className: "plan-marker",
@@ -2026,9 +2203,9 @@ function renderPickerSuggestions() {
       if (!suggestion) return;
       pickerSelectedType = suggestion.type;
       updatePickerTypeButtons();
-      setPickerSelectedLatLng({ lat: suggestion.lat, lng: suggestion.lng });
+      setPickerSelectedLatLng({ lat: suggestion.lat, lng: suggestion.lng }, "data");
       if (dom.mapPickerLabel) dom.mapPickerLabel.value = suggestion.label;
-      pickerMap?.flyTo([suggestion.lat, suggestion.lng], Math.max(pickerMap.getZoom(), 14));
+      pickerMap?.flyTo(routePointToLatLng(suggestion), Math.max(pickerMap.getZoom(), 14));
     });
   });
 }
@@ -2036,15 +2213,13 @@ function renderPickerSuggestions() {
 function ensurePickerMap() {
   if (!window.L || pickerMap) return;
   pickerMap = L.map("map-picker", { zoomControl: true, attributionControl: true }).setView(
-    [31.3, 120.62],
+    toMapLatLng({ lat: 31.3, lng: 120.62 }),
     12
   );
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(pickerMap);
-  if (suzhouBounds) {
-    pickerMap.setMaxBounds(suzhouBounds);
+  addBaseTileLayer(pickerMap);
+  const mapBounds = getSuzhouMapBounds();
+  if (mapBounds) {
+    pickerMap.setMaxBounds(mapBounds);
   }
   pickerRouteLayer = L.layerGroup().addTo(pickerMap);
   pickerPlanLayer = L.layerGroup().addTo(pickerMap);
@@ -2106,8 +2281,8 @@ function openMapPicker(initialLatLng = null) {
   dom.mapPickerModal.setAttribute("aria-hidden", "false");
   renderPickerMap();
   if (initialLatLng) {
-    setPickerSelectedLatLng(initialLatLng);
-    pickerMap?.setView([initialLatLng.lat, initialLatLng.lng], Math.max(pickerMap.getZoom(), 14));
+    setPickerSelectedLatLng(initialLatLng, "data");
+    pickerMap?.setView(routePointToLatLng(initialLatLng), Math.max(pickerMap.getZoom(), 14));
   }
   updateModalLock();
 }
@@ -2975,6 +3150,7 @@ function initActions() {
   dom.runModeClose?.addEventListener("click", () => closeRunMode({ toast: true }));
   dom.runModeStop?.addEventListener("click", stopRunTracking);
   dom.runModeCamera?.addEventListener("click", () => initCameraScene(t("run_mode_camera_on")));
+  dom.runModeCameraFlip?.addEventListener("click", flipRunCamera);
   dom.matchForm.addEventListener("submit", handleMatch);
   dom.matchChatForm?.addEventListener("submit", handleMatchChatSubmit);
   dom.clearRegistrations.addEventListener("click", () => {
@@ -3126,7 +3302,7 @@ function createFeatureCollection(features = []) {
 }
 
 function createLineCollection(points) {
-  const coords = normalizeRunTracking({ route: points }).route.map((point) => [point.lng, point.lat]);
+  const coords = normalizeRunTracking({ route: points }).route.map((point) => toMapLngLat(point));
   if (coords.length < 2) return createFeatureCollection();
   return createFeatureCollection([
     {
@@ -3145,8 +3321,12 @@ function createBuildingCollection(route, event = activeEvent) {
   const anchors = route.length ? route : [center];
   const features = [];
   anchors.slice(0, 10).forEach((point, anchorIndex) => {
-    const baseLat = Number(point.lat ?? point[0] ?? center.lat);
-    const baseLng = Number(point.lng ?? point[1] ?? center.lng);
+    const mappedAnchor = toMapPoint({
+      lat: Number(point.lat ?? point[0] ?? center.lat),
+      lng: Number(point.lng ?? point[1] ?? center.lng),
+    });
+    const baseLat = mappedAnchor.lat;
+    const baseLng = mappedAnchor.lng;
     for (let offsetIndex = 0; offsetIndex < 3; offsetIndex += 1) {
       const side = offsetIndex - 1;
       const lat = baseLat + (side * 0.0011) + ((anchorIndex % 2) * 0.00035);
@@ -3301,7 +3481,7 @@ function drawEvent3DRoutePoint(point, index, total, source = "auto") {
     draggable: canEditVisibleRoute(),
     anchor: "center",
   })
-    .setLngLat([Number(point.lng), Number(point.lat)])
+    .setLngLat(toMapLngLat(point))
     .addTo(eventMap);
   if (canEditVisibleRoute()) {
     marker.on("dragend", () => {
@@ -3314,9 +3494,10 @@ function drawEvent3DRoutePoint(point, index, total, source = "auto") {
 
 function focusEventMap(latlng, zoom = 15) {
   if (!latlng || !Number.isFinite(Number(latlng.lat)) || !Number.isFinite(Number(latlng.lng))) return;
+  const mapped = toMapPoint(latlng);
   if (hasEvent3DMap()) {
     eventMap.easeTo({
-      center: [Number(latlng.lng), Number(latlng.lat)],
+      center: [Number(mapped.lng), Number(mapped.lat)],
       zoom,
       pitch: 62,
       bearing: -24,
@@ -3324,7 +3505,7 @@ function focusEventMap(latlng, zoom = 15) {
     });
     return;
   }
-  eventMap?.setView([Number(latlng.lat), Number(latlng.lng)], zoom);
+  eventMap?.setView([Number(mapped.lat), Number(mapped.lng)], zoom);
 }
 
 function fitEventMapToRoute(route, fallbackCenter) {
@@ -3339,7 +3520,7 @@ function fitEventMapToRoute(route, fallbackCenter) {
       return;
     }
     const bounds = new maplibregl.LngLatBounds();
-    route.forEach((point) => bounds.extend([Number(point.lng), Number(point.lat)]));
+    route.forEach((point) => bounds.extend(toMapLngLat(point)));
     eventMap.fitBounds(bounds, {
       padding: 78,
       maxZoom: 16.5,
@@ -3477,10 +3658,10 @@ function renderRunOverlay3D(run, options = {}) {
       element: createAnimeRunnerElement(run.active),
       anchor: "bottom",
     })
-      .setLngLat([Number(latest.lng), Number(latest.lat)])
+      .setLngLat(toMapLngLat(latest))
       .addTo(eventMap);
   } else {
-    eventRunnerMarker.setLngLat([Number(latest.lng), Number(latest.lat)]);
+    eventRunnerMarker.setLngLat(toMapLngLat(latest));
     eventRunnerMarker.getElement().classList.toggle("tracking", run.active);
     const figure = eventRunnerMarker.getElement().querySelector(".runner-figure");
     if (figure) figure.classList.toggle("active", run.active);
@@ -3493,7 +3674,7 @@ function renderRunOverlay3D(run, options = {}) {
 function renderRunOverlayLeaflet(run, options = {}) {
   if (!eventMap || hasEvent3DMap() || !eventLeafletRunLayer) return;
   eventLeafletRunLayer.clearLayers();
-  const points = run.route.map((point) => [point.lat, point.lng]);
+  const points = run.route.map((point) => routePointToLatLng(point));
   if (points.length > 1) {
     L.polyline(points, {
       color: "#17bebb",
@@ -3503,12 +3684,12 @@ function renderRunOverlayLeaflet(run, options = {}) {
   }
   const latest = run.route[run.route.length - 1] || state.currentLocation;
   if (!latest) return;
-  eventLeafletRunnerMarker = L.marker([latest.lat, latest.lng], {
+  eventLeafletRunnerMarker = L.marker(routePointToLatLng(latest), {
     icon: createAnimeRunnerIcon(run.active),
     zIndexOffset: 1200,
   }).addTo(eventLeafletRunLayer);
   if (options.focus && runFollowMode) {
-    eventMap.setView([latest.lat, latest.lng], Math.max(eventMap.getZoom(), 16));
+    eventMap.setView(routePointToLatLng(latest), Math.max(eventMap.getZoom(), 16));
   }
 }
 
@@ -3553,6 +3734,8 @@ function setRunSceneMode(mode, statusText = "") {
   if (dom.runStreetView) dom.runStreetView.hidden = mode !== "streetview";
   if (dom.runWorldMap) dom.runWorldMap.hidden = mode !== "map";
   if (dom.runCamera) dom.runCamera.hidden = mode !== "camera";
+  if (dom.runModeCamera) dom.runModeCamera.classList.toggle("active", mode === "camera");
+  if (dom.runModeCameraFlip) dom.runModeCameraFlip.hidden = mode !== "camera";
   if (dom.runSceneFallback) {
     dom.runSceneFallback.hidden = mode !== "fallback";
     const label = dom.runSceneFallback.querySelector("strong");
@@ -3561,6 +3744,11 @@ function setRunSceneMode(mode, statusText = "") {
   if (dom.runSceneStatus) {
     dom.runSceneStatus.textContent = statusText || "";
     dom.runSceneStatus.hidden = !statusText || mode === "fallback";
+  }
+  if (mode === "camera") {
+    startRoadRecognitionLoop();
+  } else {
+    stopRoadRecognitionLoop();
   }
 }
 
@@ -3573,10 +3761,105 @@ function getRunSceneStartPoint() {
   return { lat: 31.3, lng: 120.62 };
 }
 
+function clampRoadRecognitionScore(score) {
+  const numeric = Number(score);
+  if (!Number.isFinite(numeric)) return 0.42;
+  return Math.min(0.96, Math.max(0.18, numeric));
+}
+
+function getRoadRecognitionStatusKey(score) {
+  if (score >= 0.62) return "road_recognition_ready";
+  if (score >= 0.4) return "road_recognition_waiting";
+  return "road_recognition_low";
+}
+
+function renderRoadRecognition(score = roadRecognitionScore) {
+  if (!dom.roadRecognitionHud) return;
+  const visible = runSceneMode === "camera";
+  dom.roadRecognitionHud.hidden = !visible;
+  if (!visible) return;
+
+  roadRecognitionScore = clampRoadRecognitionScore(score);
+  const percent = Math.round(roadRecognitionScore * 100);
+  dom.roadRecognitionHud.style.setProperty("--road-confidence", `${percent}%`);
+  if (dom.roadRecognitionStatus) {
+    dom.roadRecognitionStatus.textContent = t(getRoadRecognitionStatusKey(roadRecognitionScore));
+  }
+  if (dom.roadRecognitionConfidence) {
+    dom.roadRecognitionConfidence.textContent = `${percent}%`;
+  }
+}
+
+function estimateRoadRecognitionFromCamera(video = dom.runCamera) {
+  if (!video || video.readyState < 2 || !video.videoWidth || !video.videoHeight) {
+    return roadRecognitionScore;
+  }
+
+  try {
+    roadScanCanvas = roadScanCanvas || document.createElement("canvas");
+    const width = 96;
+    const height = 64;
+    roadScanCanvas.width = width;
+    roadScanCanvas.height = height;
+    const context = roadScanCanvas.getContext("2d", { willReadFrequently: true });
+    if (!context) return roadRecognitionScore;
+    context.drawImage(video, 0, 0, width, height);
+    const pixels = context.getImageData(0, 0, width, height).data;
+    let roadLikeWeight = 0;
+    let totalWeight = 0;
+
+    for (let y = Math.floor(height * 0.42); y < height; y += 2) {
+      const laneHalfWidth = 13 + (y / height) * 31;
+      const startX = Math.max(0, Math.floor(width / 2 - laneHalfWidth));
+      const endX = Math.min(width - 1, Math.ceil(width / 2 + laneHalfWidth));
+      for (let x = startX; x <= endX; x += 2) {
+        const index = (y * width + x) * 4;
+        const red = pixels[index];
+        const green = pixels[index + 1];
+        const blue = pixels[index + 2];
+        const maxChannel = Math.max(red, green, blue);
+        const minChannel = Math.min(red, green, blue);
+        const saturation = maxChannel ? (maxChannel - minChannel) / maxChannel : 0;
+        const luminance = red * 0.2126 + green * 0.7152 + blue * 0.0722;
+        const centerBias = 0.58 + 0.42 * (1 - Math.abs(x - width / 2) / (width / 2));
+        const isRoadLike = saturation < 0.4 && luminance > 34 && luminance < 222;
+        totalWeight += centerBias;
+        if (isRoadLike) roadLikeWeight += centerBias;
+      }
+    }
+
+    if (!totalWeight) return roadRecognitionScore;
+    const roadRatio = roadLikeWeight / totalWeight;
+    return clampRoadRecognitionScore(0.26 + roadRatio * 0.7);
+  } catch (error) {
+    return roadRecognitionScore;
+  }
+}
+
+function startRoadRecognitionLoop() {
+  renderRoadRecognition(roadRecognitionScore);
+  if (runRoadScanTimer !== null) return;
+  runRoadScanTimer = window.setInterval(() => {
+    if (runSceneMode !== "camera") {
+      stopRoadRecognitionLoop();
+      return;
+    }
+    renderRoadRecognition(estimateRoadRecognitionFromCamera());
+  }, 900);
+}
+
+function stopRoadRecognitionLoop() {
+  if (runRoadScanTimer !== null) {
+    window.clearInterval(runRoadScanTimer);
+    runRoadScanTimer = null;
+  }
+  if (dom.roadRecognitionHud) dom.roadRecognitionHud.hidden = true;
+}
+
 async function initStreetViewScene() {
   const key = getGoogleMapsKey();
   if (!key) {
-    initRunMapScene(t("run_mode_google_missing"));
+    await initCameraScene(t("run_mode_google_missing"));
     return;
   }
   setRunSceneMode("fallback", t("run_mode_google_loading"));
@@ -3608,7 +3891,7 @@ async function initStreetViewScene() {
     setRunSceneMode("streetview", t("run_mode_google_ready"));
     renderRunMode();
   } catch (error) {
-    initRunMapScene(t("run_mode_google_unavailable"));
+    await initCameraScene(t("run_mode_google_unavailable"));
   }
 }
 
@@ -3619,19 +3902,26 @@ function initRunMapScene(statusText = "") {
   setTimeout(() => runWorldMap?.invalidateSize(), 80);
 }
 
-async function initCameraScene(statusText = "") {
+function getRunCameraVideoConstraints() {
+  return {
+    facingMode: { ideal: runCameraFacingMode },
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+  };
+}
+
+async function initCameraScene(statusText = "", options = {}) {
   if (!navigator.mediaDevices?.getUserMedia) {
-    setRunSceneMode("fallback", statusText || t("run_mode_camera_blocked"));
+    initRunMapScene(t("run_mode_camera_blocked"));
     return;
   }
   try {
+    if (options.restart && runCameraStream) {
+      stopRunCameraScene();
+    }
     if (!runCameraStream) {
       runCameraStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
+        video: getRunCameraVideoConstraints(),
         audio: false,
       });
     }
@@ -3639,11 +3929,17 @@ async function initCameraScene(statusText = "") {
     await dom.runCamera.play();
     setRunSceneMode("camera", statusText || t("run_mode_camera_on"));
   } catch (error) {
-    initRunMapScene(statusText || t("run_mode_camera_blocked"));
+    initRunMapScene(t("run_mode_camera_blocked"));
   }
 }
 
+function flipRunCamera() {
+  runCameraFacingMode = runCameraFacingMode === "environment" ? "user" : "environment";
+  initCameraScene(t("run_mode_camera_flipped"), { restart: true });
+}
+
 function stopRunCameraScene() {
+  stopRoadRecognitionLoop();
   if (!runCameraStream) return;
   runCameraStream.getTracks().forEach((track) => track.stop());
   runCameraStream = null;
@@ -3658,10 +3954,8 @@ function initRunMiniMap() {
     dragging: true,
     scrollWheelZoom: false,
     doubleClickZoom: false,
-  }).setView([31.3, 120.62], 15);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-  }).addTo(runMiniMap);
+  }).setView(toMapLatLng({ lat: 31.3, lng: 120.62 }), 15);
+  addBaseTileLayer(runMiniMap, { attribution: false });
   runMiniRouteLayer = L.layerGroup().addTo(runMiniMap);
   runMiniLiveLayer = L.layerGroup().addTo(runMiniMap);
 }
@@ -3669,17 +3963,15 @@ function initRunMiniMap() {
 function initRunWorldMap() {
   if (!dom.runWorldMap || runWorldMap || !window.L) return;
   const start = getRunSceneStartPoint();
+  const mappedStart = toMapPoint(start);
   runWorldMap = L.map("run-world-map", {
     zoomControl: false,
     attributionControl: true,
     dragging: true,
     scrollWheelZoom: true,
     doubleClickZoom: true,
-  }).setView([start.lat, start.lng], 17);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(runWorldMap);
+  }).setView([mappedStart.lat, mappedStart.lng], 17);
+  addBaseTileLayer(runWorldMap);
   runWorldRouteLayer = L.layerGroup().addTo(runWorldMap);
   runWorldLiveLayer = L.layerGroup().addTo(runWorldMap);
 }
@@ -3687,7 +3979,7 @@ function initRunWorldMap() {
 function drawRunSceneRoute(layer, route, options = {}) {
   if (!layer || !window.L) return;
   if (route.length > 1) {
-    L.polyline(route.map((point) => [point.lat, point.lng]), {
+    L.polyline(route.map((point) => routePointToLatLng(point)), {
       color: options.color || "#ff6a3d",
       weight: options.weight || 7,
       opacity: options.opacity || 0.95,
@@ -3709,7 +4001,7 @@ function renderRunWorldMap() {
   drawRunSceneRoute(runWorldLiveLayer, run.route, { color: "#17bebb", weight: 7, opacity: 0.98 });
 
   plannedRoute.forEach((point, index) => {
-    L.marker([point.lat, point.lng], {
+    L.marker(routePointToLatLng(point), {
       icon: L.divIcon({
         className: "run-world-point",
         html: `<span>${getRoutePointShortLabel(point, index, plannedRoute.length)}</span>`,
@@ -3720,13 +4012,13 @@ function renderRunWorldMap() {
   });
 
   if (latest) {
-    runWorldRunnerMarker = L.marker([latest.lat, latest.lng], {
+    runWorldRunnerMarker = L.marker(routePointToLatLng(latest), {
       icon: createAnimeRunnerIcon(run.active),
       zIndexOffset: 3000,
     }).addTo(runWorldLiveLayer);
-    runWorldMap.setView([latest.lat, latest.lng], Math.max(runWorldMap.getZoom(), 17), { animate: true });
+    runWorldMap.setView(routePointToLatLng(latest), Math.max(runWorldMap.getZoom(), 17), { animate: true });
   } else if (plannedRoute.length > 1) {
-    runWorldMap.fitBounds(L.latLngBounds(plannedRoute.map((point) => [point.lat, point.lng])), {
+    runWorldMap.fitBounds(L.latLngBounds(plannedRoute.map((point) => routePointToLatLng(point))), {
       padding: [70, 70],
       maxZoom: 17,
     });
@@ -3740,11 +4032,11 @@ function renderRunMiniMap() {
 
   const plannedRoute = getVisibleRoute(activeEvent);
   const run = normalizeRunTracking(state.runTracking);
-  const liveRoute = run.route.map((point) => [point.lat, point.lng]);
+  const liveRoute = run.route.map((point) => routePointToLatLng(point));
   const latest = run.route[run.route.length - 1] || state.currentLocation;
 
   if (plannedRoute.length > 1) {
-    L.polyline(plannedRoute.map((point) => [point.lat, point.lng]), {
+    L.polyline(plannedRoute.map((point) => routePointToLatLng(point)), {
       color: "#ff6a3d",
       weight: 4,
       opacity: 0.95,
@@ -3752,7 +4044,7 @@ function renderRunMiniMap() {
   }
 
   plannedRoute.forEach((point, index) => {
-    L.circleMarker([point.lat, point.lng], {
+    L.circleMarker(routePointToLatLng(point), {
       radius: index === 0 ? 5 : 4,
       color: "#111827",
       weight: 2,
@@ -3770,13 +4062,13 @@ function renderRunMiniMap() {
   }
 
   if (latest) {
-    runMiniRunnerMarker = L.marker([latest.lat, latest.lng], {
+    runMiniRunnerMarker = L.marker(routePointToLatLng(latest), {
       icon: createAnimeRunnerIcon(run.active),
       zIndexOffset: 2000,
     }).addTo(runMiniLiveLayer);
-    runMiniMap.setView([latest.lat, latest.lng], Math.max(runMiniMap.getZoom(), 16));
+    runMiniMap.setView(routePointToLatLng(latest), Math.max(runMiniMap.getZoom(), 16));
   } else if (plannedRoute.length) {
-    const bounds = L.latLngBounds(plannedRoute.map((point) => [point.lat, point.lng]));
+    const bounds = L.latLngBounds(plannedRoute.map((point) => routePointToLatLng(point)));
     runMiniMap.fitBounds(bounds, { padding: [18, 18] });
   }
 }
@@ -3871,6 +4163,7 @@ function renderRunMode() {
       : t("run_status_idle");
   }
   renderRouteCue();
+  renderRoadRecognition();
   renderRunMiniMap();
   renderRunWorldMap();
   updateStreetViewPosition();
@@ -3947,18 +4240,19 @@ function updateCurrentLocation(coords, options = {}) {
   state.locationEnabled = true;
   saveState();
   if (cityMap) {
+    const mappedLocation = toMapPoint(normalized);
     if (!userMarker) {
-      userMarker = L.circleMarker([normalized.lat, normalized.lng], {
+      userMarker = L.circleMarker([mappedLocation.lat, mappedLocation.lng], {
         radius: 8,
         color: "#111827",
         fillColor: "#ff6a3d",
         fillOpacity: 0.9,
       }).addTo(cityMap);
     } else {
-      userMarker.setLatLng([normalized.lat, normalized.lng]);
+      userMarker.setLatLng([mappedLocation.lat, mappedLocation.lng]);
     }
     if (options.centerCity) {
-      cityMap.setView([normalized.lat, normalized.lng], 13);
+      cityMap.setView([mappedLocation.lat, mappedLocation.lng], 13);
     }
   }
   updateLocationButton();
@@ -4055,6 +4349,22 @@ function startRunTracking() {
   showToast(t("toast_run_started"));
 }
 
+function recordCompletedRun() {
+  const run = normalizeRunTracking(state.runTracking);
+  if (run.route.length < 2 && run.distanceKm <= 0) return;
+  state.runHistory = normalizeRunHistory(state.runHistory);
+  state.runHistory.unshift({
+    id: `run_${Date.now()}`,
+    eventId: run.eventId,
+    eventName: getEventText(activeEvent, "name") || "",
+    finishedAt: Date.now(),
+    elapsedMs: run.elapsedMs,
+    distanceKm: run.distanceKm,
+    route: run.route.map((point) => ({ ...point })),
+  });
+  state.runHistory = state.runHistory.slice(0, 20);
+}
+
 function stopRunTracking() {
   if (!state.runTracking?.active) {
     showToast(t("toast_run_not_active"));
@@ -4063,6 +4373,7 @@ function stopRunTracking() {
   state.runTracking.elapsedMs = getCurrentRunElapsedMs();
   state.runTracking.active = false;
   state.runTracking.startedAt = 0;
+  recordCompletedRun();
   stopRunWatch();
   stopRunTimer();
   closeRunMode();
@@ -4118,7 +4429,7 @@ function initMaps() {
       eventMap = new maplibregl.Map({
         container: "route-map",
         style: event3DMapStyle,
-        center: [120.62, 31.3],
+        center: toMapLngLat({ lat: 31.3, lng: 120.62 }),
         zoom: 12,
         pitch: 62,
         bearing: -24,
@@ -4126,8 +4437,8 @@ function initMaps() {
         antialias: true,
         maxPitch: 72,
         maxBounds: [
-          [120.2, 30.9],
-          [121.1, 31.7],
+          toMapLngLat({ lat: 30.9, lng: 120.2 }),
+          toMapLngLat({ lat: 31.7, lng: 121.1 }),
         ],
       });
       eventMap.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
@@ -4155,7 +4466,7 @@ function initMaps() {
 
   if (!eventMap) {
     eventMap = L.map("route-map", { zoomControl: true, attributionControl: true }).setView(
-      [31.3, 120.62],
+      toMapLatLng({ lat: 31.3, lng: 120.62 }),
       12
     );
     eventMap.on("click", (event) => {
@@ -4164,23 +4475,21 @@ function initMaps() {
     eventMap.on("dragstart zoomstart", disableRunFollow);
   }
   cityMap = L.map("city-map", { zoomControl: true, attributionControl: true }).setView(
-    [31.3, 120.62],
+    toMapLatLng({ lat: 31.3, lng: 120.62 }),
     11
   );
   if (dom.organizerRouteMap) {
     organizerMap = L.map("organizer-route-map", { zoomControl: true, attributionControl: true }).setView(
-      [31.3, 120.62],
+      toMapLatLng({ lat: 31.3, lng: 120.62 }),
       12
     );
   }
 
   [eventMapIs3D ? null : eventMap, cityMap, organizerMap].filter(Boolean).forEach((mapInstance) => {
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(mapInstance);
-    if (suzhouBounds) {
-      mapInstance.setMaxBounds(suzhouBounds);
+    addBaseTileLayer(mapInstance);
+    const mapBounds = getSuzhouMapBounds();
+    if (mapBounds) {
+      mapInstance.setMaxBounds(mapBounds);
     }
   });
 
@@ -4197,9 +4506,10 @@ function initMaps() {
         showToast(t("toast_route_edit_required"));
         return;
       }
+      const dataPoint = toDataPoint(event.latlng);
       organizerRoutePoints.push({
-        lat: Number(event.latlng.lat.toFixed(6)),
-        lng: Number(event.latlng.lng.toFixed(6)),
+        lat: Number(dataPoint.lat.toFixed(6)),
+        lng: Number(dataPoint.lng.toFixed(6)),
         type: sanitizeRouteType(organizerSelectedType),
       });
       organizerSelectedPointIndex = organizerRoutePoints.length - 1;
@@ -4210,7 +4520,7 @@ function initMaps() {
   renderEventMap(activeEvent);
   renderCityMarkers();
   if (state.currentLocation) {
-    userMarker = L.circleMarker([state.currentLocation.lat, state.currentLocation.lng], {
+    userMarker = L.circleMarker(routePointToLatLng(state.currentLocation), {
       radius: 8,
       color: "#111827",
       fillColor: "#ff6a3d",
@@ -4235,7 +4545,7 @@ function renderOrganizerRouteMap() {
   organizerRouteLayer.clearLayers();
   if (organizerRoutePoints.length > 1) {
     const routeLine = L.polyline(
-      organizerRoutePoints.map((point) => [point.lat, point.lng]),
+      organizerRoutePoints.map((point) => routePointToLatLng(point)),
       {
         color: "#ff6a3d",
         weight: 5,
@@ -4244,13 +4554,13 @@ function renderOrganizerRouteMap() {
     ).addTo(organizerRouteLayer);
     organizerMap.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
   } else if (organizerRoutePoints.length === 1) {
-    organizerMap.setView([organizerRoutePoints[0].lat, organizerRoutePoints[0].lng], 14);
+    organizerMap.setView(routePointToLatLng(organizerRoutePoints[0]), 14);
   } else {
     organizerMap.setView([31.3, 120.62], 12);
   }
 
   organizerRoutePoints.forEach((point, index) => {
-    const marker = L.marker([point.lat, point.lng], {
+    const marker = L.marker(routePointToLatLng(point), {
       draggable: organizerRouteEditMode,
       icon: createOrganizerPointIcon(point, index, organizerRoutePoints.length, organizerSelectedPointIndex === index),
     }).addTo(organizerRouteLayer);
@@ -4265,9 +4575,9 @@ function renderOrganizerRouteMap() {
     });
     if (organizerRouteEditMode) {
       marker.on("dragend", (dragEvent) => {
-        const latlng = dragEvent.target.getLatLng();
-        organizerRoutePoints[index].lat = Number(latlng.lat.toFixed(6));
-        organizerRoutePoints[index].lng = Number(latlng.lng.toFixed(6));
+        const dataPoint = toDataPoint(dragEvent.target.getLatLng());
+        organizerRoutePoints[index].lat = Number(dataPoint.lat.toFixed(6));
+        organizerRoutePoints[index].lng = Number(dataPoint.lng.toFixed(6));
         organizerSelectedPointIndex = index;
         renderOrganizerRouteMap();
       });
@@ -4348,7 +4658,7 @@ function renderCityMarkers() {
   cityLayerGroup.clearLayers();
   const selectedId = String(state.selectedSpotId);
   spots.forEach((spot) => {
-    const marker = L.marker([spot.lat, spot.lng]).addTo(cityLayerGroup);
+    const marker = L.marker(routePointToLatLng(spot)).addTo(cityLayerGroup);
     marker.bindPopup(getSpotText(spot, "name"));
     marker.on("click", () => selectSpot(spot.id));
     if (String(spot.id) === selectedId) {
@@ -4452,7 +4762,7 @@ function selectSpot(spotId) {
   if (cityMap) {
     const spot = spots.find((item) => String(item.id) === String(spotId));
     if (spot) {
-      cityMap.flyTo([spot.lat, spot.lng], 13);
+      cityMap.flyTo(routePointToLatLng(spot), 13);
     }
   }
 }
@@ -4695,7 +5005,7 @@ function getDefaultRouteType(index, total) {
 }
 
 function routePointToLatLng(point) {
-  return [Number(point.lat), Number(point.lng)];
+  return toMapLatLng(point);
 }
 
 function cloneRoutePoints(points) {
@@ -4868,7 +5178,7 @@ function renderEventMap(event) {
         element: createRoutePointElement(markerPoint, 0, 1),
         anchor: "center",
       })
-        .setLngLat([center[1], center[0]])
+        .setLngLat(toMapLngLat(markerPoint))
         .setPopup(new maplibregl.Popup({ offset: 18 }).setText(getEventText(event, "name")))
         .addTo(eventMap);
     }
@@ -4886,7 +5196,7 @@ function renderEventMap(event) {
     ).addTo(eventLayerGroup);
     eventMap.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
   } else {
-    eventMap.setView(center, 14);
+    eventMap.setView(toMapLatLng(center), 14);
   }
 
   route.forEach((point, index) =>
@@ -4914,7 +5224,7 @@ function renderEventMap(event) {
   }
 
   if (!route.length && !draftPoint && !hasCustomRoutePlan(event)) {
-    L.marker(center).addTo(eventLayerGroup).bindPopup(getEventText(event, "name"));
+    L.marker(toMapLatLng(center)).addTo(eventLayerGroup).bindPopup(getEventText(event, "name"));
   }
 
   renderRouteControls();
@@ -4947,9 +5257,10 @@ function addRoutePoint(latlng) {
   }
 
   const draft = ensureDraftRoute();
+  const dataPoint = toDataPoint(latlng);
   draft.push({
-    lat: Number(latlng.lat.toFixed(6)),
-    lng: Number(latlng.lng.toFixed(6)),
+    lat: Number(dataPoint.lat.toFixed(6)),
+    lng: Number(dataPoint.lng.toFixed(6)),
     type: sanitizeRouteType(pickerSelectedType),
   });
   if (draft.length >= 2) {
@@ -4967,8 +5278,9 @@ function updateRoutePoint(index, latlng, source = "auto") {
   }
   const route = resolveEditableRouteSource(source);
   if (!route[index]) return;
-  route[index].lat = Number(latlng.lat.toFixed(6));
-  route[index].lng = Number(latlng.lng.toFixed(6));
+  const dataPoint = toDataPoint(latlng);
+  route[index].lat = Number(dataPoint.lat.toFixed(6));
+  route[index].lng = Number(dataPoint.lng.toFixed(6));
   selectedRoutePointIndex = index;
   const key = getCurrentRouteKey();
   if (source === "draft" || (source === "auto" && ensureDraftRoute().length >= 2)) {
@@ -5231,7 +5543,7 @@ function renderPickerMap(resetSelection = true) {
     ).addTo(pickerRouteLayer);
     pickerMap.fitBounds(routeLine.getBounds(), { padding: [28, 28] });
   } else {
-    pickerMap.setView(center, 14);
+    pickerMap.setView(toMapLatLng(center), 14);
   }
 
   route.forEach((point, index) =>
@@ -5254,7 +5566,7 @@ function renderPickerMap(resetSelection = true) {
       .on("dragend", (dragEvent) => updateRoutePoint(0, dragEvent.target.getLatLng(), "draft"));
   }
   if (!route.length && !draftPoint && !hasCustomRoutePlan(activeEvent)) {
-    L.marker(center).addTo(pickerRouteLayer).bindPopup(getEventText(activeEvent, "name"));
+    L.marker(toMapLatLng(center)).addTo(pickerRouteLayer).bindPopup(getEventText(activeEvent, "name"));
   }
 
   renderPickerSuggestions();

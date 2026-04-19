@@ -9,7 +9,7 @@ A playful, human-centric web app for onsite running activities inspired by Wumin
 - Interactive route checkpoints and badge rewards
 - 3D event route map with draggable route points and an animated runner marker
 - Live run tracking that records the user's GPS route after Start Run
-- Immersive full-screen Run Mode with Google Street View support, camera fallback, AR-style route cue, and a 2D tactical minimap
+- Immersive full-screen Run Mode with Google Street View support, camera road-recognition fallback, AR-style route cue, live route recording, and a 2D tactical minimap
 - Suzhou live map with location-based check-ins
 - Community spot threads with camera-enabled posts
 - Organizer dashboard for lightweight event management
@@ -20,7 +20,7 @@ A playful, human-centric web app for onsite running activities inspired by Wumin
 - HTML5 + CSS3
 - Vanilla JavaScript
 - MapLibre GL + OpenStreetMap tiles for the 3D event route map, with Leaflet fallback when WebGL is unavailable
-- Leaflet + OpenStreetMap tiles for community and planner maps
+- Leaflet with configurable Gaode/AutoNavi or OpenStreetMap tiles for community, planner, and Run Mode minimaps
 - Optional Google Maps JavaScript API Street View scene for Run Mode
 - Browser Geolocation API for live run tracking and route recording
 - LocalStorage for frontend session/cache data such as points, badges, and route drafts
@@ -201,7 +201,7 @@ location.reload();
 ```
 
 ### 6) Optional Google Street View for Run Mode
-Run Mode works without Google Maps by using the device camera plus the 2D route map. To enable Google Street View as the main real-world scene, set a Maps JavaScript API key in `config.js`:
+Run Mode works without Google Maps by using the device camera, road-recognition HUD, and 2D route map. To enable Google Street View as the main real-world scene, set a Maps JavaScript API key in `config.js`:
 
 ```js
 window.GORUNNERS_GOOGLE_MAPS_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
@@ -209,7 +209,23 @@ window.GORUNNERS_GOOGLE_MAPS_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
 
 The browser still needs geolocation permission, and camera fallback needs camera permission.
 
-### 7) Common startup issues
+### 7) Map provider for China
+The frontend defaults to Gaode/AutoNavi tiles for China-friendly local previews:
+
+```js
+window.GORUNNERS_MAP_PROVIDER = "amap";
+window.GORUNNERS_COORDINATE_SYSTEM = "wgs84";
+```
+
+Use `"osm"` if you want OpenStreetMap tiles instead:
+
+```js
+window.GORUNNERS_MAP_PROVIDER = "osm";
+```
+
+Run Mode also includes a Flip camera button, switching between rear (`environment`) and front (`user`) cameras when the browser and device support it.
+
+### 8) Common startup issues
 1. `python` command not found:
 - Check Python installation and PATH.
 - Try `py -m http.server 5173` on Windows.

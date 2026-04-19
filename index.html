@@ -806,6 +806,19 @@
           </div>
           <div class="route-ar-arrow" id="run-ar-arrow"></div>
         </div>
+        <div class="road-recognition-hud" id="road-recognition-hud" hidden>
+          <div class="road-recognition-scan" aria-hidden="true">
+            <span></span>
+          </div>
+          <div class="road-recognition-copy">
+            <span data-i18n="road_recognition_label">ROAD LOCK</span>
+            <strong id="road-recognition-status" data-i18n="road_recognition_waiting">Scanning road surface...</strong>
+            <div class="road-recognition-meter" aria-hidden="true">
+              <i></i>
+              <b id="road-recognition-confidence">--</b>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="run-mode-topbar">
@@ -816,6 +829,9 @@
         <div class="run-mode-actions">
           <button class="ghost-button" id="run-mode-camera" type="button" data-i18n="button_run_camera">
             Camera
+          </button>
+          <button class="ghost-button" id="run-mode-camera-flip" type="button" data-i18n="button_run_camera_flip">
+            Flip
           </button>
           <button class="outline-button" id="run-mode-close" type="button" data-i18n="button_run_exit_view">
             Exit View

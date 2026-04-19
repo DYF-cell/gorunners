@@ -1,5 +1,13 @@
 window.GORUNNERS_API = "http://127.0.0.1:8000";
 
+// Map provider for China-friendly local previews.
+// Use "amap" for Gaode/AutoNavi tiles, or "osm" for OpenStreetMap tiles.
+window.GORUNNERS_MAP_PROVIDER = "amap";
+
+// Route and GPS data are stored as WGS84 by default. When using AMap tiles,
+// the frontend converts display coordinates to GCJ02 so markers align in China.
+window.GORUNNERS_COORDINATE_SYSTEM = "wgs84";
+
 // Optional. Add a Google Maps JavaScript API key to enable Street View in Run Mode.
 // Without a key, Run Mode falls back to the device camera plus the 2D route map.
 window.GORUNNERS_GOOGLE_MAPS_KEY = "";

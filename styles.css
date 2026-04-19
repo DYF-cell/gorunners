@@ -899,6 +899,138 @@ body.run-mode-active {
   transform: translateX(-50%);
 }
 
+.road-recognition-hud {
+  --road-confidence: 42%;
+  position: absolute;
+  top: 104px;
+  left: 28px;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 12px;
+  width: min(29vw, 330px);
+  min-width: 248px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(167, 243, 208, 0.34);
+  background: rgba(5, 7, 11, 0.62);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(14px);
+}
+
+.road-recognition-scan {
+  position: relative;
+  height: 74px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(167, 243, 208, 0.42);
+  background:
+    linear-gradient(115deg, transparent 0 28%, rgba(23, 190, 187, 0.24) 29% 34%, transparent 35%),
+    linear-gradient(245deg, transparent 0 28%, rgba(23, 190, 187, 0.24) 29% 34%, transparent 35%),
+    rgba(17, 24, 39, 0.52);
+}
+
+.road-recognition-scan::before,
+.road-recognition-scan::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  width: 26px;
+  height: 54px;
+  border-bottom: 2px solid #a7f3d0;
+}
+
+.road-recognition-scan::before {
+  left: 13px;
+  border-left: 2px solid #a7f3d0;
+  transform: skewX(-14deg);
+}
+
+.road-recognition-scan::after {
+  right: 13px;
+  border-right: 2px solid #a7f3d0;
+  transform: skewX(14deg);
+}
+
+.road-recognition-scan span {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  height: 2px;
+  background: #17bebb;
+  box-shadow: 0 0 16px rgba(23, 190, 187, 0.9);
+  animation: roadScan 1.8s ease-in-out infinite;
+}
+
+.road-recognition-copy {
+  min-width: 0;
+}
+
+.road-recognition-copy > span {
+  display: block;
+  color: rgba(167, 243, 208, 0.86);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.road-recognition-copy strong {
+  display: block;
+  margin-top: 4px;
+  color: #fff;
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.road-recognition-meter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.road-recognition-meter::before {
+  content: "";
+  flex: 1 1 auto;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.road-recognition-meter i {
+  position: absolute;
+  left: 0;
+  width: var(--road-confidence);
+  max-width: calc(100% - 46px);
+  height: 7px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #17bebb, #a7f3d0);
+  box-shadow: 0 0 12px rgba(23, 190, 187, 0.54);
+}
+
+.road-recognition-meter b {
+  flex: 0 0 38px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.78rem;
+  line-height: 1;
+  text-align: right;
+}
+
+@keyframes roadScan {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(44px);
+    opacity: 1;
+  }
+}
+
 .run-mode-topbar {
   position: absolute;
   top: 24px;
@@ -3019,6 +3151,36 @@ body.resizing-map-picker-panel {
     right: 14px;
     width: 42vw;
     min-width: 150px;
+  }
+
+  .road-recognition-hud {
+    top: 236px;
+    left: 14px;
+    width: 42vw;
+    min-width: 0;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 9px;
+    padding: 9px;
+  }
+
+  .road-recognition-scan {
+    height: 52px;
+  }
+
+  .road-recognition-scan::before,
+  .road-recognition-scan::after {
+    bottom: 7px;
+    width: 18px;
+    height: 36px;
+  }
+
+  .road-recognition-scan span {
+    left: 7px;
+    right: 7px;
+  }
+
+  .road-recognition-copy strong {
+    font-size: 0.84rem;
   }
 
   .run-mode-hud {
