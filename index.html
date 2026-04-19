@@ -21,7 +21,7 @@
       rel="stylesheet"
       href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css"
     />
-    <link rel="stylesheet" href="styles.css?v=merge-du-1" />
+    <link rel="stylesheet" href="styles.css?v=amap-api-map-1" />
   </head>
   <body>
     <a class="skip-link" href="#home">Skip to content</a>
@@ -791,6 +791,8 @@
     <section class="run-mode" id="run-mode" aria-hidden="true">
       <div class="run-mode-scene" id="run-mode-scene">
         <div class="run-street-view" id="run-street-view" aria-label="Google Street View running scene"></div>
+        <div class="run-amap-3d-map" id="run-amap-3d-map" aria-label="AMap 3D route map"></div>
+        <div class="run-google-3d-map" id="run-google-3d-map" aria-label="Google photorealistic 3D route map"></div>
         <div class="run-world-map" id="run-world-map" aria-label="Live route map scene"></div>
         <video class="run-camera" id="run-camera" playsinline muted hidden></video>
         <div class="run-scene-fallback" id="run-scene-fallback">
@@ -827,6 +829,9 @@
           <strong id="run-mode-event">Current route</strong>
         </div>
         <div class="run-mode-actions">
+          <button class="ghost-button" id="run-mode-follow" type="button" data-i18n="button_run_follow">
+            Follow Runner
+          </button>
           <button class="ghost-button" id="run-mode-camera" type="button" data-i18n="button_run_camera">
             Camera
           </button>
@@ -850,6 +855,7 @@
         <div class="run-cue">
           <span id="run-cue-label" data-i18n="run_cue_waiting">Locking route...</span>
           <strong id="run-cue-distance">--</strong>
+          <p id="run-cue-instruction">--</p>
         </div>
         <div class="run-mode-stat-grid">
           <div>
@@ -859,6 +865,18 @@
           <div>
             <span data-i18n="run_time_label">Time</span>
             <strong id="run-mode-duration">00:00</strong>
+          </div>
+          <div>
+            <span data-i18n="run_speed_label">Speed</span>
+            <strong id="run-mode-speed">-- km/h</strong>
+          </div>
+          <div>
+            <span data-i18n="run_pace_label">Avg Pace</span>
+            <strong id="run-mode-pace">-- /km</strong>
+          </div>
+          <div>
+            <span data-i18n="run_accuracy_label">GPS</span>
+            <strong id="run-mode-accuracy">-- m</strong>
           </div>
           <div>
             <span data-i18n="run_status_label">Status</span>
@@ -875,7 +893,7 @@
     ></script>
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="data.js?v=merge-du-1"></script>
-    <script src="config.js?v=merge-du-1"></script>
-    <script src="app.js?v=merge-du-1"></script>
+    <script src="config.js?v=amap-api-map-1"></script>
+    <script src="app.js?v=amap-api-map-1"></script>
   </body>
 </html>

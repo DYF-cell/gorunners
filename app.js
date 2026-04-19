@@ -105,6 +105,9 @@ const i18n = {
     map_title: "Interactive Route Map",
     run_distance_label: "Distance",
     run_time_label: "Time",
+    run_speed_label: "Speed",
+    run_pace_label: "Avg Pace",
+    run_accuracy_label: "GPS",
     run_status_label: "Status",
     run_status_idle: "GPS idle",
     run_status_tracking: "Tracking",
@@ -113,6 +116,7 @@ const i18n = {
     button_run_stop: "End Run",
     button_run_follow: "Follow Runner",
     button_run_camera: "Camera",
+    button_run_3d_map: "3D Map",
     button_run_camera_flip: "Flip",
     button_run_exit_view: "Exit View",
     run_mode_label: "RUN MODE",
@@ -121,7 +125,11 @@ const i18n = {
     run_mode_camera_on: "Camera guide on",
     run_mode_camera_flipped: "Camera switched.",
     run_mode_camera_blocked: "Camera access is unavailable.",
-    run_mode_map_ready: "Live route map is active.",
+    run_mode_map_ready: "3D route guidance is active.",
+    run_mode_amap_loading: "Loading AMap 3D route...",
+    run_mode_amap_ready: "AMap 3D route locked.",
+    run_mode_amap_missing: "AMap key missing. Using built-in 3D route map.",
+    run_mode_amap_unavailable: "AMap 3D is unavailable. Using built-in 3D route map.",
     run_mode_google_loading: "Loading Google Street View...",
     run_mode_google_ready: "Google Street View route locked.",
     run_mode_google_missing: "Google Maps key missing. Using camera route guide.",
@@ -133,6 +141,13 @@ const i18n = {
     run_cue_waiting: "Locking route...",
     run_cue_next: "Next route point",
     run_cue_finish: "Finish route",
+    run_instruction_waiting: "Locking route and GPS...",
+    run_instruction_start: "Head to route point {index} in {distance}.",
+    run_instruction_straight: "Go straight in {distance}.",
+    run_instruction_left: "Turn left in {distance}.",
+    run_instruction_right: "Turn right in {distance}.",
+    run_instruction_finish: "Finish in {distance}.",
+    run_instruction_to_start: "Go to the start point in {distance}, then follow the route.",
     button_reset: "Reset Checkpoints",
     button_recommend: "Recommend Points",
     button_plan_clear: "Clear Plan",
@@ -415,6 +430,9 @@ const i18n = {
     map_title: "互动路线地图",
     run_distance_label: "距离",
     run_time_label: "用时",
+    run_speed_label: "速度",
+    run_pace_label: "平均配速",
+    run_accuracy_label: "GPS 精度",
     run_status_label: "状态",
     run_status_idle: "GPS 待命",
     run_status_tracking: "追踪中",
@@ -423,6 +441,7 @@ const i18n = {
     button_run_stop: "结束跑步",
     button_run_follow: "跟随小人",
     button_run_camera: "摄像头",
+    button_run_3d_map: "返回 3D 地图",
     button_run_camera_flip: "翻转",
     button_run_exit_view: "退出视图",
     run_mode_label: "跑步模式",
@@ -431,7 +450,11 @@ const i18n = {
     run_mode_camera_on: "摄像头路线识别已开启",
     run_mode_camera_flipped: "已切换摄像头。",
     run_mode_camera_blocked: "无法访问摄像头。",
-    run_mode_map_ready: "实时路线地图已开启。",
+    run_mode_map_ready: "3D 路线导航已开启。",
+    run_mode_amap_loading: "正在加载高德 3D 路线...",
+    run_mode_amap_ready: "已锁定高德 3D 路线。",
+    run_mode_amap_missing: "未配置高德 Key，已使用内置 3D 路线地图。",
+    run_mode_amap_unavailable: "高德 3D 暂不可用，已使用内置 3D 路线地图。",
     run_mode_google_loading: "正在加载 Google 实景地图...",
     run_mode_google_ready: "已锁定 Google 实景路线。",
     run_mode_google_missing: "未配置 Google Maps Key，已使用摄像头路线视图。",
@@ -443,6 +466,13 @@ const i18n = {
     run_cue_waiting: "正在锁定路线...",
     run_cue_next: "下一个路线点",
     run_cue_finish: "终点路线",
+    run_instruction_waiting: "正在锁定路线和 GPS...",
+    run_instruction_start: "前方 {distance} 到达路线点 {index}。",
+    run_instruction_straight: "前方 {distance} 继续直行。",
+    run_instruction_left: "前方 {distance} 左转。",
+    run_instruction_right: "前方 {distance} 右转。",
+    run_instruction_finish: "前方 {distance} 到达终点。",
+    run_instruction_to_start: "前方 {distance} 到达出发点，然后进入活动路线。",
     button_reset: "重置打卡",
     button_recommend: "推荐打卡点",
     button_plan_clear: "清空规划",
@@ -714,6 +744,8 @@ const dom = {
   runMode: document.getElementById("run-mode"),
   runModeScene: document.getElementById("run-mode-scene"),
   runStreetView: document.getElementById("run-street-view"),
+  runAmap3DMap: document.getElementById("run-amap-3d-map"),
+  runGoogle3DMap: document.getElementById("run-google-3d-map"),
   runWorldMap: document.getElementById("run-world-map"),
   runCamera: document.getElementById("run-camera"),
   runSceneFallback: document.getElementById("run-scene-fallback"),
@@ -723,6 +755,7 @@ const dom = {
   roadRecognitionStatus: document.getElementById("road-recognition-status"),
   roadRecognitionConfidence: document.getElementById("road-recognition-confidence"),
   runModeEvent: document.getElementById("run-mode-event"),
+  runModeFollow: document.getElementById("run-mode-follow"),
   runModeCamera: document.getElementById("run-mode-camera"),
   runModeCameraFlip: document.getElementById("run-mode-camera-flip"),
   runModeClose: document.getElementById("run-mode-close"),
@@ -730,8 +763,12 @@ const dom = {
   runMiniMap: document.getElementById("run-mini-map"),
   runCueLabel: document.getElementById("run-cue-label"),
   runCueDistance: document.getElementById("run-cue-distance"),
+  runCueInstruction: document.getElementById("run-cue-instruction"),
   runModeDistance: document.getElementById("run-mode-distance"),
   runModeDuration: document.getElementById("run-mode-duration"),
+  runModeSpeed: document.getElementById("run-mode-speed"),
+  runModePace: document.getElementById("run-mode-pace"),
+  runModeAccuracy: document.getElementById("run-mode-accuracy"),
   runModeStatus: document.getElementById("run-mode-status"),
   matchForm: document.getElementById("match-form"),
   matchTitle: document.getElementById("match-title"),
@@ -849,6 +886,7 @@ let pickerPlanLayer;
 let pickerSelectionLayer;
 let pickerSelectionMarker;
 let userMarker;
+let eventMapIsAmap = false;
 let eventMapIs3D = false;
 let eventMapLoaded = false;
 let eventRouteMarkers = [];
@@ -856,6 +894,14 @@ let eventCenterMarker = null;
 let eventRunnerMarker = null;
 let eventLeafletRunLayer = null;
 let eventLeafletRunnerMarker = null;
+let eventRouteOverlaySvg = null;
+let eventRouteOverlayRoute = [];
+let eventAmapRouteGlowPolyline = null;
+let eventAmapRoutePolyline = null;
+let eventAmapRouteMarkers = [];
+let eventAmapCenterMarker = null;
+let eventAmapRunPolyline = null;
+let eventAmapRunnerMarker = null;
 let runWatchId = null;
 let runTimerId = null;
 let runFollowMode = true;
@@ -865,16 +911,33 @@ let runMiniRouteLayer = null;
 let runMiniLiveLayer = null;
 let runMiniRunnerMarker = null;
 let runWorldMap = null;
+let runWorldMapIs3D = false;
+let runWorldMapLoaded = false;
 let runWorldRouteLayer = null;
 let runWorldLiveLayer = null;
 let runWorldRunnerMarker = null;
+let runWorldRouteMarkers = [];
 let runCameraStream = null;
 let runCameraFacingMode = "environment";
 let runSceneMode = "fallback";
 let runRoadScanTimer = null;
 let roadRecognitionScore = 0.42;
 let roadScanCanvas = null;
+let amapPromise = null;
+let amap3DMap = null;
+let amap3DRoutePolyline = null;
+let amap3DApproachPolyline = null;
+let amap3DRunPolyline = null;
+let amap3DRouteMarkers = [];
+let amap3DRunnerMarker = null;
 let googleMapsPromise = null;
+let google3DMap = null;
+let google3DReady = false;
+let google3DRoutePolyline = null;
+let google3DRunPolyline = null;
+let google3DRouteMarkers = [];
+let google3DRunnerMarker = null;
+let preferredRunMapMode = "map";
 let streetViewPanorama = null;
 let streetViewService = null;
 let streetViewLastUpdate = 0;
@@ -1041,6 +1104,20 @@ const event3DLayerIds = {
   runLine: "gorunners-live-run-line",
   buildingsSource: "gorunners-activity-buildings",
   buildings: "gorunners-activity-buildings-layer",
+};
+
+const runWorld3DLayerIds = {
+  approachSource: "gorunners-run-world-approach",
+  approachGlow: "gorunners-run-world-approach-glow",
+  approachLine: "gorunners-run-world-approach-line",
+  routeSource: "gorunners-run-world-route",
+  routeGlow: "gorunners-run-world-route-glow",
+  routeLine: "gorunners-run-world-route-line",
+  runSource: "gorunners-run-world-live-run",
+  runGlow: "gorunners-run-world-live-run-glow",
+  runLine: "gorunners-run-world-live-run-line",
+  buildingsSource: "gorunners-run-world-buildings",
+  buildings: "gorunners-run-world-buildings-layer",
 };
 function createEvent3DMapStyle() {
   const tileConfig = getBaseMapTileConfig();
@@ -3149,7 +3226,8 @@ function initActions() {
   dom.runFollow?.addEventListener("click", focusRunPosition);
   dom.runModeClose?.addEventListener("click", () => closeRunMode({ toast: true }));
   dom.runModeStop?.addEventListener("click", stopRunTracking);
-  dom.runModeCamera?.addEventListener("click", () => initCameraScene(t("run_mode_camera_on")));
+  dom.runModeFollow?.addEventListener("click", focusRunPosition);
+  dom.runModeCamera?.addEventListener("click", toggleRunCameraMapMode);
   dom.runModeCameraFlip?.addEventListener("click", flipRunCamera);
   dom.matchForm.addEventListener("submit", handleMatch);
   dom.matchChatForm?.addEventListener("submit", handleMatchChatSubmit);
@@ -3294,6 +3372,14 @@ function hasEvent3DMap() {
   return Boolean(eventMapIs3D && eventMap && window.maplibregl);
 }
 
+function hasEventAmapMap() {
+  return Boolean(eventMapIsAmap && eventMap && window.AMap);
+}
+
+function hasRunWorld3DMap() {
+  return Boolean(runWorldMapIs3D && runWorldMap && window.maplibregl);
+}
+
 function createFeatureCollection(features = []) {
   return {
     type: "FeatureCollection",
@@ -3403,9 +3489,9 @@ function ensureEvent3DLayers() {
     },
     paint: {
       "line-color": "#ffffff",
-      "line-width": 13,
-      "line-opacity": 0.62,
-      "line-blur": 3,
+      "line-width": 28,
+      "line-opacity": 0.78,
+      "line-blur": 5,
     },
   });
   add3DLayerOnce({
@@ -3417,9 +3503,9 @@ function ensureEvent3DLayers() {
       "line-join": "round",
     },
     paint: {
-      "line-color": "#ff6a3d",
-      "line-width": 6,
-      "line-opacity": 0.96,
+      "line-color": "#ff3d1f",
+      "line-width": 12,
+      "line-opacity": 0.98,
     },
   });
   add3DLayerOnce({
@@ -3451,6 +3537,150 @@ function ensureEvent3DLayers() {
       "line-opacity": 0.95,
     },
   });
+}
+
+function ensureRunWorld3DSource(sourceId, data) {
+  if (!hasRunWorld3DMap() || !runWorldMapLoaded) return;
+  const existing = runWorldMap.getSource(sourceId);
+  if (existing) {
+    existing.setData(data);
+    return;
+  }
+  runWorldMap.addSource(sourceId, {
+    type: "geojson",
+    data,
+  });
+}
+
+function addRunWorld3DLayerOnce(layer) {
+  if (!hasRunWorld3DMap() || !runWorldMapLoaded || runWorldMap.getLayer(layer.id)) return;
+  runWorldMap.addLayer(layer);
+}
+
+function ensureRunWorld3DLayers() {
+  if (!hasRunWorld3DMap() || !runWorldMapLoaded) return;
+  ensureRunWorld3DSource(runWorld3DLayerIds.approachSource, createFeatureCollection());
+  ensureRunWorld3DSource(runWorld3DLayerIds.routeSource, createFeatureCollection());
+  ensureRunWorld3DSource(runWorld3DLayerIds.runSource, createFeatureCollection());
+  ensureRunWorld3DSource(runWorld3DLayerIds.buildingsSource, createFeatureCollection());
+
+  addRunWorld3DLayerOnce({
+    id: runWorld3DLayerIds.buildings,
+    type: "fill-extrusion",
+    source: runWorld3DLayerIds.buildingsSource,
+    paint: {
+      "fill-extrusion-color": ["get", "color"],
+      "fill-extrusion-height": ["get", "height"],
+      "fill-extrusion-base": 0,
+      "fill-extrusion-opacity": 0.66,
+    },
+  });
+  addRunWorld3DLayerOnce({
+    id: runWorld3DLayerIds.approachGlow,
+    type: "line",
+    source: runWorld3DLayerIds.approachSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#ffffff",
+      "line-width": 20,
+      "line-opacity": 0.62,
+      "line-blur": 4,
+    },
+  });
+  addRunWorld3DLayerOnce({
+    id: runWorld3DLayerIds.approachLine,
+    type: "line",
+    source: runWorld3DLayerIds.approachSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#2f80ff",
+      "line-width": 8,
+      "line-opacity": 0.98,
+      "line-dasharray": [2, 1.2],
+    },
+  });
+  addRunWorld3DLayerOnce({
+    id: runWorld3DLayerIds.routeGlow,
+    type: "line",
+    source: runWorld3DLayerIds.routeSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#ffffff",
+      "line-width": 28,
+      "line-opacity": 0.78,
+      "line-blur": 5,
+    },
+  });
+  addRunWorld3DLayerOnce({
+    id: runWorld3DLayerIds.routeLine,
+    type: "line",
+    source: runWorld3DLayerIds.routeSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#ff3d1f",
+      "line-width": 12,
+      "line-opacity": 0.98,
+    },
+  });
+  addRunWorld3DLayerOnce({
+    id: runWorld3DLayerIds.runGlow,
+    type: "line",
+    source: runWorld3DLayerIds.runSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#05070b",
+      "line-width": 14,
+      "line-opacity": 0.46,
+      "line-blur": 2,
+    },
+  });
+  addRunWorld3DLayerOnce({
+    id: runWorld3DLayerIds.runLine,
+    type: "line",
+    source: runWorld3DLayerIds.runSource,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#17bebb",
+      "line-width": 6,
+      "line-opacity": 0.98,
+    },
+  });
+}
+
+function clearRunWorld3DMarkers() {
+  runWorldRouteMarkers.forEach((marker) => marker.remove());
+  runWorldRouteMarkers = [];
+}
+
+function drawRunWorld3DRoutePoint(point, index, total) {
+  if (!hasRunWorld3DMap()) return;
+  const element = createRoutePointElement(point, index, total);
+  element.classList.add("run-world-3d-point");
+  const marker = new maplibregl.Marker({
+    element,
+    anchor: "center",
+  })
+    .setLngLat(toMapLngLat(point))
+    .addTo(runWorldMap);
+  runWorldRouteMarkers.push(marker);
 }
 
 function clearEvent3DMarkers() {
@@ -3492,15 +3722,55 @@ function drawEvent3DRoutePoint(point, index, total, source = "auto") {
   eventRouteMarkers.push(marker);
 }
 
+function ensureEventRouteOverlaySvg() {
+  if (!dom.routeMap || eventRouteOverlaySvg) return eventRouteOverlaySvg;
+  eventRouteOverlaySvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  eventRouteOverlaySvg.classList.add("event-route-overlay-svg");
+  eventRouteOverlaySvg.setAttribute("aria-hidden", "true");
+  dom.routeMap.appendChild(eventRouteOverlaySvg);
+  return eventRouteOverlaySvg;
+}
+
+function renderEventRouteOverlay(route = eventRouteOverlayRoute) {
+  if (!hasEvent3DMap() || !eventMapLoaded || !dom.routeMap) return;
+  eventRouteOverlayRoute = normalizeRoutePoints(route);
+  const svg = ensureEventRouteOverlaySvg();
+  if (!svg) return;
+  const rect = dom.routeMap.getBoundingClientRect();
+  svg.setAttribute("viewBox", `0 0 ${Math.max(1, rect.width)} ${Math.max(1, rect.height)}`);
+  svg.replaceChildren();
+  if (eventRouteOverlayRoute.length < 2) return;
+  const points = eventRouteOverlayRoute
+    .map((point) => {
+      const mapped = toMapPoint(point);
+      const projected = eventMap.project([mapped.lng, mapped.lat]);
+      return `${projected.x.toFixed(1)},${projected.y.toFixed(1)}`;
+    })
+    .join(" ");
+  const glow = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+  glow.setAttribute("points", points);
+  glow.setAttribute("class", "event-route-overlay-glow");
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+  line.setAttribute("points", points);
+  line.setAttribute("class", "event-route-overlay-line");
+  svg.append(glow, line);
+}
+
 function focusEventMap(latlng, zoom = 15) {
   if (!latlng || !Number.isFinite(Number(latlng.lat)) || !Number.isFinite(Number(latlng.lng))) return;
   const mapped = toMapPoint(latlng);
+  if (hasEventAmapMap()) {
+    eventMap.setZoomAndCenter(zoom, [Number(mapped.lng), Number(mapped.lat)], false);
+    eventMap.setPitch(62);
+    eventMap.setRotation(0);
+    return;
+  }
   if (hasEvent3DMap()) {
     eventMap.easeTo({
       center: [Number(mapped.lng), Number(mapped.lat)],
       zoom,
       pitch: 62,
-      bearing: -24,
+      bearing: 0,
       duration: 650,
     });
     return;
@@ -3523,9 +3793,9 @@ function fitEventMapToRoute(route, fallbackCenter) {
     route.forEach((point) => bounds.extend(toMapLngLat(point)));
     eventMap.fitBounds(bounds, {
       padding: 78,
-      maxZoom: 16.5,
+      maxZoom: 17,
       pitch: 62,
-      bearing: -24,
+      bearing: 0,
       duration: 650,
     });
     return;
@@ -3540,6 +3810,10 @@ function fitEventMapToRoute(route, fallbackCenter) {
 }
 
 function resizeEventMap() {
+  if (hasEventAmapMap()) {
+    eventMap.resize?.();
+    return;
+  }
   if (hasEvent3DMap()) {
     eventMap.resize();
     return;
@@ -3591,6 +3865,24 @@ function formatRunDuration(ms) {
   const mm = String(minutes).padStart(2, "0");
   const ss = String(seconds).padStart(2, "0");
   return hours ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
+}
+
+function formatRunPace(minutesPerKm) {
+  if (!Number.isFinite(minutesPerKm) || minutesPerKm <= 0) return "-- /km";
+  const minutes = Math.floor(minutesPerKm);
+  const seconds = Math.round((minutesPerKm - minutes) * 60);
+  return `${minutes}'${String(seconds).padStart(2, "0")}"/km`;
+}
+
+function getCurrentRunSpeedKmh(run) {
+  const route = normalizeRunTracking(run).route;
+  if (route.length < 2) return null;
+  const latest = route[route.length - 1];
+  const previous = route[route.length - 2];
+  const deltaHours = Math.max(0, Number(latest.timestamp) - Number(previous.timestamp)) / 3600000;
+  if (!deltaHours) return null;
+  const speed = distanceBetweenPointsKm(previous, latest) / deltaHours;
+  return Number.isFinite(speed) ? Math.min(speed, 45) : null;
 }
 
 function getCurrentRunElapsedMs() {
@@ -3702,8 +3994,74 @@ function getGoogleMapsKey() {
   ).trim();
 }
 
+function getAmapKey() {
+  return (
+    window.GORUNNERS_AMAP_KEY ||
+    localStorage.getItem("gorunners_amap_key") ||
+    ""
+  ).trim();
+}
+
+function getAmapSecurityJsCode() {
+  return (
+    window.GORUNNERS_AMAP_SECURITY_JS_CODE ||
+    localStorage.getItem("gorunners_amap_security_js_code") ||
+    ""
+  ).trim();
+}
+
+function loadAmapApi() {
+  if (window.AMap?.Map) return Promise.resolve(window.AMap);
+  const key = getAmapKey();
+  if (!key) return Promise.reject(new Error("missing-amap-key"));
+  if (amapPromise) return amapPromise;
+  const securityJsCode = getAmapSecurityJsCode();
+  if (securityJsCode) {
+    window._AMapSecurityConfig = {
+      securityJsCode,
+    };
+  }
+  amapPromise = new Promise((resolve, reject) => {
+    const callbackName = `gorunnersAmapReady_${Date.now()}`;
+    const script = document.createElement("script");
+    let settled = false;
+    const cleanup = () => {
+      delete window[callbackName];
+      window.clearTimeout(timeoutId);
+    };
+    const fail = (error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      amapPromise = null;
+      reject(error);
+    };
+    const timeoutId = window.setTimeout(() => {
+      fail(new Error("amap-load-timeout"));
+    }, 8000);
+    window[callbackName] = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      if (window.AMap?.Map) {
+        resolve(window.AMap);
+      } else {
+        amapPromise = null;
+        reject(new Error("amap-missing-map-object"));
+      }
+    };
+    script.src = `https://webapi.amap.com/maps?v=2.0&key=${encodeURIComponent(key)}&callback=${callbackName}`;
+    script.async = true;
+    script.onerror = () => {
+      fail(new Error("amap-load-failed"));
+    };
+    document.head.appendChild(script);
+  });
+  return amapPromise;
+}
+
 function loadGoogleMapsApi() {
-  if (window.google?.maps?.StreetViewPanorama) return Promise.resolve(window.google.maps);
+  if (window.google?.maps?.importLibrary || window.google?.maps?.StreetViewPanorama) return Promise.resolve(window.google.maps);
   const key = getGoogleMapsKey();
   if (!key) return Promise.reject(new Error("missing-google-maps-key"));
   if (googleMapsPromise) return googleMapsPromise;
@@ -3714,7 +4072,7 @@ function loadGoogleMapsApi() {
       delete window[callbackName];
       resolve(window.google.maps);
     };
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&v=weekly&callback=${callbackName}`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&v=beta&callback=${callbackName}`;
     script.async = true;
     script.defer = true;
     script.onerror = () => {
@@ -3732,9 +4090,14 @@ function setRunSceneMode(mode, statusText = "") {
   if (!dom.runMode) return;
   dom.runMode.dataset.scene = mode;
   if (dom.runStreetView) dom.runStreetView.hidden = mode !== "streetview";
+  if (dom.runAmap3DMap) dom.runAmap3DMap.hidden = mode !== "amap3d";
+  if (dom.runGoogle3DMap) dom.runGoogle3DMap.hidden = mode !== "google3d";
   if (dom.runWorldMap) dom.runWorldMap.hidden = mode !== "map";
   if (dom.runCamera) dom.runCamera.hidden = mode !== "camera";
-  if (dom.runModeCamera) dom.runModeCamera.classList.toggle("active", mode === "camera");
+  if (dom.runModeCamera) {
+    dom.runModeCamera.classList.toggle("active", mode === "camera");
+    dom.runModeCamera.textContent = mode === "camera" ? t("button_run_3d_map") : t("button_run_camera");
+  }
   if (dom.runModeCameraFlip) dom.runModeCameraFlip.hidden = mode !== "camera";
   if (dom.runSceneFallback) {
     dom.runSceneFallback.hidden = mode !== "fallback";
@@ -3759,6 +4122,28 @@ function getRunSceneStartPoint() {
   if (route.length) return route[0];
   if (activeEvent?.lat && activeEvent?.lng) return { lat: activeEvent.lat, lng: activeEvent.lng };
   return { lat: 31.3, lng: 120.62 };
+}
+
+function getGoogle3DCameraPoint() {
+  const latest = getLatestRunPoint();
+  if (latest) return latest;
+  const route = getVisibleRoute(activeEvent);
+  if (route.length) return route[0];
+  return getRunSceneStartPoint();
+}
+
+function getGoogle3DAltitude(pointCount = 1) {
+  const route = getVisibleRoute(activeEvent);
+  if (route.length > 1) {
+    let maxDistance = 0;
+    route.forEach((point) => {
+      route.forEach((other) => {
+        maxDistance = Math.max(maxDistance, distanceBetweenPointsKm(point, other));
+      });
+    });
+    return Math.min(1800, Math.max(260, maxDistance * 1200));
+  }
+  return pointCount > 1 ? 520 : 360;
 }
 
 function clampRoadRecognitionScore(score) {
@@ -3895,11 +4280,103 @@ async function initStreetViewScene() {
   }
 }
 
+async function initAmap3DMapScene(statusText = "") {
+  const key = getAmapKey();
+  if (!key || !dom.runAmap3DMap) {
+    initRunMapScene(t("run_mode_amap_missing"));
+    return false;
+  }
+  setRunSceneMode("fallback", statusText || t("run_mode_amap_loading"));
+  try {
+    const AMap = await loadAmapApi();
+    const start = toMapPoint(getRunSceneStartPoint());
+    setRunSceneMode("amap3d", statusText || t("run_mode_amap_loading"));
+    if (!amap3DMap) {
+      amap3DMap = new AMap.Map(dom.runAmap3DMap, {
+        viewMode: "3D",
+        zoom: 17,
+        center: [Number(start.lng), Number(start.lat)],
+        pitch: 62,
+        rotation: 0,
+        resizeEnable: true,
+        rotateEnable: true,
+        pitchEnable: true,
+        mapStyle: "amap://styles/normal",
+        features: ["bg", "point", "road", "building"],
+      });
+      amap3DMap.on("dragstart", disableRunFollow);
+      amap3DMap.on("zoomstart", disableRunFollow);
+      amap3DMap.on("rotatestart", disableRunFollow);
+    } else {
+      amap3DMap.resize();
+    }
+    preferredRunMapMode = "amap3d";
+    setRunSceneMode("amap3d", t("run_mode_amap_ready"));
+    renderAmap3DRunMap();
+    renderRunMode();
+    return true;
+  } catch (error) {
+    console.warn("AMap 3D failed, falling back to built-in 3D map:", error);
+    initRunMapScene(t("run_mode_amap_unavailable"));
+    return false;
+  }
+}
+
+async function initGoogle3DMapScene(statusText = "") {
+  const key = getGoogleMapsKey();
+  if (!key || !dom.runGoogle3DMap) {
+    initRunMapScene(t("run_mode_google_missing"));
+    return false;
+  }
+  setRunSceneMode("fallback", statusText || t("run_mode_google_loading"));
+  try {
+    const maps = await loadGoogleMapsApi();
+    if (!maps.importLibrary) throw new Error("google-import-library-unavailable");
+    const maps3d = await maps.importLibrary("maps3d");
+    if (!maps3d?.Map3DElement) throw new Error("google-3d-unavailable");
+    if (!google3DMap) {
+      dom.runGoogle3DMap.innerHTML = "";
+      const start = getGoogle3DCameraPoint();
+      google3DMap = new maps3d.Map3DElement({
+        center: {
+          lat: Number(start.lat),
+          lng: Number(start.lng),
+          altitude: getGoogle3DAltitude(),
+        },
+        tilt: 62,
+        heading: 0,
+        range: 520,
+        mode: maps3d.MapMode?.HYBRID || "hybrid",
+        gestureHandling: maps3d.GestureHandling?.AUTO || "auto",
+      });
+      dom.runGoogle3DMap.append(google3DMap);
+    }
+    google3DReady = true;
+    preferredRunMapMode = "google3d";
+    setRunSceneMode("google3d", t("run_mode_google_ready"));
+    renderGoogle3DRunMap();
+    renderRunMode();
+    return true;
+  } catch (error) {
+    google3DReady = false;
+    initRunMapScene(t("run_mode_google_unavailable"));
+    return false;
+  }
+}
+
 function initRunMapScene(statusText = "") {
+  preferredRunMapMode = "map";
   setRunSceneMode("map", statusText || t("run_mode_map_ready"));
   initRunWorldMap();
   renderRunWorldMap();
-  setTimeout(() => runWorldMap?.invalidateSize(), 80);
+  renderRunMode();
+  setTimeout(() => {
+    if (hasRunWorld3DMap()) {
+      runWorldMap.resize();
+    } else {
+      runWorldMap?.invalidateSize();
+    }
+  }, 80);
 }
 
 function getRunCameraVideoConstraints() {
@@ -3927,6 +4404,7 @@ async function initCameraScene(statusText = "", options = {}) {
     }
     dom.runCamera.srcObject = runCameraStream;
     await dom.runCamera.play();
+    preferredRunMapMode = "camera";
     setRunSceneMode("camera", statusText || t("run_mode_camera_on"));
   } catch (error) {
     initRunMapScene(t("run_mode_camera_blocked"));
@@ -3961,9 +4439,56 @@ function initRunMiniMap() {
 }
 
 function initRunWorldMap() {
-  if (!dom.runWorldMap || runWorldMap || !window.L) return;
+  if (!dom.runWorldMap || runWorldMap) return;
   const start = getRunSceneStartPoint();
   const mappedStart = toMapPoint(start);
+  const canUseMapLibre =
+    window.maplibregl &&
+    canCreateWebGLContext() &&
+    (typeof maplibregl.supported !== "function" ||
+      maplibregl.supported({ failIfMajorPerformanceCaveat: false }));
+
+  if (canUseMapLibre) {
+    try {
+      runWorldMapIs3D = true;
+      dom.runWorldMap.classList.add("map-3d", "run-world-map-3d");
+      runWorldMap = new maplibregl.Map({
+        container: "run-world-map",
+        style: event3DMapStyle,
+        center: [mappedStart.lng, mappedStart.lat],
+        zoom: 17,
+        pitch: 68,
+        bearing: 0,
+        attributionControl: true,
+        antialias: true,
+        maxPitch: 75,
+        maxBounds: [
+          toMapLngLat({ lat: 30.9, lng: 120.2 }),
+          toMapLngLat({ lat: 31.7, lng: 121.1 }),
+        ],
+      });
+      runWorldMap.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
+      runWorldMap.on("load", () => {
+        runWorldMapLoaded = true;
+        ensureRunWorld3DLayers();
+        renderRunWorldMap();
+      });
+      runWorldMap.on("dragstart", disableRunFollow);
+      runWorldMap.on("pitchstart", disableRunFollow);
+      runWorldMap.on("rotatestart", disableRunFollow);
+      return;
+    } catch (error) {
+      runWorldMap = null;
+      runWorldMapIs3D = false;
+      runWorldMapLoaded = false;
+      dom.runWorldMap.classList.remove("map-3d", "run-world-map-3d", "maplibregl-map");
+      dom.runWorldMap.innerHTML = "";
+    }
+  }
+
+  if (!window.L) return;
+  runWorldMapIs3D = false;
+  runWorldMapLoaded = true;
   runWorldMap = L.map("run-world-map", {
     zoomControl: false,
     attributionControl: true,
@@ -3971,6 +4496,7 @@ function initRunWorldMap() {
     scrollWheelZoom: true,
     doubleClickZoom: true,
   }).setView([mappedStart.lat, mappedStart.lng], 17);
+  runWorldMap.on("dragstart", disableRunFollow);
   addBaseTileLayer(runWorldMap);
   runWorldRouteLayer = L.layerGroup().addTo(runWorldMap);
   runWorldLiveLayer = L.layerGroup().addTo(runWorldMap);
@@ -3990,12 +4516,76 @@ function drawRunSceneRoute(layer, route, options = {}) {
 }
 
 function renderRunWorldMap() {
-  if (!runWorldMap || !runWorldRouteLayer || !runWorldLiveLayer) return;
-  runWorldRouteLayer.clearLayers();
-  runWorldLiveLayer.clearLayers();
   const plannedRoute = getVisibleRoute(activeEvent);
   const run = normalizeRunTracking(state.runTracking);
   const latest = run.route[run.route.length - 1] || state.currentLocation;
+
+  if (hasRunWorld3DMap()) {
+    if (!runWorldMapLoaded) return;
+    ensureRunWorld3DLayers();
+    const routeSource = runWorldMap.getSource(runWorld3DLayerIds.routeSource);
+    const approachSource = runWorldMap.getSource(runWorld3DLayerIds.approachSource);
+    const runSource = runWorldMap.getSource(runWorld3DLayerIds.runSource);
+    const buildingsSource = runWorldMap.getSource(runWorld3DLayerIds.buildingsSource);
+    if (approachSource) approachSource.setData(createLineCollection(getApproachRoute(latest, plannedRoute)));
+    if (routeSource) routeSource.setData(createLineCollection(plannedRoute));
+    if (runSource) runSource.setData(createLineCollection(run.route));
+    if (buildingsSource) buildingsSource.setData(createBuildingCollection(plannedRoute, activeEvent));
+
+    clearRunWorld3DMarkers();
+    plannedRoute.forEach((point, index) => {
+      drawRunWorld3DRoutePoint(point, index, plannedRoute.length);
+    });
+
+    if (latest) {
+      if (!runWorldRunnerMarker) {
+        runWorldRunnerMarker = new maplibregl.Marker({
+          element: createAnimeRunnerElement(run.active),
+          anchor: "bottom",
+        })
+          .setLngLat(toMapLngLat(latest))
+          .addTo(runWorldMap);
+      } else {
+        runWorldRunnerMarker.setLngLat(toMapLngLat(latest));
+        runWorldRunnerMarker.getElement().classList.toggle("tracking", run.active);
+        const figure = runWorldRunnerMarker.getElement().querySelector(".runner-figure");
+        if (figure) figure.classList.toggle("active", run.active);
+      }
+      if (!runFollowMode) return;
+      focusRunWorld3DOnGuidance(latest, plannedRoute);
+      return;
+    }
+
+    if (runWorldRunnerMarker) {
+      runWorldRunnerMarker.remove();
+      runWorldRunnerMarker = null;
+    }
+    if (!runFollowMode) return;
+    if (plannedRoute.length > 1) {
+      const bounds = new maplibregl.LngLatBounds();
+      plannedRoute.forEach((point) => bounds.extend(toMapLngLat(point)));
+      runWorldMap.fitBounds(bounds, {
+        padding: { top: 140, right: 380, bottom: 210, left: 120 },
+        maxZoom: 17,
+        pitch: 68,
+        bearing: 0,
+        duration: 650,
+      });
+    } else if (plannedRoute.length === 1) {
+      runWorldMap.easeTo({
+        center: toMapLngLat(plannedRoute[0]),
+        zoom: 17,
+        pitch: 68,
+        bearing: 0,
+        duration: 650,
+      });
+    }
+    return;
+  }
+
+  if (!runWorldMap || !runWorldRouteLayer || !runWorldLiveLayer) return;
+  runWorldRouteLayer.clearLayers();
+  runWorldLiveLayer.clearLayers();
 
   drawRunSceneRoute(runWorldRouteLayer, plannedRoute, { color: "#ff6a3d", weight: 8, opacity: 0.94 });
   drawRunSceneRoute(runWorldLiveLayer, run.route, { color: "#17bebb", weight: 7, opacity: 0.98 });
@@ -4016,12 +4606,406 @@ function renderRunWorldMap() {
       icon: createAnimeRunnerIcon(run.active),
       zIndexOffset: 3000,
     }).addTo(runWorldLiveLayer);
-    runWorldMap.setView(routePointToLatLng(latest), Math.max(runWorldMap.getZoom(), 17), { animate: true });
+    if (runFollowMode) {
+      runWorldMap.setView(routePointToLatLng(latest), Math.max(runWorldMap.getZoom(), 17), { animate: true });
+    }
   } else if (plannedRoute.length > 1) {
-    runWorldMap.fitBounds(L.latLngBounds(plannedRoute.map((point) => routePointToLatLng(point))), {
-      padding: [70, 70],
-      maxZoom: 17,
+    if (runFollowMode) {
+      runWorldMap.fitBounds(L.latLngBounds(plannedRoute.map((point) => routePointToLatLng(point))), {
+        padding: [70, 70],
+        maxZoom: 17,
+      });
+    }
+  }
+}
+
+async function initPreferredRunMapScene(statusText = "") {
+  stopRunCameraScene();
+  if (getAmapKey()) {
+    const openedAmap3D = await initAmap3DMapScene(statusText || t("run_mode_amap_loading"));
+    if (openedAmap3D) return;
+  }
+  // Google remains available as an optional legacy fallback, but AMap is preferred for China routes.
+  if (getGoogleMapsKey()) {
+    const openedGoogle3D = await initGoogle3DMapScene(t("run_mode_google_loading"));
+    if (openedGoogle3D) return;
+  }
+  initRunMapScene(statusText || t("run_mode_map_ready"));
+}
+
+function toggleRunCameraMapMode() {
+  if (runSceneMode === "camera") {
+    initPreferredRunMapScene(t("run_mode_map_ready"));
+    return;
+  }
+  initCameraScene(t("run_mode_camera_on"));
+}
+
+function focusRunWorld3DOnGuidance(latest, plannedRoute = getVisibleRoute(activeEvent)) {
+  if (!hasRunWorld3DMap() || !latest) return;
+  const route = Array.isArray(plannedRoute) ? plannedRoute : [];
+  if (route.length > 1) {
+    const bounds = new maplibregl.LngLatBounds();
+    bounds.extend(toMapLngLat(latest));
+    route.forEach((point) => bounds.extend(toMapLngLat(point)));
+    runWorldMap.fitBounds(bounds, {
+      padding: { top: 130, right: 390, bottom: 230, left: 130 },
+      maxZoom: 17.2,
+      pitch: 68,
+      bearing: 0,
+      duration: 550,
     });
+    return;
+  }
+  runWorldMap.easeTo({
+    center: toMapLngLat(latest),
+    zoom: Math.max(runWorldMap.getZoom(), 17),
+    pitch: 68,
+    bearing: 0,
+    duration: 550,
+  });
+}
+
+function clearGoogle3DRouteMarkers() {
+  google3DRouteMarkers.forEach((marker) => marker.remove?.());
+  google3DRouteMarkers = [];
+}
+
+function toAmapLngLat(point) {
+  const mapped = toMapPoint(point);
+  return [Number(mapped.lng), Number(mapped.lat)];
+}
+
+function getApproachRoute(currentPoint = getLatestRunPoint(), plannedRoute = getVisibleRoute(activeEvent)) {
+  if (!currentPoint || !Array.isArray(plannedRoute) || !plannedRoute.length) return [];
+  const start = plannedRoute[0];
+  const distanceKm = distanceBetweenPointsKm(currentPoint, start);
+  if (!Number.isFinite(distanceKm) || distanceKm < 0.03) return [];
+  return [currentPoint, start];
+}
+
+function createAmapRouteMarkerHtml(point, index, total) {
+  return `<div class="amap-3d-route-marker"><span>${getRoutePointShortLabel(point, index, total)}</span></div>`;
+}
+
+function clearEventAmapOverlays() {
+  if (!hasEventAmapMap()) return;
+  const overlays = [
+    eventAmapRouteGlowPolyline,
+    eventAmapRoutePolyline,
+    eventAmapRunPolyline,
+    eventAmapRunnerMarker,
+    eventAmapCenterMarker,
+    ...eventAmapRouteMarkers,
+  ].filter(Boolean);
+  if (overlays.length) eventMap.remove(overlays);
+  eventAmapRouteGlowPolyline = null;
+  eventAmapRoutePolyline = null;
+  eventAmapRunPolyline = null;
+  eventAmapRunnerMarker = null;
+  eventAmapCenterMarker = null;
+  eventAmapRouteMarkers = [];
+}
+
+function drawEventAmapRoutePoint(point, index, total, source = "auto") {
+  if (!hasEventAmapMap()) return null;
+  const AMap = window.AMap;
+  const marker = new AMap.Marker({
+    position: toAmapLngLat(point),
+    content: createAmapRouteMarkerHtml(point, index, total),
+    offset: new AMap.Pixel(-21, -21),
+    draggable: canEditVisibleRoute(),
+    cursor: canEditVisibleRoute() ? "move" : "pointer",
+    zIndex: 160,
+  });
+  marker.on("click", () => selectRoutePoint(index));
+  if (canEditVisibleRoute()) {
+    marker.on("dragend", () => {
+      const position = marker.getPosition();
+      updateRoutePoint(index, { lng: position.lng, lat: position.lat }, source);
+    });
+  }
+  eventAmapRouteMarkers.push(marker);
+  eventMap.add(marker);
+  return marker;
+}
+
+function renderEventAmapMap(event, route, draftPoint, routeSource, center) {
+  if (!hasEventAmapMap()) return;
+  const AMap = window.AMap;
+  clearEventAmapOverlays();
+  const plannedPath = route.map(toAmapLngLat);
+
+  if (plannedPath.length > 1) {
+    eventAmapRouteGlowPolyline = new AMap.Polyline({
+      path: plannedPath,
+      strokeColor: "#ffffff",
+      strokeWeight: 20,
+      strokeOpacity: 0.88,
+      lineJoin: "round",
+      lineCap: "round",
+      zIndex: 119,
+    });
+    eventAmapRoutePolyline = new AMap.Polyline({
+      path: plannedPath,
+      strokeColor: "#ff3d1f",
+      strokeWeight: 12,
+      strokeOpacity: 0.98,
+      showDir: true,
+      lineJoin: "round",
+      lineCap: "round",
+      zIndex: 120,
+    });
+    eventMap.add([eventAmapRouteGlowPolyline, eventAmapRoutePolyline]);
+    eventMap.setFitView([eventAmapRoutePolyline, eventAmapRouteGlowPolyline], false, [38, 38, 38, 38], 17);
+  } else {
+    eventMap.setZoomAndCenter(16, toAmapLngLat(route[0] || { lat: center[0], lng: center[1] }), false);
+  }
+
+  route.forEach((point, index) => {
+    drawEventAmapRoutePoint(point, index, route.length, routeSource);
+  });
+
+  if (draftPoint) {
+    drawEventAmapRoutePoint(draftPoint, 0, 1, "draft");
+  }
+
+  if (!route.length && !draftPoint && !hasCustomRoutePlan(event)) {
+    const markerPoint = { lat: center[0], lng: center[1], type: "start" };
+    eventAmapCenterMarker = new AMap.Marker({
+      position: toAmapLngLat(markerPoint),
+      content: createAmapRouteMarkerHtml(markerPoint, 0, 1),
+      offset: new AMap.Pixel(-21, -21),
+      zIndex: 160,
+    });
+    eventMap.add(eventAmapCenterMarker);
+  }
+
+  eventMap.setPitch(62);
+  eventMap.setRotation(0);
+  renderRouteControls();
+  renderRunTracking();
+}
+
+function clearAmap3DRouteMarkers() {
+  if (!amap3DMap || !amap3DRouteMarkers.length) return;
+  amap3DMap.remove(amap3DRouteMarkers);
+  amap3DRouteMarkers = [];
+}
+
+function focusAmap3DOnGuidance(latest, plannedRoute = getVisibleRoute(activeEvent)) {
+  if (!amap3DMap || !latest) return;
+  const overlays = [
+    ...(amap3DApproachPolyline ? [amap3DApproachPolyline] : []),
+    ...(amap3DRoutePolyline ? [amap3DRoutePolyline] : []),
+    ...(amap3DRunPolyline ? [amap3DRunPolyline] : []),
+    ...(amap3DRunnerMarker ? [amap3DRunnerMarker] : []),
+  ];
+  if (plannedRoute.length > 1 && overlays.length) {
+    amap3DMap.setFitView(overlays, false, [140, 390, 230, 130], 17);
+  } else {
+    amap3DMap.setZoomAndCenter(Math.max(amap3DMap.getZoom(), 17), toAmapLngLat(latest), false);
+  }
+  amap3DMap.setPitch(62);
+  amap3DMap.setRotation(0);
+}
+
+function renderAmap3DRunMap() {
+  if (!amap3DMap || !window.AMap) return;
+  const AMap = window.AMap;
+  const plannedRoute = getVisibleRoute(activeEvent);
+  const run = normalizeRunTracking(state.runTracking);
+  const plannedPath = plannedRoute.map(toAmapLngLat);
+  const livePath = run.route.map(toAmapLngLat);
+  const latest = run.route[run.route.length - 1] || state.currentLocation;
+  const approachRoute = getApproachRoute(latest, plannedRoute);
+  const approachPath = approachRoute.map(toAmapLngLat);
+
+  if (!amap3DApproachPolyline) {
+    amap3DApproachPolyline = new AMap.Polyline({
+      path: approachPath,
+      strokeColor: "#2f80ff",
+      strokeWeight: 9,
+      strokeOpacity: 0.98,
+      strokeStyle: "dashed",
+      strokeDasharray: [18, 10],
+      showDir: true,
+      lineJoin: "round",
+      lineCap: "round",
+      zIndex: 118,
+    });
+    amap3DMap.add(amap3DApproachPolyline);
+  } else {
+    amap3DApproachPolyline.setPath(approachPath);
+  }
+
+  if (!amap3DRoutePolyline) {
+    amap3DRoutePolyline = new AMap.Polyline({
+      path: plannedPath,
+      strokeColor: "#ff3d1f",
+      strokeWeight: 12,
+      strokeOpacity: 0.98,
+      borderWeight: 7,
+      outlineColor: "#ffffff",
+      showDir: true,
+      lineJoin: "round",
+      lineCap: "round",
+      zIndex: 120,
+    });
+    amap3DMap.add(amap3DRoutePolyline);
+  } else {
+    amap3DRoutePolyline.setPath(plannedPath);
+  }
+
+  if (!amap3DRunPolyline) {
+    amap3DRunPolyline = new AMap.Polyline({
+      path: livePath,
+      strokeColor: "#17bebb",
+      strokeWeight: 7,
+      strokeOpacity: 0.98,
+      showDir: true,
+      lineJoin: "round",
+      lineCap: "round",
+      zIndex: 140,
+    });
+    amap3DMap.add(amap3DRunPolyline);
+  } else {
+    amap3DRunPolyline.setPath(livePath);
+  }
+
+  clearAmap3DRouteMarkers();
+  amap3DRouteMarkers = plannedRoute.map((point, index) => {
+    const marker = new AMap.Marker({
+      position: toAmapLngLat(point),
+      content: createAmapRouteMarkerHtml(point, index, plannedRoute.length),
+      offset: new AMap.Pixel(-21, -21),
+      zIndex: 160,
+    });
+    return marker;
+  });
+  if (amap3DRouteMarkers.length) amap3DMap.add(amap3DRouteMarkers);
+
+  if (latest) {
+    if (!amap3DRunnerMarker) {
+      amap3DRunnerMarker = new AMap.Marker({
+        position: toAmapLngLat(latest),
+        content: `<div class="anime-runner-marker tracking">${createAnimeRunnerHtml(run.active)}</div>`,
+        offset: new AMap.Pixel(-31, -63),
+        zIndex: 220,
+      });
+      amap3DMap.add(amap3DRunnerMarker);
+    } else {
+      amap3DRunnerMarker.setPosition(toAmapLngLat(latest));
+      amap3DRunnerMarker.setContent(`<div class="anime-runner-marker${run.active ? " tracking" : ""}">${createAnimeRunnerHtml(run.active)}</div>`);
+    }
+    if (runFollowMode) focusAmap3DOnGuidance(latest, plannedRoute);
+  } else if (plannedPath.length && runFollowMode) {
+    amap3DMap.setFitView([amap3DRoutePolyline, ...amap3DRouteMarkers], false, [140, 390, 230, 130], 17);
+    amap3DMap.setPitch(62);
+    amap3DMap.setRotation(0);
+  }
+}
+
+function createGoogle3DMarkerElement(point, index, total, className = "") {
+  const element = createRoutePointElement(point, index, total);
+  element.classList.add("google-3d-marker");
+  if (className) element.classList.add(className);
+  return element;
+}
+
+async function renderGoogle3DRunMap() {
+  if (!google3DReady || !google3DMap || !window.google?.maps?.importLibrary) return;
+  const route = getVisibleRoute(activeEvent);
+  const run = normalizeRunTracking(state.runTracking);
+  const latest = run.route[run.route.length - 1] || state.currentLocation;
+  try {
+    const maps3d = await google.maps.importLibrary("maps3d");
+    const Polyline3DElement = maps3d.Polyline3DElement;
+    const Marker3DElement = maps3d.Marker3DElement;
+    const clampToGround = maps3d.AltitudeMode?.CLAMP_TO_GROUND || "clamp-to-ground";
+    if (Polyline3DElement) {
+      const plannedPath = route.map((point) => ({
+        lat: Number(point.lat),
+        lng: Number(point.lng),
+        altitude: 4,
+      }));
+      if (!google3DRoutePolyline) {
+        google3DRoutePolyline = new Polyline3DElement({
+          strokeColor: "#ff3d1f",
+          strokeWidth: 12,
+          outerColor: "#ffffff",
+          outerWidth: 0.65,
+          altitudeMode: clampToGround,
+        });
+        google3DMap.append(google3DRoutePolyline);
+      }
+      google3DRoutePolyline.coordinates = plannedPath;
+      google3DRoutePolyline.path = plannedPath;
+
+      const livePath = run.route.map((point) => ({
+        lat: Number(point.lat),
+        lng: Number(point.lng),
+        altitude: 6,
+      }));
+      if (!google3DRunPolyline) {
+        google3DRunPolyline = new Polyline3DElement({
+          strokeColor: "#17bebb",
+          strokeWidth: 7,
+          altitudeMode: clampToGround,
+        });
+        google3DMap.append(google3DRunPolyline);
+      }
+      google3DRunPolyline.coordinates = livePath;
+      google3DRunPolyline.path = livePath;
+    }
+
+    clearGoogle3DRouteMarkers();
+    if (Marker3DElement) {
+      route.forEach((point, index) => {
+        const marker = new Marker3DElement({
+          position: { lat: Number(point.lat), lng: Number(point.lng), altitude: 12 },
+        });
+        marker.append(createGoogle3DMarkerElement(point, index, route.length));
+        google3DMap.append(marker);
+        google3DRouteMarkers.push(marker);
+      });
+
+      if (latest) {
+        if (!google3DRunnerMarker) {
+          google3DRunnerMarker = new Marker3DElement({
+            position: { lat: Number(latest.lat), lng: Number(latest.lng), altitude: 18 },
+          });
+          google3DRunnerMarker.append(createAnimeRunnerElement(run.active));
+          google3DMap.append(google3DRunnerMarker);
+        } else {
+          google3DRunnerMarker.position = { lat: Number(latest.lat), lng: Number(latest.lng), altitude: 18 };
+          google3DRunnerMarker.querySelector?.(".anime-runner-marker")?.classList.toggle("tracking", run.active);
+        }
+      }
+    }
+
+    if (latest && runFollowMode) {
+      google3DMap.center = {
+        lat: Number(latest.lat),
+        lng: Number(latest.lng),
+        altitude: getGoogle3DAltitude(route.length),
+      };
+      google3DMap.heading = 0;
+      google3DMap.tilt = 62;
+      google3DMap.range = route.length > 1 ? 760 : 420;
+    } else if (route.length && runFollowMode) {
+      const start = route[0];
+      google3DMap.center = {
+        lat: Number(start.lat),
+        lng: Number(start.lng),
+        altitude: getGoogle3DAltitude(route.length),
+      };
+      google3DMap.heading = 0;
+      google3DMap.tilt = 62;
+      google3DMap.range = route.length > 1 ? 900 : 420;
+    }
+  } catch (error) {
+    initRunMapScene(t("run_mode_google_unavailable"));
   }
 }
 
@@ -4089,7 +5073,20 @@ function bearingBetweenPoints(from, to) {
 function getRouteCue(currentPoint = getLatestRunPoint()) {
   const route = getVisibleRoute(activeEvent);
   if (!currentPoint || !route.length) {
-    return { label: t("run_cue_waiting"), distanceM: null, bearing: 0, target: null };
+    return { label: t("run_cue_waiting"), distanceM: null, bearing: 0, target: null, targetIndex: -1, instruction: t("run_instruction_waiting") };
+  }
+  const approachRoute = getApproachRoute(currentPoint, route);
+  if (approachRoute.length) {
+    const startPoint = approachRoute[1];
+    const distanceM = Math.round(distanceBetweenPointsKm(currentPoint, startPoint) * 1000);
+    return {
+      label: currentLang === "zh" ? "前往出发点" : "To start",
+      distanceM,
+      bearing: bearingBetweenPoints(currentPoint, startPoint) % 360,
+      target: startPoint,
+      targetIndex: 0,
+      instruction: t("run_instruction_to_start", { distance: formatCueDistance(distanceM) }),
+    };
   }
   let nearestIndex = 0;
   let nearestDistance = Infinity;
@@ -4108,7 +5105,42 @@ function getRouteCue(currentPoint = getLatestRunPoint()) {
     distanceM,
     bearing: bearingBetweenPoints(currentPoint, target) % 360,
     target,
+    targetIndex,
+    instruction: getTurnInstruction(currentPoint, route, targetIndex, distanceM),
   };
+}
+
+function formatCueDistance(distanceM) {
+  if (distanceM === null || !Number.isFinite(Number(distanceM))) return "--";
+  return distanceM >= 1000 ? `${(distanceM / 1000).toFixed(1)} km` : `${Math.max(0, Math.round(distanceM))} m`;
+}
+
+function normalizeBearingDelta(delta) {
+  return ((((Number(delta) || 0) + 540) % 360) - 180);
+}
+
+function getTurnDirectionKey(currentPoint, route, targetIndex) {
+  const target = route[targetIndex];
+  const next = route[targetIndex + 1];
+  if (!target || !next) return "finish";
+  const inbound = bearingBetweenPoints(currentPoint, target);
+  const outbound = bearingBetweenPoints(target, next);
+  const delta = normalizeBearingDelta(outbound - inbound);
+  if (Math.abs(delta) < 35) return "straight";
+  return delta > 0 ? "right" : "left";
+}
+
+function getTurnInstruction(currentPoint, route, targetIndex, distanceM) {
+  const distance = formatCueDistance(distanceM);
+  if (targetIndex < 0) return t("run_instruction_waiting");
+  if (targetIndex >= route.length - 1) {
+    return t("run_instruction_finish", { distance });
+  }
+  if (targetIndex === 0) {
+    return t("run_instruction_start", { distance, index: String(targetIndex + 1) });
+  }
+  const direction = getTurnDirectionKey(currentPoint, route, targetIndex);
+  return t(`run_instruction_${direction}`, { distance, index: String(targetIndex + 1) });
 }
 
 function renderRouteCue() {
@@ -4116,8 +5148,10 @@ function renderRouteCue() {
   const cue = getRouteCue(current);
   if (dom.runCueLabel) dom.runCueLabel.textContent = cue.label;
   if (dom.runCueDistance) {
-    dom.runCueDistance.textContent =
-      cue.distanceM === null ? "--" : cue.distanceM >= 1000 ? `${(cue.distanceM / 1000).toFixed(1)} km` : `${cue.distanceM} m`;
+    dom.runCueDistance.textContent = formatCueDistance(cue.distanceM);
+  }
+  if (dom.runCueInstruction) {
+    dom.runCueInstruction.textContent = cue.instruction;
   }
   if (dom.runArArrow) {
     const relativeBearing = deviceHeading === null ? cue.bearing : cue.bearing - deviceHeading;
@@ -4152,9 +5186,18 @@ function renderRunMode() {
   if (!runModeOpen) return;
   const run = normalizeRunTracking(state.runTracking);
   const elapsedMs = getCurrentRunElapsedMs();
+  const latest = run.route[run.route.length - 1] || state.currentLocation;
+  const speedKmh = getCurrentRunSpeedKmh(run);
+  const averagePace = run.distanceKm > 0.01 ? elapsedMs / 60000 / run.distanceKm : null;
   if (dom.runModeEvent) dom.runModeEvent.textContent = getEventText(activeEvent, "name") || "Current route";
   if (dom.runModeDistance) dom.runModeDistance.textContent = `${run.distanceKm.toFixed(2)} km`;
   if (dom.runModeDuration) dom.runModeDuration.textContent = formatRunDuration(elapsedMs);
+  if (dom.runModeSpeed) dom.runModeSpeed.textContent = speedKmh === null ? "-- km/h" : `${speedKmh.toFixed(1)} km/h`;
+  if (dom.runModePace) dom.runModePace.textContent = averagePace ? formatRunPace(averagePace) : "-- /km";
+  if (dom.runModeAccuracy) {
+    const accuracy = Number(latest?.accuracy);
+    dom.runModeAccuracy.textContent = Number.isFinite(accuracy) && accuracy > 0 ? `${Math.round(accuracy)} m` : "-- m";
+  }
   if (dom.runModeStatus) {
     dom.runModeStatus.textContent = run.active
       ? run.route.length
@@ -4162,10 +5205,16 @@ function renderRunMode() {
         : t("run_status_waiting")
       : t("run_status_idle");
   }
+  if (dom.runModeFollow) {
+    dom.runModeFollow.disabled = !getLatestRunPoint();
+    dom.runModeFollow.classList.toggle("active", runFollowMode);
+  }
   renderRouteCue();
   renderRoadRecognition();
   renderRunMiniMap();
+  renderAmap3DRunMap();
   renderRunWorldMap();
+  renderGoogle3DRunMap();
   updateStreetViewPosition();
 }
 
@@ -4184,7 +5233,7 @@ function openRunMode() {
   document.body.classList.add("run-mode-active");
   initRunMiniMap();
   setTimeout(() => runMiniMap?.invalidateSize(), 80);
-  initStreetViewScene();
+  initPreferredRunMapScene(t("run_mode_amap_loading"));
   window.addEventListener("deviceorientation", handleDeviceOrientation, true);
   renderRunMode();
   showToast(t("toast_run_mode_opened"));
@@ -4221,6 +5270,10 @@ function renderRunTracking(options = {}) {
   if (dom.runFollow) {
     dom.runFollow.disabled = !getLatestRunPoint();
     dom.runFollow.classList.toggle("active", runFollowMode);
+  }
+  if (dom.runModeFollow) {
+    dom.runModeFollow.disabled = !getLatestRunPoint();
+    dom.runModeFollow.classList.toggle("active", runFollowMode);
   }
   dom.runTrackerPanel?.classList.toggle("tracking", run.active);
   renderRunOverlay3D(run, options);
@@ -4390,6 +5443,13 @@ function focusRunPosition() {
   }
   runFollowMode = true;
   focusEventMap(latest, 16);
+  if (amap3DMap && runSceneMode === "amap3d") {
+    focusAmap3DOnGuidance(latest);
+  } else if (hasRunWorld3DMap()) {
+    focusRunWorld3DOnGuidance(latest);
+  } else if (runWorldMap) {
+    runWorldMap.setView(routePointToLatLng(latest), Math.max(runWorldMap.getZoom(), 17));
+  }
   renderRunTracking();
   showToast(t("toast_run_position"));
 }
@@ -4413,8 +5473,60 @@ function canCreateWebGLContext() {
   }
 }
 
-function initMaps() {
-  if (!window.L) return;
+function initAmapEventMap() {
+  if (!dom.routeMap || !getAmapKey()) return false;
+  eventMapIsAmap = true;
+  eventMapIs3D = false;
+  eventMapLoaded = false;
+  dom.routeMap.classList.remove("map-3d", "maplibregl-map");
+  dom.routeMap.classList.add("amap-api-map");
+  loadAmapApi()
+    .then((AMap) => {
+      if (eventMap) return;
+      eventMap = new AMap.Map(dom.routeMap, {
+        viewMode: "3D",
+        zoom: 16,
+        pitch: 62,
+        rotation: 0,
+        center: toAmapLngLat({ lat: 31.3, lng: 120.62 }),
+        mapStyle: "amap://styles/normal",
+        resizeEnable: true,
+        rotateEnable: true,
+        pitchEnable: true,
+        zoomEnable: true,
+        dragEnable: true,
+      });
+      eventMapLoaded = true;
+      eventMap.on("click", (event) => {
+        handleEventMapClick({ lat: event.lnglat.lat, lng: event.lnglat.lng });
+      });
+      eventMap.on("dragstart", disableRunFollow);
+      eventMap.on("zoomstart", disableRunFollow);
+      eventMap.on("rotatestart", disableRunFollow);
+      renderEventMap(activeEvent);
+      renderRunTracking();
+    })
+    .catch((error) => {
+      console.warn("AMap event map failed, falling back to built-in map:", error);
+      eventMapIsAmap = false;
+      eventMapLoaded = false;
+      dom.routeMap.classList.remove("amap-api-map");
+      initFallbackEventMap();
+      if (!eventMapIs3D && eventMap) {
+        addBaseTileLayer(eventMap);
+        const mapBounds = getSuzhouMapBounds();
+        if (mapBounds) eventMap.setMaxBounds(mapBounds);
+        eventLayerGroup = L.layerGroup().addTo(eventMap);
+        planLayerGroup = L.layerGroup().addTo(eventMap);
+        eventLeafletRunLayer = L.layerGroup().addTo(eventMap);
+      }
+      renderEventMap(activeEvent);
+      renderRunTracking();
+    });
+  return true;
+}
+
+function initFallbackEventMap() {
   const canUseMapLibre =
     window.maplibregl &&
     dom.routeMap &&
@@ -4432,7 +5544,7 @@ function initMaps() {
         center: toMapLngLat({ lat: 31.3, lng: 120.62 }),
         zoom: 12,
         pitch: 62,
-        bearing: -24,
+        bearing: 0,
         attributionControl: true,
         antialias: true,
         maxPitch: 72,
@@ -4455,12 +5567,14 @@ function initMaps() {
       eventMap.on("zoomstart", disableRunFollow);
       eventMap.on("pitchstart", disableRunFollow);
       eventMap.on("rotatestart", disableRunFollow);
+      eventMap.on("render", () => renderEventRouteOverlay());
     } catch (error) {
       eventMap = null;
       eventMapIs3D = false;
       eventMapLoaded = false;
       dom.routeMap.classList.remove("map-3d", "maplibregl-map");
       dom.routeMap.innerHTML = "";
+      eventRouteOverlaySvg = null;
     }
   }
 
@@ -4474,6 +5588,11 @@ function initMaps() {
     });
     eventMap.on("dragstart zoomstart", disableRunFollow);
   }
+}
+
+function initMaps() {
+  if (!window.L) return;
+  if (!initAmapEventMap()) initFallbackEventMap();
   cityMap = L.map("city-map", { zoomControl: true, attributionControl: true }).setView(
     toMapLatLng({ lat: 31.3, lng: 120.62 }),
     11
@@ -4485,7 +5604,7 @@ function initMaps() {
     );
   }
 
-  [eventMapIs3D ? null : eventMap, cityMap, organizerMap].filter(Boolean).forEach((mapInstance) => {
+  [eventMapIs3D || eventMapIsAmap ? null : eventMap, cityMap, organizerMap].filter(Boolean).forEach((mapInstance) => {
     addBaseTileLayer(mapInstance);
     const mapBounds = getSuzhouMapBounds();
     if (mapBounds) {
@@ -4493,7 +5612,7 @@ function initMaps() {
     }
   });
 
-  if (!eventMapIs3D) {
+  if (!eventMapIs3D && !eventMapIsAmap) {
     eventLayerGroup = L.layerGroup().addTo(eventMap);
     planLayerGroup = L.layerGroup().addTo(eventMap);
     eventLeafletRunLayer = L.layerGroup().addTo(eventMap);
@@ -5145,6 +6264,27 @@ function drawRoutePoint(layer, point, index, total, source = "auto", allowTypeCh
   }
 }
 
+function drawAmapStyleRouteLine(layer, points, options = {}) {
+  if (!layer || !window.L || !Array.isArray(points) || points.length < 2) return null;
+  const latLngPoints = points.map((point) => routePointToLatLng(point));
+  const glowLine = L.polyline(latLngPoints, {
+    color: "#ffffff",
+    weight: options.glowWeight || 15,
+    opacity: options.glowOpacity || 0.88,
+    lineCap: "round",
+    lineJoin: "round",
+  }).addTo(layer);
+  const routeLine = L.polyline(latLngPoints, {
+    color: options.color || "#ff3d1f",
+    weight: options.weight || 8,
+    opacity: options.opacity || 0.98,
+    lineCap: "round",
+    lineJoin: "round",
+  }).addTo(layer);
+  routeLine.bringToFront();
+  return routeLine || glowLine;
+}
+
 function renderEventMap(event) {
   if (!eventMap) return;
   const draftRoute = getDraftRoute(event);
@@ -5152,6 +6292,11 @@ function renderEventMap(event) {
   const route = getVisibleRoute(event);
   const draftPoint = getSingleDraftPoint(event);
   const center = event.lat && event.lng ? [event.lat, event.lng] : [31.3, 120.62];
+
+  if (hasEventAmapMap()) {
+    renderEventAmapMap(event, route, draftPoint, routeSource, center);
+    return;
+  }
 
   if (hasEvent3DMap()) {
     if (!eventMapLoaded) return;
@@ -5162,7 +6307,12 @@ function renderEventMap(event) {
     const buildingsSource = eventMap.getSource(event3DLayerIds.buildingsSource);
     if (routeSourceObject) routeSourceObject.setData(routeData);
     if (buildingsSource) buildingsSource.setData(createBuildingCollection(route, event));
+    if (eventMap.getLayer(event3DLayerIds.routeGlow)) eventMap.moveLayer(event3DLayerIds.routeGlow);
+    if (eventMap.getLayer(event3DLayerIds.routeLine)) eventMap.moveLayer(event3DLayerIds.routeLine);
+    if (eventMap.getLayer(event3DLayerIds.runGlow)) eventMap.moveLayer(event3DLayerIds.runGlow);
+    if (eventMap.getLayer(event3DLayerIds.runLine)) eventMap.moveLayer(event3DLayerIds.runLine);
     fitEventMapToRoute(route, center);
+    window.requestAnimationFrame(() => renderEventRouteOverlay(route));
 
     route.forEach((point, index) => {
       drawEvent3DRoutePoint(point, index, route.length, routeSource);
@@ -5190,10 +6340,7 @@ function renderEventMap(event) {
 
   eventLayerGroup.clearLayers();
   if (route.length > 1) {
-    const routeLine = L.polyline(
-      route.map((point) => routePointToLatLng(point)),
-      { color: "#ff6a3d", weight: 5, opacity: 0.95 }
-    ).addTo(eventLayerGroup);
+    const routeLine = drawAmapStyleRouteLine(eventLayerGroup, route);
     eventMap.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
   } else {
     eventMap.setView(toMapLatLng(center), 14);
@@ -5537,10 +6684,10 @@ function renderPickerMap(resetSelection = true) {
   const draftPoint = getSingleDraftPoint(activeEvent);
   const center = activeEvent.lat && activeEvent.lng ? [activeEvent.lat, activeEvent.lng] : [31.3, 120.62];
   if (route.length > 1) {
-    const routeLine = L.polyline(
-      route.map((point) => routePointToLatLng(point)),
-      { color: "#ff6a3d", weight: 5, opacity: 0.95 }
-    ).addTo(pickerRouteLayer);
+    const routeLine = drawAmapStyleRouteLine(pickerRouteLayer, route, {
+      glowWeight: 13,
+      weight: 7,
+    });
     pickerMap.fitBounds(routeLine.getBounds(), { padding: [28, 28] });
   } else {
     pickerMap.setView(toMapLatLng(center), 14);

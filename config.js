@@ -8,8 +8,13 @@ window.GORUNNERS_MAP_PROVIDER = "amap";
 // the frontend converts display coordinates to GCJ02 so markers align in China.
 window.GORUNNERS_COORDINATE_SYSTEM = "wgs84";
 
-// Optional. Add a Google Maps JavaScript API key to enable Street View in Run Mode.
-// Without a key, Run Mode falls back to the device camera plus the 2D route map.
+// Optional. Add an AMap JavaScript API key to enable AMap 3D in Run Mode.
+// If your AMap app requires a security code, fill GORUNNERS_AMAP_SECURITY_JS_CODE too.
+// Without a key, Run Mode falls back to the built-in MapLibre 3D route map and camera mode.
+window.GORUNNERS_AMAP_KEY = "332f90e228882a98556b8531b3cb9249";
+window.GORUNNERS_AMAP_SECURITY_JS_CODE = "a01947b5feb26fd3991f34ab64dd76d3";
+
+// Optional legacy fallback for Google Photorealistic 3D Maps.
 window.GORUNNERS_GOOGLE_MAPS_KEY = "";
 
 window.GORUNNERS_AI_TRAINERS = [
