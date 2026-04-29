@@ -1725,6 +1725,11 @@ function normalizeEvent(event) {
   };
 }
 
+function getServerEventId(event) {
+  const id = event?.id == null ? "" : String(event.id);
+  return /^\d+$/.test(id) ? id : "";
+}
+
 async function fetchCurrentUser() {
   if (!authToken) return null;
   try {
@@ -2386,12 +2391,13 @@ function addMapPickerPoint() {
 }
 
 async function loadCheckpointsForEvent(event) {
-  if (!event?.id) {
+  const serverEventId = getServerEventId(event);
+  if (!event?.id || !serverEventId) {
     renderCheckpointList(event, null);
     return;
   }
   try {
-    const data = await apiRequest(`/events/${event.id}/checkpoints`);
+    const data = await apiRequest(`/events/${serverEventId}/checkpoints`);
     if (Array.isArray(data) && data.length) {
       renderCheckpointList(event, data);
       return;
@@ -3074,7 +3080,12 @@ async function handleRecommendCheckpoints() {
     return;
   }
   try {
-    await apiRequest(`/events/${activeEvent.id}/recommend-checkpoints`, { method: "POST" });
+    const serverEventId = getServerEventId(activeEvent);
+    if (!serverEventId) {
+      showToast(t("toast_admin_required"));
+      return;
+    }
+    await apiRequest(`/events/${serverEventId}/recommend-checkpoints`, { method: "POST" });
     await loadCheckpointsForEvent(activeEvent);
     showToast(t("toast_recommend_done"));
   } catch (error) {
