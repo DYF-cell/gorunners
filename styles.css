@@ -4540,3 +4540,598 @@ body.resizing-map-picker-panel {
     top: 252px;
   }
 }
+
+@media (max-width: 768px) {
+  :root {
+    --mobile-page-pad: 12px;
+    --mobile-nav-height: 76px;
+  }
+
+  html {
+    background: #f7f8fa;
+  }
+
+  body {
+    min-width: 320px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255, 106, 61, 0.18);
+  }
+
+  body:not(.admin-shell) {
+    padding-bottom: calc(var(--mobile-nav-height) + 18px + env(safe-area-inset-bottom));
+  }
+
+  body.admin-shell {
+    padding-bottom: 0;
+  }
+
+  .ambient-grid {
+    opacity: 0.24;
+    background-size: 36px 36px, 96px 96px;
+  }
+
+  main,
+  .admin-page,
+  .admin-console,
+  .admin-login-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .site-header {
+    min-height: 58px;
+  }
+
+  .brand-logo {
+    max-width: 34vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-actions {
+    mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 16px), transparent 100%);
+    padding-inline: 10px 14px;
+    margin-inline: -10px -14px;
+  }
+
+  .main-nav {
+    min-height: var(--mobile-nav-height);
+    max-width: calc(100vw - 20px);
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: 8px;
+  }
+
+  .main-nav::before,
+  .main-nav::after {
+    content: "";
+    flex: 0 0 2px;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 98px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .section:not(.hero) {
+    border-top: 1px solid rgba(15, 23, 42, 0.05);
+  }
+
+  .section-header > div,
+  .section-header > p,
+  .card-header > div,
+  .map-header > div {
+    min-width: 0;
+  }
+
+  .section-subtitle,
+  .card-subtitle,
+  .body,
+  .notice,
+  .map-footnote,
+  .picker-tip,
+  .picker-note,
+  .picker-coords {
+    overflow-wrap: anywhere;
+  }
+
+  .hero {
+    min-height: min(680px, calc(100svh - 58px));
+  }
+
+  .hero-content {
+    display: grid;
+    gap: 0;
+  }
+
+  .hero-card {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(14px);
+  }
+
+  .hero-actions,
+  .hero-stats,
+  .filters,
+  .detail-info,
+  .run-tracker-stats,
+  .admin-stats-grid {
+    min-width: 0;
+  }
+
+  .filters .input-pill {
+    box-shadow: none;
+  }
+
+  .grid,
+  .admin-layout,
+  .admin-event-workspace {
+    align-items: start;
+  }
+
+  .card,
+  .admin-row,
+  .modal-card,
+  .map-picker-card {
+    border-color: rgba(15, 23, 42, 0.08);
+  }
+
+  .event-card,
+  .admin-row,
+  .leaderboard-item,
+  .match-member,
+  .post-item,
+  .checkpoint,
+  .attendance-row {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .event-card .card-title,
+  .result-title,
+  .leaderboard-copy,
+  .admin-row-head,
+  .admin-row-meta,
+  .admin-comment-head {
+    min-width: 0;
+  }
+
+  .badge,
+  .pill,
+  .status-pill,
+  .db-badge {
+    border-radius: 999px;
+    white-space: normal;
+  }
+
+  .primary-button,
+  .outline-button,
+  .ghost-button,
+  .pill-button,
+  .input-pill,
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  textarea {
+    line-height: 1.45;
+  }
+
+  .form-card,
+  .post-form,
+  .admin-event-form,
+  .admin-mini-form {
+    gap: 12px;
+  }
+
+  .form-card label,
+  .admin-event-fields label,
+  .admin-mini-form label,
+  .ai-chat-profile-form label {
+    min-width: 0;
+  }
+
+  .toggle {
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.04);
+  }
+
+  .toggle input {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    border: 1px solid rgba(15, 23, 42, 0.25);
+    border-radius: 6px;
+    background: #fff;
+  }
+
+  .toggle input:checked {
+    background:
+      linear-gradient(135deg, transparent 54%, #fff 55% 64%, transparent 65%),
+      var(--primary);
+    border-color: var(--primary);
+  }
+
+  #event .map-card .button-row,
+  .organizer-map-card .button-row,
+  .admin-route-card .button-row,
+  .map-picker-panel .button-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  #event .map-card .button-row > *,
+  .organizer-map-card .button-row > *,
+  .admin-route-card .button-row > *,
+  .map-picker-panel .button-row > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #event .map-card .button-row .route-saved-list,
+  #event .map-card .button-row #route-select,
+  .map-picker-panel .button-row + select,
+  .map-picker-panel .route-saved-list {
+    grid-column: 1 / -1;
+  }
+
+  .route-saved-list {
+    gap: 6px;
+  }
+
+  .saved-route-row {
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.04);
+  }
+
+  .saved-route-row input {
+    min-height: 42px;
+    background: #fff;
+  }
+
+  .route-map,
+  .city-map,
+  .map-picker-canvas {
+    touch-action: pan-x pan-y;
+  }
+
+  .leaflet-control-container,
+  .maplibregl-control-container {
+    font-size: 12px;
+  }
+
+  .leaflet-control-zoom a,
+  .maplibregl-ctrl button {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .checkpoint-list,
+  .attendance,
+  .list,
+  .admin-list,
+  .match-members,
+  .post-list {
+    gap: 10px;
+  }
+
+  .match-chat-feed {
+    height: min(46svh, 340px);
+    padding-right: 0;
+  }
+
+  .match-chat-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .match-chat-message {
+    border-radius: 14px;
+  }
+
+  .match-chat-form input,
+  .ai-chat-field {
+    border-radius: 14px;
+  }
+
+  .spot-details,
+  .notice,
+  .reward-callout,
+  .map-footnote,
+  .picker-tip {
+    border-radius: 12px;
+  }
+
+  .post-preview,
+  .post-item img,
+  .admin-post-image {
+    max-height: 260px;
+    object-fit: cover;
+  }
+
+  .myrun-panel-head,
+  .admin-topbar,
+  .admin-section > .card-header {
+    gap: 10px;
+  }
+
+  .myrun-mini-stat,
+  .myrun-rank-chip {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-login-panel {
+    display: grid;
+    align-content: start;
+    padding-top: 8px;
+  }
+
+  .admin-login-copy {
+    gap: 10px;
+  }
+
+  .admin-login-copy h1 {
+    font-size: clamp(2rem, 10vw, 2.6rem);
+  }
+
+  .admin-top-actions,
+  .admin-form-actions,
+  .admin-pagination {
+    width: 100%;
+  }
+
+  .admin-row-actions,
+  .admin-comment-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-row-actions select {
+    grid-column: 1 / -1;
+  }
+
+  .admin-row-meta span {
+    justify-content: flex-start;
+  }
+
+  .admin-event-fields {
+    gap: 12px;
+  }
+
+  .admin-route-card {
+    padding: 12px;
+  }
+
+  .map-picker-modal {
+    background: #f7f8fa;
+  }
+
+  .map-picker-card {
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .map-picker-body {
+    min-height: 0;
+  }
+
+  .map-picker-panel {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .picker-heading {
+    width: 100%;
+  }
+
+  .picker-types {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .picker-types .pill-button {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 6px;
+    font-size: 0.78rem;
+  }
+
+  .ai-trainer-card {
+    min-height: calc(100svh - 150px);
+  }
+
+  .ai-chat-profile-form,
+  .ai-chat-input {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-chat-messages {
+    min-height: 300px;
+    max-height: 55svh;
+    border-radius: 14px;
+  }
+
+  .ai-chat-bubble {
+    max-width: 96%;
+    border-radius: 14px;
+  }
+
+  .site-footer {
+    padding-bottom: calc(var(--mobile-nav-height) + 24px + env(safe-area-inset-bottom));
+  }
+
+  .toast {
+    z-index: 7000;
+    bottom: calc(var(--mobile-nav-height) + 16px + env(safe-area-inset-bottom));
+  }
+
+  body.modal-open .toast,
+  body.run-mode-active .toast {
+    bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 520px) {
+  :root {
+    --mobile-page-pad: 10px;
+    --mobile-nav-height: 72px;
+  }
+
+  .section {
+    padding-inline: var(--mobile-page-pad);
+  }
+
+  .hero {
+    width: calc(100% + (var(--mobile-page-pad) * 2));
+    margin-inline: calc(var(--mobile-page-pad) * -1);
+  }
+
+  .brand-logo {
+    max-width: 100%;
+  }
+
+  .header-actions {
+    width: calc(100vw - 24px);
+  }
+
+  .nav-link {
+    min-width: 66px;
+    max-width: 86px;
+    min-height: 44px;
+    padding-inline: 8px;
+  }
+
+  .hero-card {
+    display: none;
+  }
+
+  .hero .lead {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hero-stat-item {
+    min-height: 72px;
+    display: grid;
+    align-content: center;
+  }
+
+  .filters,
+  #event .map-card .button-row,
+  .organizer-map-card .button-row,
+  .admin-route-card .button-row,
+  .map-picker-panel .button-row,
+  .admin-row-actions,
+  .admin-comment-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-info {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .run-tracker-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .run-tracker-stats strong {
+    overflow-wrap: anywhere;
+  }
+
+  .badge-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .badge-card {
+    min-height: 154px;
+  }
+
+  .badge-copy span {
+    font-size: 0.82rem;
+  }
+
+  .picker-types {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .map-picker-canvas {
+    min-height: 300px;
+    height: 48svh;
+  }
+
+  .map-picker-panel {
+    max-height: 42svh;
+  }
+
+  .admin-login-points,
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-stat-card {
+    padding: 12px;
+  }
+
+  .admin-stat-value {
+    font-size: 1.8rem;
+  }
+
+  .admin-search {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-actions,
+  .hero-stats,
+  .detail-info,
+  .run-tracker-stats,
+  .badge-gallery,
+  .admin-login-points,
+  .admin-stats-grid,
+  .picker-types {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-link {
+    min-width: 62px;
+    font-size: 0.72rem;
+  }
+
+  .primary-button,
+  .outline-button,
+  .ghost-button,
+  .pill-button {
+    font-size: 0.9rem;
+  }
+
+  .run-mode-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
