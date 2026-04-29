@@ -1,4 +1,4 @@
-window.GORUNNERS_API = "http://127.0.0.1:8000";
+window.GORUNNERS_API = "https://gorunners-api.onrender.com";
 
 // Map provider for China-friendly local previews.
 // Use "amap" for Gaode/AutoNavi tiles, or "osm" for OpenStreetMap tiles.
