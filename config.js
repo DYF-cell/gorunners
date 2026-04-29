@@ -23,7 +23,9 @@ window.GORUNNERS_AI_TRAINERS = [
     label: { en: "GoRunner AI Trainer", zh: "GoRunner AI训练师" },
     mode: "embed",
     useDifyParameters: false,
-    iframeSrc: "http://127.0.0.1/chatbot/YcT9FHuccNmapXDu",
+    // Source from the AI agent iframe snippet. The iframe element in index.html
+    // already provides width/height, frameborder, and microphone permission.
+    iframeSrc: "http://47.86.49.31/chatbot/EHL3lIJIRtssMjQh",
     inputForm: [
       {
         key: "running_level",
