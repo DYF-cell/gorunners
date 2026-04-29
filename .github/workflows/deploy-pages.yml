@@ -27,7 +27,8 @@ jobs:
       - name: Prepare artifact
         run: |
           mkdir -p dist
-          cp index.html app.js data.js styles.css config.js dist/
+          cp index.html admin.html app.js admin.js data.js styles.css config.js image.png dist/
+          cp -r assets dist/assets
           cp -r ai-logs dist/ai-logs
 
       - name: Upload artifact

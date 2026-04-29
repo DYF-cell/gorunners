@@ -43,6 +43,22 @@ select {
   font: inherit;
 }
 
+html {
+  overflow-x: hidden;
+  scroll-padding-top: 92px;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img,
+video,
+iframe,
+canvas {
+  max-width: 100%;
+}
+
 .skip-link {
   position: absolute;
   left: -999px;
@@ -207,6 +223,7 @@ select {
 .ghost-button {
   border-radius: 8px;
   padding: 12px 20px;
+  min-height: 44px;
   border: 1px solid transparent;
   cursor: pointer;
   font-weight: 600;
@@ -472,16 +489,22 @@ h2 {
   border-radius: 8px;
   border: 1px solid rgba(24, 20, 18, 0.08);
   box-shadow: var(--shadow);
+  min-height: 44px;
 }
 
 .input-pill input,
 .input-pill select,
 select,
 input[type="text"],
-input[type="number"] {
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea {
   border: none;
   outline: none;
   background: transparent;
+  min-width: 0;
 }
 
 .pill-group {
@@ -3397,5 +3420,588 @@ body.resizing-map-picker-panel {
 
   .admin-row-meta span {
     white-space: normal;
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    scroll-padding-top: 132px;
+  }
+
+  body {
+    background: #f6f7f9;
+  }
+
+  .site-header {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px 12px 12px;
+    align-items: stretch;
+  }
+
+  .brand {
+    justify-content: space-between;
+  }
+
+  .brand-logo {
+    font-size: 1.42rem;
+  }
+
+  .main-nav {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 6px;
+    width: calc(100vw - 24px);
+    margin-inline: -2px;
+    padding: 2px 2px 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+
+  .main-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-link {
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: 9px 12px;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+
+  .header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .header-actions > *,
+  .header-actions button,
+  .header-actions a {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .header-actions .lang-button {
+    min-width: 0;
+  }
+
+  .user-chip {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .user-chip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .section {
+    padding: 36px 14px;
+  }
+
+  .section-header {
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 9vw, 2.65rem);
+  }
+
+  h2 {
+    font-size: clamp(1.65rem, 8vw, 2.15rem);
+    line-height: 1.08;
+  }
+
+  .lead,
+  .section-subtitle,
+  .body {
+    font-size: 0.98rem;
+  }
+
+  .hero {
+    width: calc(100% + 28px);
+    margin-inline: -14px;
+    border-radius: 0;
+    min-height: calc(100svh - 132px);
+    padding: 42px 14px 28px;
+    align-items: end;
+  }
+
+  .hero-inner {
+    gap: 16px;
+  }
+
+  .hero .lead {
+    margin: 16px 0 22px;
+  }
+
+  .hero-card,
+  .card,
+  .match-chat-card {
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .hero-card {
+    display: grid;
+    gap: 12px;
+  }
+
+  .hero-card-body {
+    display: grid;
+    gap: 8px;
+  }
+
+  .info-row {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 10px;
+    margin: 0;
+  }
+
+  .info-row strong {
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .grid,
+  .grid.two,
+  .grid.three,
+  .match-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .filters .input-pill:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .input-pill,
+  .input-pill input,
+  .input-pill select,
+  select,
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea {
+    width: 100%;
+  }
+
+  .detail-card .detail-header,
+  .map-header,
+  .card-header,
+  .match-chat-head,
+  .post-meta,
+  .attendance-row,
+  .admin-comment-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .event-card .badge {
+    position: static;
+    justify-self: start;
+  }
+
+  .detail-info {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .button-row,
+  .post-actions,
+  .footer-actions,
+  .admin-top-actions,
+  .admin-pagination-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .button-row > *,
+  .post-actions > *,
+  .footer-actions > *,
+  .admin-top-actions > *,
+  .admin-pagination-controls > * {
+    width: 100%;
+  }
+
+  .route-saved-list,
+  .saved-route-row {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .saved-route-row {
+    grid-template-columns: 1fr;
+  }
+
+  .route-map,
+  .route-map.map-3d,
+  #event .route-map,
+  .organizer-route-map,
+  .admin-route-card .organizer-route-map,
+  .city-map {
+    height: min(62vh, 360px);
+    min-height: 280px;
+    border-radius: 8px;
+  }
+
+  .run-tracker-panel {
+    padding: 10px;
+  }
+
+  .checkpoint,
+  .match-member,
+  .leaderboard-item,
+  .badge-item,
+  .list-item,
+  .post-item {
+    align-items: flex-start;
+  }
+
+  .match-member,
+  .badge-item,
+  .post-buttons {
+    flex-direction: column;
+  }
+
+  .match-member-meta {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .badge-gallery {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .badge-card {
+    min-height: 190px;
+  }
+
+  .badge-emblem {
+    width: 88px;
+    height: 88px;
+    transform: none;
+  }
+
+  .post-list {
+    max-height: none;
+    padding-right: 0;
+  }
+
+  .ai-trainer-card {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .ai-trainer-card > .card-header,
+  .ai-trainer-card > .notice {
+    margin: 16px;
+  }
+
+  .ai-embed {
+    border-radius: 0;
+    border-inline: 0;
+  }
+
+  .ai-embed iframe {
+    min-height: calc(100svh - 180px);
+  }
+
+  .site-footer {
+    padding: 28px 14px 40px;
+  }
+
+  .toast {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    text-align: center;
+  }
+
+  .modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-height: 92svh;
+    overflow: auto;
+    border-radius: 16px 16px 0 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  }
+
+  .modal-header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .map-picker-modal {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .map-picker-card {
+    width: 100%;
+    min-height: 100svh;
+    border-radius: 0;
+    border: 0;
+    padding: 12px;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .map-picker-head {
+    align-items: flex-start;
+  }
+
+  .map-picker-head .ghost-button {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .map-picker-body {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0;
+    min-height: 0;
+  }
+
+  .map-picker-panel {
+    max-height: 42svh;
+    min-height: 0;
+    border-radius: 0 0 8px 8px;
+    border-top: 0;
+    padding: 12px;
+  }
+
+  .map-picker-resize-handle {
+    display: none;
+  }
+
+  .map-picker-canvas {
+    min-height: 42svh;
+    height: 50svh;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    border-radius: 8px 8px 0 0;
+  }
+
+  .picker-steps {
+    display: none;
+  }
+
+  .picker-types {
+    width: 100%;
+  }
+
+  .picker-types .pill-button {
+    flex: 1 1 calc(33.33% - 8px);
+  }
+
+  .admin-page {
+    padding: 18px 12px 40px;
+  }
+
+  .admin-login-panel {
+    min-height: auto;
+    gap: 16px;
+  }
+
+  .admin-login-copy .lead {
+    margin-bottom: 0;
+  }
+
+  .admin-login-points {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .admin-login-points .pill {
+    text-align: center;
+  }
+
+  .admin-console {
+    gap: 16px;
+  }
+
+  .admin-stats-grid,
+  .admin-layout,
+  .admin-mini-form,
+  .admin-event-workspace,
+  .admin-event-fields {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .admin-row {
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .admin-row-actions,
+  .admin-comment-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-row-actions select,
+  .admin-row-actions button {
+    min-height: 46px;
+  }
+
+  .admin-row-meta {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .admin-pagination {
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 520px) {
+  .header-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .filters,
+  .badge-gallery,
+  .admin-login-points {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: auto;
+  }
+
+  .hero-stats {
+    gap: 8px;
+    margin-top: 22px;
+  }
+
+  .hero-stat-item {
+    padding: 10px 12px;
+  }
+
+  .card-title {
+    line-height: 1.2;
+  }
+
+  .primary-button,
+  .outline-button,
+  .ghost-button,
+  .pill-button {
+    padding-inline: 12px;
+  }
+
+  .route-point-marker span,
+  .run-world-point span,
+  .amap-3d-route-marker span {
+    width: 42px;
+    height: 42px;
+    border-width: 3px;
+    font-size: 0.95rem;
+  }
+
+  .map-picker-head {
+    gap: 10px;
+  }
+
+  .map-picker-head .card-subtitle {
+    display: none;
+  }
+
+  .picker-types .pill-button {
+    flex-basis: calc(50% - 8px);
+  }
+
+  .run-mode-topbar {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    gap: 10px;
+  }
+
+  .run-mode-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .run-mode-actions .primary-button,
+  .run-mode-actions .outline-button {
+    grid-column: span 2;
+  }
+
+  .run-scene-status {
+    top: 204px;
+    left: 10px;
+    right: 10px;
+  }
+
+  .run-mode-minimap {
+    top: 270px;
+    right: 10px;
+    width: 38vw;
+    min-width: 132px;
+  }
+
+  .road-recognition-hud {
+    top: 270px;
+    left: 10px;
+    width: calc(62vw - 24px);
+  }
+
+  .run-mode-hud {
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+
+  .run-cue {
+    padding: 12px;
+  }
+
+  .run-cue strong {
+    font-size: 2rem;
+  }
+
+  .run-mode-stat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .run-mode-stat-grid div {
+    padding: 9px;
+  }
+
+  .run-mode-stat-grid span,
+  .run-cue span,
+  .run-mode-topbar span {
+    font-size: 0.66rem;
   }
 }
