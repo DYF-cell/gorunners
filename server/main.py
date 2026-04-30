@@ -442,6 +442,13 @@ def rewrite_embed_html(html: str) -> str:
         'url("/': 'url("/dify/',
         "url('/": "url('/dify/",
         '"basePath":""': '"basePath":"/dify"',
+        'data-base-path=""': 'data-base-path="/dify"',
+        'data-api-prefix="/console/api"': 'data-api-prefix="/dify/console/api"',
+        'data-public-api-prefix="/api"': 'data-public-api-prefix="/dify/api"',
+        '"/console/api': '"/dify/console/api',
+        '"/api/': '"/dify/api/',
+        "'/console/api": "'/dify/console/api",
+        "'/api/": "'/dify/api/",
     }
     rewritten = html
     for old, new in replacements.items():
