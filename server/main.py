@@ -477,8 +477,7 @@ def rewrite_embed_html(html: str) -> str:
     return rewritten
 
 
-@app.api_route("/dify/{proxy_path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
-async def dify_embed_proxy(proxy_path: str, request: Request) -> Response:
+async def proxy_dify_request(proxy_path: str, request: Request) -> Response:
     target_url = build_dify_embed_url(proxy_path, request.url.query)
     body = await request.body()
     if request.method in {"GET", "HEAD"}:
@@ -546,6 +545,46 @@ async def dify_embed_proxy(proxy_path: str, request: Request) -> Response:
         response_headers["Content-Type"] = guessed or "application/octet-stream"
 
     return Response(content=upstream_body, status_code=status_code, headers=response_headers)
+
+
+@app.api_route("/dify/{proxy_path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
+async def dify_embed_proxy(proxy_path: str, request: Request) -> Response:
+    return await proxy_dify_request(proxy_path, request)
+
+
+@app.api_route("/_next/{proxy_path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
+async def dify_next_proxy(proxy_path: str, request: Request) -> Response:
+    return await proxy_dify_request(f"_next/{proxy_path}", request)
+
+
+@app.api_route("/api/{proxy_path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
+async def dify_public_api_proxy(proxy_path: str, request: Request) -> Response:
+    return await proxy_dify_request(f"api/{proxy_path}", request)
+
+
+@app.api_route("/console/api/{proxy_path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
+async def dify_console_api_proxy(proxy_path: str, request: Request) -> Response:
+    return await proxy_dify_request(f"console/api/{proxy_path}", request)
+
+
+@app.api_route("/manifest.json", methods=["GET", "HEAD"], include_in_schema=False)
+async def dify_manifest_proxy(request: Request) -> Response:
+    return await proxy_dify_request("manifest.json", request)
+
+
+@app.api_route("/browserconfig.xml", methods=["GET", "HEAD"], include_in_schema=False)
+async def dify_browserconfig_proxy(request: Request) -> Response:
+    return await proxy_dify_request("browserconfig.xml", request)
+
+
+@app.api_route("/apple-touch-icon.png", methods=["GET", "HEAD"], include_in_schema=False)
+async def dify_apple_touch_icon_proxy(request: Request) -> Response:
+    return await proxy_dify_request("apple-touch-icon.png", request)
+
+
+@app.api_route("/icon-192x192.png", methods=["GET", "HEAD"], include_in_schema=False)
+async def dify_icon_proxy(request: Request) -> Response:
+    return await proxy_dify_request("icon-192x192.png", request)
 
 
 def quote_identifier(identifier: str) -> str:
