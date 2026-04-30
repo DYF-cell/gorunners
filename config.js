@@ -1,4 +1,4 @@
-window.GORUNNERS_API = "http://127.0.0.1:8000";
+window.GORUNNERS_API = "https://gorunners-api.onrender.com";
 
 // Map provider for China-friendly local previews.
 // Use "amap" for Gaode/AutoNavi tiles, or "osm" for OpenStreetMap tiles.
@@ -23,9 +23,7 @@ window.GORUNNERS_AI_TRAINERS = [
     label: { en: "GoRunner AI Trainer", zh: "GoRunner AI训练师" },
     mode: "embed",
     useDifyParameters: false,
-    // Source from the AI agent iframe snippet. The iframe element in index.html
-    // already provides width/height, frameborder, and microphone permission.
-    iframeSrc: "http://47.86.49.31/chatbot/EHL3lIJIRtssMjQh",
+    iframeSrc: "http://47.86.49.31/chatbot/nkgQF7Do43ZD28Fh",
     inputForm: [
       {
         key: "running_level",
