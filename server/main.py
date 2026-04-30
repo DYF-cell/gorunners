@@ -4,6 +4,7 @@ import base64
 import hashlib
 import hmac
 import json
+import mimetypes
 import os
 import secrets
 import uuid
@@ -12,10 +13,10 @@ import urllib.request
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urljoin, urlsplit
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
+from fastapi import Depends, FastAPI, File, HTTPException, Request, Response, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.staticfiles import StaticFiles
@@ -39,6 +40,7 @@ PASSWORD_ITERATIONS = 390000
 
 DIFY_BASE_URL = os.getenv("DIFY_BASE_URL", "").rstrip("/")
 DIFY_API_KEY = os.getenv("DIFY_API_KEY", "")
+DIFY_EMBED_BASE_URL = os.getenv("DIFY_EMBED_BASE_URL", "http://47.86.49.31").rstrip("/")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -418,6 +420,92 @@ app.add_middleware(
 )
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+
+def build_dify_embed_url(request_path: str, query: str) -> str:
+    base = f"{DIFY_EMBED_BASE_URL}/"
+    joined = urljoin(base, request_path.lstrip("/"))
+    if query:
+        return f"{joined}?{query}"
+    return joined
+
+
+def rewrite_embed_html(html: str) -> str:
+    # Keep absolute resource links inside the proxy namespace.
+    replacements = {
+        'href="/': 'href="/dify/',
+        'src="/': 'src="/dify/',
+        'action="/': 'action="/dify/',
+        'fetch("/': 'fetch("/dify/',
+        "fetch('/": "fetch('/dify/",
+        'url("/': 'url("/dify/',
+        "url('/": "url('/dify/",
+        '"basePath":""': '"basePath":"/dify"',
+    }
+    rewritten = html
+    for old, new in replacements.items():
+        rewritten = rewritten.replace(old, new)
+    return rewritten
+
+
+@app.api_route("/dify/{proxy_path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
+async def dify_embed_proxy(proxy_path: str, request: Request) -> Response:
+    target_url = build_dify_embed_url(proxy_path, request.url.query)
+    body = await request.body()
+    if request.method in {"GET", "HEAD"}:
+        body = None
+
+    headers = {}
+    for key, value in request.headers.items():
+        lower = key.lower()
+        if lower in {"host", "content-length", "connection"}:
+            continue
+        if lower == "origin":
+            headers[key] = DIFY_EMBED_BASE_URL
+            continue
+        headers[key] = value
+
+    req = urllib.request.Request(target_url, data=body, headers=headers, method=request.method)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as upstream:
+            upstream_body = upstream.read()
+            status_code = upstream.getcode()
+            content_type = upstream.headers.get("Content-Type", "")
+            raw_headers = dict(upstream.headers.items())
+    except urllib.error.HTTPError as error:
+        upstream_body = error.read()
+        status_code = error.code
+        content_type = error.headers.get("Content-Type", "") if error.headers else ""
+        raw_headers = dict(error.headers.items()) if error.headers else {}
+    except urllib.error.URLError:
+        raise HTTPException(status_code=502, detail="Dify embed service unreachable")
+
+    if "text/html" in content_type.lower():
+        decoded = upstream_body.decode("utf-8", errors="ignore")
+        upstream_body = rewrite_embed_html(decoded).encode("utf-8")
+
+    response_headers = {}
+    for key, value in raw_headers.items():
+        lower = key.lower()
+        if lower in {"content-length", "transfer-encoding", "connection", "content-encoding"}:
+            continue
+        if lower in {"x-frame-options", "content-security-policy"}:
+            continue
+        if lower == "location":
+            parsed = urlsplit(value)
+            if parsed.netloc:
+                value = f"/dify{parsed.path}"
+                if parsed.query:
+                    value += f"?{parsed.query}"
+            elif value.startswith("/"):
+                value = f"/dify{value}"
+        response_headers[key] = value
+
+    if "content-type" not in {k.lower() for k in response_headers}:
+        guessed, _ = mimetypes.guess_type(proxy_path)
+        response_headers["Content-Type"] = guessed or "application/octet-stream"
+
+    return Response(content=upstream_body, status_code=status_code, headers=response_headers)
 
 
 def quote_identifier(identifier: str) -> str:
