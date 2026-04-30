@@ -695,7 +695,7 @@ const sampleUpdates = {
 const defaultAiTrainer = {
   id: "default",
   label: { en: "GoRunner AI Trainer", zh: "GoRunner AIÑµÁ·Ê¦" },
-  iframeSrc: "https://gorunners-api.onrender.com/dify/chatbot/EHL3lIJIRtssMjQh",
+  iframeSrc: "https://dify.junhong.asia/chatbot/EHL3lIJIRtssMjQh",
 };
 
 const dom = {

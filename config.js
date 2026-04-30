@@ -23,7 +23,7 @@ window.GORUNNERS_AI_TRAINERS = [
     label: { en: "GoRunner AI Trainer", zh: "GoRunner AI训练师" },
     mode: "embed",
     useDifyParameters: false,
-    iframeSrc: "https://gorunners-api.onrender.com/dify/chatbot/EHL3lIJIRtssMjQh",
+    iframeSrc: "https://dify.junhong.asia/chatbot/EHL3lIJIRtssMjQh",
     inputForm: [
       {
         key: "running_level",
