@@ -450,6 +450,13 @@ def rewrite_embed_html(html: str) -> str:
         '"/api/': '"/dify/api/',
         "'/console/api": "'/dify/console/api",
         "'/api/": "'/dify/api/",
+        '\\"/_next/': '\\"/dify/_next/',
+        '\\"/manifest.json': '\\"/dify/manifest.json',
+        '\\"/browserconfig.xml': '\\"/dify/browserconfig.xml',
+        '\\"/apple-touch-icon.png': '\\"/dify/apple-touch-icon.png',
+        '\\"/icon-': '\\"/dify/icon-',
+        '\\"/console/api': '\\"/dify/console/api',
+        '\\"/api/': '\\"/dify/api/',
     }
     rewritten = html
     for old, new in replacements.items():
@@ -464,6 +471,9 @@ def rewrite_embed_html(html: str) -> str:
     # Disable localhost websocket endpoint from upstream page to avoid dead socket init in embed.
     rewritten = rewritten.replace('data-socket-url="ws://localhost"', 'data-socket-url=""')
     rewritten = rewritten.replace('\\"data-socket-url\\":\\"ws://localhost\\"', '\\"data-socket-url\\":\\"\\"')
+    # The Dify web app can render differently when embedded; keep the proxied page iframe-friendly.
+    rewritten = rewritten.replace('data-allow-embed="false"', 'data-allow-embed="true"')
+    rewritten = rewritten.replace('\\"data-allow-embed\\":\\"false\\"', '\\"data-allow-embed\\":\\"true\\"')
     return rewritten
 
 
