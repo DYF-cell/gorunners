@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import gzip
 import hashlib
 import hmac
 import json
@@ -460,10 +461,13 @@ async def dify_embed_proxy(proxy_path: str, request: Request) -> Response:
         lower = key.lower()
         if lower in {"host", "content-length", "connection"}:
             continue
+        if lower == "accept-encoding":
+            continue
         if lower == "origin":
             headers[key] = DIFY_EMBED_BASE_URL
             continue
         headers[key] = value
+    headers["Accept-Encoding"] = "identity"
 
     req = urllib.request.Request(target_url, data=body, headers=headers, method=request.method)
     try:
@@ -480,14 +484,22 @@ async def dify_embed_proxy(proxy_path: str, request: Request) -> Response:
     except urllib.error.URLError:
         raise HTTPException(status_code=502, detail="Dify embed service unreachable")
 
+    content_encoding = raw_headers.get("Content-Encoding", "")
     if "text/html" in content_type.lower():
-        decoded = upstream_body.decode("utf-8", errors="ignore")
+        html_body = upstream_body
+        if "gzip" in content_encoding.lower():
+            try:
+                html_body = gzip.decompress(upstream_body)
+                raw_headers.pop("Content-Encoding", None)
+            except OSError:
+                pass
+        decoded = html_body.decode("utf-8", errors="ignore")
         upstream_body = rewrite_embed_html(decoded).encode("utf-8")
 
     response_headers = {}
     for key, value in raw_headers.items():
         lower = key.lower()
-        if lower in {"content-length", "transfer-encoding", "connection", "content-encoding"}:
+        if lower in {"content-length", "transfer-encoding", "connection"}:
             continue
         if lower in {"x-frame-options", "content-security-policy"}:
             continue
