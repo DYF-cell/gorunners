@@ -7,6 +7,7 @@ import hmac
 import json
 import mimetypes
 import os
+import re
 import secrets
 import uuid
 import urllib.error
@@ -453,6 +454,16 @@ def rewrite_embed_html(html: str) -> str:
     rewritten = html
     for old, new in replacements.items():
         rewritten = rewritten.replace(old, new)
+    # Patch Next.js inlined payload values (escaped JSON strings) that are read on hydration.
+    rewritten = re.sub(r'("data-base-path"\s*:\s*)"[^"]*"', r'\1"/dify"', rewritten)
+    rewritten = re.sub(r'(\\"data-base-path\\"\s*:\s*\\")[^\\"]*(\\")', r'\1/dify\2', rewritten)
+    rewritten = re.sub(r'("data-public-api-prefix"\s*:\s*)"/api"', r'\1"/dify/api"', rewritten)
+    rewritten = re.sub(r'(\\"data-public-api-prefix\\"\s*:\s*\\")/api(\\")', r'\1/dify/api\2', rewritten)
+    rewritten = re.sub(r'("data-api-prefix"\s*:\s*)"/console/api"', r'\1"/dify/console/api"', rewritten)
+    rewritten = re.sub(r'(\\"data-api-prefix\\"\s*:\s*\\")/console/api(\\")', r'\1/dify/console/api\2', rewritten)
+    # Disable localhost websocket endpoint from upstream page to avoid dead socket init in embed.
+    rewritten = rewritten.replace('data-socket-url="ws://localhost"', 'data-socket-url=""')
+    rewritten = rewritten.replace('\\"data-socket-url\\":\\"ws://localhost\\"', '\\"data-socket-url\\":\\"\\"')
     return rewritten
 
 
