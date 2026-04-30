@@ -695,7 +695,7 @@ const sampleUpdates = {
 const defaultAiTrainer = {
   id: "default",
   label: { en: "GoRunner AI Trainer", zh: "GoRunner AI训练师" },
-  iframeSrc: "http://47.86.49.31/chatbot/EHL3lIJIRtssMjQh",
+  iframeSrc: "http://47.86.49.31/chatbot/nkgQF7Do43ZD28Fh",
 };
 
 const dom = {
