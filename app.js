@@ -56,7 +56,7 @@ const i18n = {
     ai_select_placeholder: "Select a trainer",
     ai_empty: "Configure trainer embed URLs in config.js to enable this panel.",
     ai_input_label: "Message",
-    ai_input_placeholder: "Ask the trainer¡­",
+    ai_input_placeholder: "Ask the trainerâ€¦",
     ai_send: "Send",
     ai_clear: "Clear",
     ai_chat_unavailable: "AI chat is not configured on the server.",
@@ -65,7 +65,7 @@ const i18n = {
     ai_profile_subtitle: "Fill the required info once, then start chatting.",
     ai_profile_save: "Save",
     ai_profile_missing: "Please complete the required fields first.",
-    ai_profile_loading: "Loading trainer setup¡­",
+    ai_profile_loading: "Loading trainer setupâ€¦",
     hero_eyebrow: "C1 Go Runners - Wuming Run Crew Edition",
     hero_title: "Run together, feel connected, play the route.",
     hero_lead:
@@ -361,325 +361,325 @@ const i18n = {
     toast_match_saved: "Matching preferences saved.",
   },
   zh: {
-    nav_home: "Ê×Ò³",
-    nav_explore: "»î¶¯",
-    nav_event: "ÏêÇé",
-    nav_match: "Æ¥Åä",
-    nav_community: "ÉçÇø",
-    nav_myrun: "ÎÒµÄÅÜ²½",
-    nav_organizer: "×éÖ¯Õß",
-    nav_ai_trainer: "AIÑµÁ·Ê¦Ñ¡Ôñ",
-    header_location: "¿ªÆô¶¨Î»",
-    header_admin_console: "¹ÜÀíºóÌ¨",
-    header_login: "µÇÂ¼",
-    header_logout: "ÍË³ö",
+    nav_home: "é¦–é¡µ",
+    nav_explore: "æ´»åŠ¨",
+    nav_event: "è¯¦æƒ…",
+    nav_match: "åŒ¹é…",
+    nav_community: "ç¤¾åŒº",
+    nav_myrun: "æˆ‘çš„è·‘æ­¥",
+    nav_organizer: "ç»„ç»‡è€…",
+    nav_ai_trainer: "AIè®­ç»ƒå¸ˆé€‰æ‹©",
+    header_location: "å¼€å¯å®šä½",
+    header_admin_console: "ç®¡ç†åå°",
+    header_login: "ç™»å½•",
+    header_logout: "é€€å‡º",
     ai_eyebrow: "AI",
-    ai_title: "AIÑµÁ·Ê¦",
-    ai_subtitle: "Ñ¡ÔñÒ»¸öÑµÁ·Ê¦£¬ÔÚÒ³ÃæÄÚÖ±½Ó¶Ô»°¡£",
-    ai_open: "ĞÂ´°¿Ú´ò¿ª",
-    ai_setup: "ÉèÖÃ",
-    ai_default_name: "AIÑµÁ·Ê¦",
-    ai_select_placeholder: "ÇëÑ¡ÔñAIÑµÁ·Ê¦",
-    ai_empty: "ÇëÔÚ config.js ÅäÖÃ AI ÑµÁ·Ê¦ embed URL£¬²ÅÄÜÏÔÊ¾¶Ô»°Ãæ°å¡£",
-    ai_input_label: "ÏûÏ¢",
-    ai_input_placeholder: "ÎÊÑµÁ·Ê¦Ò»¸öÎÊÌâ¡­",
-    ai_send: "·¢ËÍ",
-    ai_clear: "Çå¿Õ",
-    ai_chat_unavailable: "·şÎñÆ÷ÉĞÎ´ÅäÖÃ AI ¶Ô»°ÄÜÁ¦¡£",
-    ai_chat_error: "AI ÇëÇóÊ§°Ü£¬ÇëÉÔºóÖØÊÔ¡£",
-    ai_profile_title: "ÑµÁ·Ê¦ĞÅÏ¢",
-    ai_profile_subtitle: "ÏÈÌîĞ´±ØÌîĞÅÏ¢£¬ÔÙ¿ªÊ¼¶Ô»°¡£",
-    ai_profile_save: "±£´æ",
-    ai_profile_missing: "ÇëÏÈ²¹È«±ØÌîĞÅÏ¢¡£",
-    ai_profile_loading: "ÕıÔÚ¼ÓÔØÑµÁ·Ê¦±íµ¥¡­",
-    hero_eyebrow: "C1 Go Runners - ÎŞÃûÅÜÍÅ",
-    hero_title: "Ò»Æğ±¼ÅÜ£¬Á¬½Ó±Ë´Ë£¬Íæ×ªÂ·Ïß¡£",
-    hero_lead: "GoRunners °ïÖúÅÜÕß·¢ÏÖÏßÏÂ»î¶¯¡¢Æ¥ÅäºÏÊÊÅäËÙĞ¡×é£¬²¢ÔÚ»¥¶¯Â·ÏßÖĞ½âËø½±Àø¡£",
-    hero_cta_explore: "·¢ÏÖ»î¶¯",
-    hero_cta_match: "Æ¥ÅäÅäËÙ",
-    hero_stat_members: "»îÔ¾³ÉÔ±",
-    hero_stat_runs: "±¾ÖÜ»î¶¯",
-    hero_stat_badges: "»ÕÕÂÒÑ½âËø",
-    spotlight_title: "½ñÍíÍÆ¼ö",
-    label_time: "Ê±¼ä",
-    label_meetup: "¼¯ºÏµã",
-    label_pace: "ÅäËÙ",
-    label_perks: "»¥¶¯½±Àø",
-    spotlight_cta: "Á¢¼´±¨Ãû",
-    explore_eyebrow: "·¢ÏÖ",
-    explore_title: "Ì½Ë÷ÏßÏÂÅÜ²½»î¶¯",
-    search_placeholder: "ËÑË÷»î¶¯Ãû³Æ»ò±êÇ©",
-    filter_distance: "¾àÀë",
-    filter_short: "0-4 ¹«Àï",
-    filter_medium: "5-8 ¹«Àï",
-    filter_long: "9+ ¹«Àï",
-    filter_level: "ÄÑ¶È",
-    level_beginner: "ĞÂÊÖ",
-    level_intermediate: "½ø½×",
-    level_advanced: "¸ß¼¶",
-    filter_time: "Ê±¼ä",
-    time_morning: "ÔçÉÏ",
-    time_afternoon: "ÏÂÎç",
-    time_evening: "ÍíÉÏ",
-    detail_eyebrow: "ÏêÇé",
-    detail_title: "»î¶¯ÏêÇé",
-    label_distance: "¾àÀë",
-    label_pace_range: "ÅäËÙ·¶Î§",
-    button_register: "Á¢¼´±¨Ãû",
-    button_preview: "Ô¤ÀÀÂ·Ïß",
-    map_title: "»¥¶¯Â·ÏßµØÍ¼",
-    run_distance_label: "¾àÀë",
-    run_time_label: "ÓÃÊ±",
-    run_speed_label: "ËÙ¶È",
-    run_pace_label: "Æ½¾ùÅäËÙ",
-    run_accuracy_label: "GPS ¾«¶È",
-    run_status_label: "×´Ì¬",
-    run_status_idle: "GPS ´ıÃü",
-    run_status_tracking: "×·×ÙÖĞ",
-    run_status_waiting: "µÈ´ı GPS",
-    button_run_start: "¿ªÊ¼ÅÜ²½",
-    button_run_stop: "½áÊøÅÜ²½",
-    button_run_follow: "¸úËæĞ¡ÈË",
-    button_run_camera: "ÉãÏñÍ·",
-    button_run_3d_map: "·µ»Ø 3D µØÍ¼",
-    button_run_camera_flip: "·­×ª",
-    button_run_exit_view: "ÍË³öÊÓÍ¼",
-    run_mode_label: "ÅÜ²½Ä£Ê½",
-    run_mode_fallback_title: "ÊµÊ±Â·ÏßÊÓÍ¼",
-    run_mode_fallback_body: "ÅäÖÃ Google Maps Key »òÔÊĞíÉãÏñÍ·È¨ÏŞºó¿É½øÈëÊµ¾°»­Ãæ¡£",
-    run_mode_camera_on: "ÉãÏñÍ·Â·ÏßÊ¶±ğÒÑ¿ªÆô",
-    run_mode_camera_flipped: "ÒÑÇĞ»»ÉãÏñÍ·¡£",
-    run_mode_camera_blocked: "ÎŞ·¨·ÃÎÊÉãÏñÍ·¡£",
-    run_mode_map_ready: "3D Â·Ïßµ¼º½ÒÑ¿ªÆô¡£",
-    run_mode_amap_loading: "ÕıÔÚ¼ÓÔØ¸ßµÂ 3D Â·Ïß...",
-    run_mode_amap_ready: "ÒÑËø¶¨¸ßµÂ 3D Â·Ïß¡£",
-    run_mode_amap_missing: "Î´ÅäÖÃ¸ßµÂ Key£¬ÒÑÊ¹ÓÃÄÚÖÃ 3D Â·ÏßµØÍ¼¡£",
-    run_mode_amap_unavailable: "¸ßµÂ 3D Ôİ²»¿ÉÓÃ£¬ÒÑÊ¹ÓÃÄÚÖÃ 3D Â·ÏßµØÍ¼¡£",
-    run_mode_google_loading: "ÕıÔÚ¼ÓÔØ Google Êµ¾°µØÍ¼...",
-    run_mode_google_ready: "ÒÑËø¶¨ Google Êµ¾°Â·Ïß¡£",
-    run_mode_google_missing: "Î´ÅäÖÃ Google Maps Key£¬ÒÑÊ¹ÓÃÉãÏñÍ·Â·ÏßÊÓÍ¼¡£",
-    run_mode_google_unavailable: "µ±Ç°Î»ÖÃÔİÎŞ½Ö¾°£¬ÒÑÊ¹ÓÃÉãÏñÍ·Â·ÏßÊÓÍ¼¡£",
-    road_recognition_label: "µÀÂ·Ëø¶¨",
-    road_recognition_waiting: "ÕıÔÚÊ¶±ğµÀÂ·...",
-    road_recognition_ready: "ÒÑÊ¶±ğµÀÂ·",
-    road_recognition_low: "ÕıÔÚÑ°ÕÒµÀÂ·",
-    run_cue_waiting: "ÕıÔÚËø¶¨Â·Ïß...",
-    run_cue_next: "ÏÂÒ»¸öÂ·Ïßµã",
-    run_cue_finish: "ÖÕµãÂ·Ïß",
-    run_instruction_waiting: "ÕıÔÚËø¶¨Â·ÏßºÍ GPS...",
-    run_instruction_start: "Ç°·½ {distance} µ½´ïÂ·Ïßµã {index}¡£",
-    run_instruction_straight: "Ç°·½ {distance} ¼ÌĞøÖ±ĞĞ¡£",
-    run_instruction_left: "Ç°·½ {distance} ×ó×ª¡£",
-    run_instruction_right: "Ç°·½ {distance} ÓÒ×ª¡£",
-    run_instruction_finish: "Ç°·½ {distance} µ½´ïÖÕµã¡£",
-    run_instruction_to_start: "Ç°·½ {distance} µ½´ï³ö·¢µã£¬È»ºó½øÈë»î¶¯Â·Ïß¡£",
-    button_reset: "ÖØÖÃ´ò¿¨",
-    button_recommend: "ÍÆ¼ö´ò¿¨µã",
-    button_plan_clear: "Çå¿Õ¹æ»®",
-    button_map_expand: "·Å´ó¹æ»®",
-    button_route_edit: "±à¼­µ±Ç°Â·Ïß",
-    button_route_done: "Íê³É±à¼­",
-    button_route_undo: "³·ÏúµãÎ»",
-    button_route_save: "±£´æÂ·Ïß",
-    button_route_update: "¸üĞÂÂ·Ïß",
-    button_route_add: "Ìí¼ÓµãÎ»",
-    button_route_delete_point: "É¾³ıµãÎ»",
-    map_footnote: "Íê³ÉËùÓĞ´ò¿¨µã¿É½âËøÂ·ÏßÌ½Ë÷»ÕÕÂ¡£",
-    map_plan_note: "µã»÷µØÍ¼¿É½øÈëÈ«ÆÁ¹æ»®£¬°´ÌáÊ¾Ìí¼Ó²¹Ë®ºÍÂ·Ïß±ê×¢¡£",
-    map_edit_hint: "´Ë´¦¿É±à¼­µ±Ç°Â·Ïß£»ĞÂÔöµãÎ»Çëµã»÷¡°·Å´ó¹æ»®¡±¡£",
-    route_select_placeholder: "ÒÑ±£´æÂ·Ïß",
-    route_name_placeholder: "Â·ÏßÃû³Æ",
-    route_saved_empty: "ÔİÎŞ±£´æÂ·Ïß¡£",
-    map_picker_title: "Â·Ïß¹æ»®Ãæ°å",
-    map_picker_subtitle: "Ñ¡Ôñ²¹Ë®µã¡¢´ò¿¨µãÓëÅäËÙ²ßÂÔÎ»ÖÃ¡£",
-    map_picker_close: "¹Ø±Õ",
-    map_picker_steps_title: "µØµãÑ¡Ôñ²½Öè",
-    map_picker_step_1: "ÏÈÑ¡Ôñ±ê×¢ÀàĞÍ",
-    map_picker_step_2: "µã»÷µØÍ¼»òÍÆ¼öµãÎ»",
-    map_picker_step_3: "È·ÈÏºó±£´æ",
-    map_picker_hint_checkpoint: "ÊÊºÏÉèÖÃ¼¯ºÏµã£¬°ïÖú¶ÓÎé±£³Ö½Ú×à¡£",
-    map_picker_hint_water: "½¨ÒéÉèÖÃÔÚÖĞ¶Î£¬·½±ã²¹Ë®ºÍ¶ÌÔİ»Ö¸´¡£",
-    map_picker_hint_photo: "±ê¼Ç·ç¾°Î»£¬±ãÓÚºÏÓ°ºÍ»î¶¯·ÖÏí¡£",
-    map_picker_hint_start: "ÓÃÓÚ»î¶¯¼¯ºÏÓëÈÈÉíÆğµã¡£",
-    map_picker_hint_finish: "ÓÃÓÚÖÕµã³åÏßÓë·ÅËÉÇøÓò¡£",
-    map_picker_suggestions: "ÍÆ¼öÂ·ÏßµãÎ»",
-    map_picker_note_label: "±ê×¢±¸×¢",
-    map_picker_note_placeholder: "ÀıÈç£ºÂıÅäËÙ¼¯ºÏµã",
-    map_picker_note_help: "µã»÷µØÍ¼»áÖ±½ÓÌí¼ÓÂ·ÏßµãÎ»¡£µãÎ»Ë³ĞòºÏÊÊºó£¬±£´æÂ·Ïß¼´¿É¡£",
-    map_picker_coords_empty: "ÉĞÎ´Ñ¡ÔñµãÎ»¡£",
-    map_picker_coords_value: "ÒÑÑ¡×ø±ê£º{lat}, {lng}",
-    map_picker_cancel: "È¡Ïû",
-    map_picker_save: "±£´æ±ê×¢",
-    match_eyebrow: "Æ¥Åä",
-    match_title: "ÅäËÙ·Ö×éÆ¥Åä",
-    match_subtitle: "¸æËßÎÒÃÇÄãµÄÅäËÙÓëÄ¿±ê£¬ÎÒÃÇ»áÍÆ¼öÊÊºÏµÄĞ¡×éºÍ»î¶¯¡£",
-    match_experience_label: "ÅÜ²½¾­Ñé",
-    match_goal_label: "½ñÈÕÄ¿±ê",
-    match_pace_label: "Æ«ºÃÅäËÙ (·ÖÖÓ/¹«Àï)",
-    match_style_label: "ÅÜ²½·ç¸ñ",
-    goal_social: "Éç½»",
-    goal_stress: "¼õÑ¹",
-    goal_training: "ÑµÁ·",
-    goal_pb: "ÌôÕ½PB",
-    style_buddy: "´î×Ó",
-    style_group: "Ğ¡×é",
-    style_solo: "¶ÀÅÜ+Ç©µ½",
-    match_wearable: "Í¬²½´©´÷Éè±¸ÅäËÙ",
-    match_submit: "»ñÈ¡Æ¥Åä",
-    match_result_title: "ÄãµÄÆ¥Åä",
-    match_result_default: "Íê³É±íµ¥ºó²é¿´ÍÆ¼ö½á¹û¡£",
-    match_result_body: "ÎÒÃÇ½«ÍÆ¼öºÏÊÊµÄĞ¡×é¡¢¸½½ü»î¶¯ÒÔ¼°¿É½âËø½±Àø¡£",
-    match_status_idle: "ÏÈ±£´æÄãµÄÅÜ²½ÒâÏò£¬ÏµÍ³²Å»á¿ªÊ¼ºÍÕæÊµÓÃ»§Æ¥Åä¡£",
-    match_status_waiting: "ÄãµÄÒâÏòÒÑ±£´æ£¬ÕıÔÚµÈ´ı¸ü¶àÑ¡ÔñÏàÍ¬Ìõ¼şµÄÅÜÕß¡£",
-    match_status_success: "Æ¥Åä³É¹¦£¬ÒÔÏÂÅÜÕßÑ¡ÔñÁËÏàÍ¬µÄÅäËÙºÍÄ¿±ê¡£",
-    match_group_title: "Í¬ºÃĞ¡×é",
-    match_group_empty: "ÔİÊ±»¹Ã»ÓĞÆ¥Åäµ½ÆäËûÅÜÕß¡£",
-    match_member_you: "Äã",
-    match_member_count: "Õâ¸öĞ¡×éÀïÓĞ {count} Î»ÅÜÕß",
-    match_saved_note: "ÄãµÄÑ¡ÔñÒÑ¾­Ğ´ÈëÆ¥Åä¿â¡£",
-    match_chat_title: "×éÄÚ½»Á÷",
-    match_chat_hint: "Õâ¸ö¹²ÏíÌû×Ó¿ÉÒÔÓÃÀ´Ô¼¼¯ºÏÊ±¼ä¡¢ÈÈÉí·½Ê½ºÍÅÜ²½Â·Ïß¡£",
-    match_chat_empty: "»¹Ã»ÓĞÏûÏ¢£¬À´·¢µÚÒ»Ìõ°É¡£",
-    match_chat_placeholder: "ºÍÍ¬×éÅÜÕß´ò¸öÕĞºô...",
-    match_chat_send: "·¢ËÍ",
-    community_eyebrow: "ÉçÇø",
-    community_title: "ËÕÖİÅÜ²½µØÍ¼Óë»¥¶¯Ìù",
-    community_subtitle: "Ì½Ë÷ËÕÖİÕæÊµµØµã£¬ÏÖ³¡Ç©µ½²¢·ÖÏíÅÜÕßĞÄµÃ¡£",
-    community_map_title: "ËÕÖİÊµÊ±µØÍ¼",
-    community_locate: "¶¨Î»ÎÒ",
-    community_checkin: "ÏÖ³¡Ç©µ½",
-    community_note: "¶¨Î»½öÓÃÓÚÕ¹Ê¾¸½½üµãÎ»ÓëÇ©µ½¡£",
-    community_feed_title: "µØµãÌû×Ó",
-    post_placeholder: "·ÖÏíÂ·Ïß½¨Òé»òÅÜ²½Ë²¼ä",
-    post_camera: "´ò¿ªÏà»ú",
-    post_submit: "·¢²¼",
-    auth_signin: "µÇÂ¼",
-    auth_register: "×¢²á",
-    auth_toggle_register: "Ã»ÓĞÕËºÅ£¿×¢²á",
-    auth_toggle_login: "ÒÑÓĞÕËºÅ£¿µÇÂ¼",
-    auth_email_label: "ÓÊÏä",
-    auth_name_label: "ĞÕÃû",
-    auth_password_label: "ÃÜÂë",
-    auth_login_button: "µÇÂ¼",
-    auth_register_button: "´´½¨ÕËºÅ",
-    myrun_eyebrow: "ÎÒµÄÅÜ²½",
-    myrun_title: "²ÎÓë½±ÀøÓë½ø¶È",
-    myrun_subtitle: "¹ÄÀø¼á³Ö¶ø·Ç¾ºÕù£¬¼ÇÂ¼ÄãµÄÁ¬Ğø²ÎÓëÓë»ÕÕÂ¡£",
-    myrun_streak: "±¾ÖÜÁ¬Ğø",
-    myrun_streak_hint: "Á¬Ğø²Î¼Ó3´Î¿É½âËøÁ¬Ğø´ò¿¨»ÕÕÂ¡£",
-    myrun_points: "ÀÛ¼Æ»ı·Ö",
-    myrun_points_hint: "±¨Ãû¡¢´ò¿¨¡¢×é¶Ó¾ù¿É»ñµÃ»ı·Ö¡£",
-    myrun_badges: "»ÕÕÂ½âËø",
-    myrun_badges_subtitle: "°ÑÄãÒÑ¾­´ï³ÉµÄÅÜ²½³É¾Í¼¯ÖĞÕ¹Ê¾³öÀ´¡£",
-    myrun_upcoming: "ÒÑ±¨Ãû»î¶¯",
-    myrun_clear: "Çå¿Õ",
-    myrun_rank_label: "ÎÒµÄÅÅÃû",
-    myrun_leaderboard_summary: "²é¿´ÄãµÄ»ı·ÖºÍÕû¸öÅÜÍÅ³ÉÔ±µÄÅÅÃû¶Ô±È¡£",
-    myrun_leaderboard_empty: "ÔİÊ±»¹Ã»ÓĞÅÅĞĞ°ñÊı¾İ£¬ÑûÇë¸ü¶àÅÜÕß¼ÓÈë°É¡£",
-    myrun_badges_empty: "ÔİÊ±»¹Ã»ÓĞ»ñµÃ»ÕÕÂ£¬ÏÈÈ¥²Î¼ÓÒ»³¡»î¶¯°É¡£",
-    myrun_rank_fallback: "µÇÂ¼²¢²ÎÓë»î¶¯ºó»á³öÏÖÔÚÅÅĞĞ°ñÖĞ¡£",
-    myrun_points_breakdown: "µ±Ç°¹²ÓĞ {count} Î»ÅÜÕßÉÏ°ñ",
-    org_eyebrow: "×éÖ¯Õß",
-    org_title: "ÇáÁ¿»î¶¯¹ÜÀí",
-    org_subtitle: "´´½¨»î¶¯¡¢Ç©µ½¹ÜÀí¡¢ÏÖ³¡Í¨Öª£¬Ò»Õ¾Ê½¹ÜÀí¡£",
-    org_create_title: "´´½¨ĞÂ»î¶¯",
-    org_name_label: "»î¶¯Ãû³Æ",
-    org_location_label: "¼¯ºÏµØµã",
-    org_time_label: "Ê±¼äÓëÈÕÆÚ",
-    org_distance_label: "¾àÀë (¹«Àï)",
-    org_level_label: "ÄÑ¶È",
-    org_capacity_label: "ÈËÊıÉÏÏŞ",
-    org_publish: "·¢²¼»î¶¯",
-    org_attendance: "Ç©µ½Çé¿ö",
-    org_users: "ÓÃ»§¹ÜÀí",
-    org_users_load: "Ë¢ĞÂ",
-    org_admin_console: "¹ÜÀíºóÌ¨",
-    org_admin_open: "´ò¿ªºóÌ¨",
-    org_admin_description: "¹ÜÀíÔ±ÇëÔÚ¶ÀÁ¢ºóÌ¨ÖĞÍ³Ò»¹ÜÀíÓÃ»§¡¢»î¶¯ºÍÉçÇøÌû×Ó¡£",
-    org_admin_guest: "ÇëÊ¹ÓÃ¹ÜÀíÔ±ÕËºÅµÇÂ¼ºó½øÈë¶ÀÁ¢¹ÜÀíºóÌ¨¡£",
-    org_admin_ready: "ÒÑÊ¶±ğ¹ÜÀíÔ±Éí·İ£¬Çë½øÈë¶ÀÁ¢ºóÌ¨´¦ÀíÓÃ»§¡¢»î¶¯ºÍÄÚÈİÉóºË¡£",
-    org_update: "·¢ËÍÍ¨Öª",
-    org_notice: "ÔİÎŞÍ¨Öª£¬µã»÷·¢ËÍÌáĞÑÈÈÉí¡£",
-    org_map_title: "Â·Ïß¹æ»®",
-    org_map_hint: "¿Õ°×µØÍ¼£ºµã»÷Ìí¼ÓÂ·ÏßµãÎ»£¬¿ÉÍÏ¶¯Ô²µãµ÷ÕûÂ·Ïß¡£",
-    org_type_hint: "ÏÈÑ¡µãÎ»ÀàĞÍ£¬ÔÙµã»÷µØÍ¼Ìí¼Ó£»µã»÷ÒÑÓĞµãÎ»¿ÉĞŞ¸ÄÀàĞÍ¡£",
-    footer_title: "GoRunners - ÎŞÃûÅÜÍÅ",
+    ai_title: "AIè®­ç»ƒå¸ˆ",
+    ai_subtitle: "é€‰æ‹©ä¸€ä¸ªè®­ç»ƒå¸ˆï¼Œåœ¨é¡µé¢å†…ç›´æ¥å¯¹è¯ã€‚",
+    ai_open: "æ–°çª—å£æ‰“å¼€",
+    ai_setup: "è®¾ç½®",
+    ai_default_name: "AIè®­ç»ƒå¸ˆ",
+    ai_select_placeholder: "è¯·é€‰æ‹©AIè®­ç»ƒå¸ˆ",
+    ai_empty: "è¯·åœ¨ config.js é…ç½® AI è®­ç»ƒå¸ˆ embed URLï¼Œæ‰èƒ½æ˜¾ç¤ºå¯¹è¯é¢æ¿ã€‚",
+    ai_input_label: "æ¶ˆæ¯",
+    ai_input_placeholder: "é—®è®­ç»ƒå¸ˆä¸€ä¸ªé—®é¢˜â€¦",
+    ai_send: "å‘é€",
+    ai_clear: "æ¸…ç©º",
+    ai_chat_unavailable: "æœåŠ¡å™¨å°šæœªé…ç½® AI å¯¹è¯èƒ½åŠ›ã€‚",
+    ai_chat_error: "AI è¯·æ±‚å¤±è´¥ï¼Œè¯·ç¨åé‡è¯•ã€‚",
+    ai_profile_title: "è®­ç»ƒå¸ˆä¿¡æ¯",
+    ai_profile_subtitle: "å…ˆå¡«å†™å¿…å¡«ä¿¡æ¯ï¼Œå†å¼€å§‹å¯¹è¯ã€‚",
+    ai_profile_save: "ä¿å­˜",
+    ai_profile_missing: "è¯·å…ˆè¡¥å…¨å¿…å¡«ä¿¡æ¯ã€‚",
+    ai_profile_loading: "æ­£åœ¨åŠ è½½è®­ç»ƒå¸ˆè¡¨å•â€¦",
+    hero_eyebrow: "C1 Go Runners - æ— åè·‘å›¢",
+    hero_title: "ä¸€èµ·å¥”è·‘ï¼Œè¿æ¥å½¼æ­¤ï¼Œç©è½¬è·¯çº¿ã€‚",
+    hero_lead: "GoRunners å¸®åŠ©è·‘è€…å‘ç°çº¿ä¸‹æ´»åŠ¨ã€åŒ¹é…åˆé€‚é…é€Ÿå°ç»„ï¼Œå¹¶åœ¨äº’åŠ¨è·¯çº¿ä¸­è§£é”å¥–åŠ±ã€‚",
+    hero_cta_explore: "å‘ç°æ´»åŠ¨",
+    hero_cta_match: "åŒ¹é…é…é€Ÿ",
+    hero_stat_members: "æ´»è·ƒæˆå‘˜",
+    hero_stat_runs: "æœ¬å‘¨æ´»åŠ¨",
+    hero_stat_badges: "å¾½ç« å·²è§£é”",
+    spotlight_title: "ä»Šæ™šæ¨è",
+    label_time: "æ—¶é—´",
+    label_meetup: "é›†åˆç‚¹",
+    label_pace: "é…é€Ÿ",
+    label_perks: "äº’åŠ¨å¥–åŠ±",
+    spotlight_cta: "ç«‹å³æŠ¥å",
+    explore_eyebrow: "å‘ç°",
+    explore_title: "æ¢ç´¢çº¿ä¸‹è·‘æ­¥æ´»åŠ¨",
+    search_placeholder: "æœç´¢æ´»åŠ¨åç§°æˆ–æ ‡ç­¾",
+    filter_distance: "è·ç¦»",
+    filter_short: "0-4 å…¬é‡Œ",
+    filter_medium: "5-8 å…¬é‡Œ",
+    filter_long: "9+ å…¬é‡Œ",
+    filter_level: "éš¾åº¦",
+    level_beginner: "æ–°æ‰‹",
+    level_intermediate: "è¿›é˜¶",
+    level_advanced: "é«˜çº§",
+    filter_time: "æ—¶é—´",
+    time_morning: "æ—©ä¸Š",
+    time_afternoon: "ä¸‹åˆ",
+    time_evening: "æ™šä¸Š",
+    detail_eyebrow: "è¯¦æƒ…",
+    detail_title: "æ´»åŠ¨è¯¦æƒ…",
+    label_distance: "è·ç¦»",
+    label_pace_range: "é…é€ŸèŒƒå›´",
+    button_register: "ç«‹å³æŠ¥å",
+    button_preview: "é¢„è§ˆè·¯çº¿",
+    map_title: "äº’åŠ¨è·¯çº¿åœ°å›¾",
+    run_distance_label: "è·ç¦»",
+    run_time_label: "ç”¨æ—¶",
+    run_speed_label: "é€Ÿåº¦",
+    run_pace_label: "å¹³å‡é…é€Ÿ",
+    run_accuracy_label: "GPS ç²¾åº¦",
+    run_status_label: "çŠ¶æ€",
+    run_status_idle: "GPS å¾…å‘½",
+    run_status_tracking: "è¿½è¸ªä¸­",
+    run_status_waiting: "ç­‰å¾… GPS",
+    button_run_start: "å¼€å§‹è·‘æ­¥",
+    button_run_stop: "ç»“æŸè·‘æ­¥",
+    button_run_follow: "è·Ÿéšå°äºº",
+    button_run_camera: "æ‘„åƒå¤´",
+    button_run_3d_map: "è¿”å› 3D åœ°å›¾",
+    button_run_camera_flip: "ç¿»è½¬",
+    button_run_exit_view: "é€€å‡ºè§†å›¾",
+    run_mode_label: "è·‘æ­¥æ¨¡å¼",
+    run_mode_fallback_title: "å®æ—¶è·¯çº¿è§†å›¾",
+    run_mode_fallback_body: "é…ç½® Google Maps Key æˆ–å…è®¸æ‘„åƒå¤´æƒé™åå¯è¿›å…¥å®æ™¯ç”»é¢ã€‚",
+    run_mode_camera_on: "æ‘„åƒå¤´è·¯çº¿è¯†åˆ«å·²å¼€å¯",
+    run_mode_camera_flipped: "å·²åˆ‡æ¢æ‘„åƒå¤´ã€‚",
+    run_mode_camera_blocked: "æ— æ³•è®¿é—®æ‘„åƒå¤´ã€‚",
+    run_mode_map_ready: "3D è·¯çº¿å¯¼èˆªå·²å¼€å¯ã€‚",
+    run_mode_amap_loading: "æ­£åœ¨åŠ è½½é«˜å¾· 3D è·¯çº¿...",
+    run_mode_amap_ready: "å·²é”å®šé«˜å¾· 3D è·¯çº¿ã€‚",
+    run_mode_amap_missing: "æœªé…ç½®é«˜å¾· Keyï¼Œå·²ä½¿ç”¨å†…ç½® 3D è·¯çº¿åœ°å›¾ã€‚",
+    run_mode_amap_unavailable: "é«˜å¾· 3D æš‚ä¸å¯ç”¨ï¼Œå·²ä½¿ç”¨å†…ç½® 3D è·¯çº¿åœ°å›¾ã€‚",
+    run_mode_google_loading: "æ­£åœ¨åŠ è½½ Google å®æ™¯åœ°å›¾...",
+    run_mode_google_ready: "å·²é”å®š Google å®æ™¯è·¯çº¿ã€‚",
+    run_mode_google_missing: "æœªé…ç½® Google Maps Keyï¼Œå·²ä½¿ç”¨æ‘„åƒå¤´è·¯çº¿è§†å›¾ã€‚",
+    run_mode_google_unavailable: "å½“å‰ä½ç½®æš‚æ— è¡—æ™¯ï¼Œå·²ä½¿ç”¨æ‘„åƒå¤´è·¯çº¿è§†å›¾ã€‚",
+    road_recognition_label: "é“è·¯é”å®š",
+    road_recognition_waiting: "æ­£åœ¨è¯†åˆ«é“è·¯...",
+    road_recognition_ready: "å·²è¯†åˆ«é“è·¯",
+    road_recognition_low: "æ­£åœ¨å¯»æ‰¾é“è·¯",
+    run_cue_waiting: "æ­£åœ¨é”å®šè·¯çº¿...",
+    run_cue_next: "ä¸‹ä¸€ä¸ªè·¯çº¿ç‚¹",
+    run_cue_finish: "ç»ˆç‚¹è·¯çº¿",
+    run_instruction_waiting: "æ­£åœ¨é”å®šè·¯çº¿å’Œ GPS...",
+    run_instruction_start: "å‰æ–¹ {distance} åˆ°è¾¾è·¯çº¿ç‚¹ {index}ã€‚",
+    run_instruction_straight: "å‰æ–¹ {distance} ç»§ç»­ç›´è¡Œã€‚",
+    run_instruction_left: "å‰æ–¹ {distance} å·¦è½¬ã€‚",
+    run_instruction_right: "å‰æ–¹ {distance} å³è½¬ã€‚",
+    run_instruction_finish: "å‰æ–¹ {distance} åˆ°è¾¾ç»ˆç‚¹ã€‚",
+    run_instruction_to_start: "å‰æ–¹ {distance} åˆ°è¾¾å‡ºå‘ç‚¹ï¼Œç„¶åè¿›å…¥æ´»åŠ¨è·¯çº¿ã€‚",
+    button_reset: "é‡ç½®æ‰“å¡",
+    button_recommend: "æ¨èæ‰“å¡ç‚¹",
+    button_plan_clear: "æ¸…ç©ºè§„åˆ’",
+    button_map_expand: "æ”¾å¤§è§„åˆ’",
+    button_route_edit: "ç¼–è¾‘å½“å‰è·¯çº¿",
+    button_route_done: "å®Œæˆç¼–è¾‘",
+    button_route_undo: "æ’¤é”€ç‚¹ä½",
+    button_route_save: "ä¿å­˜è·¯çº¿",
+    button_route_update: "æ›´æ–°è·¯çº¿",
+    button_route_add: "æ·»åŠ ç‚¹ä½",
+    button_route_delete_point: "åˆ é™¤ç‚¹ä½",
+    map_footnote: "å®Œæˆæ‰€æœ‰æ‰“å¡ç‚¹å¯è§£é”è·¯çº¿æ¢ç´¢å¾½ç« ã€‚",
+    map_plan_note: "ç‚¹å‡»åœ°å›¾å¯è¿›å…¥å…¨å±è§„åˆ’ï¼ŒæŒ‰æç¤ºæ·»åŠ è¡¥æ°´å’Œè·¯çº¿æ ‡æ³¨ã€‚",
+    map_edit_hint: "æ­¤å¤„å¯ç¼–è¾‘å½“å‰è·¯çº¿ï¼›æ–°å¢ç‚¹ä½è¯·ç‚¹å‡»â€œæ”¾å¤§è§„åˆ’â€ã€‚",
+    route_select_placeholder: "å·²ä¿å­˜è·¯çº¿",
+    route_name_placeholder: "è·¯çº¿åç§°",
+    route_saved_empty: "æš‚æ— ä¿å­˜è·¯çº¿ã€‚",
+    map_picker_title: "è·¯çº¿è§„åˆ’é¢æ¿",
+    map_picker_subtitle: "é€‰æ‹©è¡¥æ°´ç‚¹ã€æ‰“å¡ç‚¹ä¸é…é€Ÿç­–ç•¥ä½ç½®ã€‚",
+    map_picker_close: "å…³é—­",
+    map_picker_steps_title: "åœ°ç‚¹é€‰æ‹©æ­¥éª¤",
+    map_picker_step_1: "å…ˆé€‰æ‹©æ ‡æ³¨ç±»å‹",
+    map_picker_step_2: "ç‚¹å‡»åœ°å›¾æˆ–æ¨èç‚¹ä½",
+    map_picker_step_3: "ç¡®è®¤åä¿å­˜",
+    map_picker_hint_checkpoint: "é€‚åˆè®¾ç½®é›†åˆç‚¹ï¼Œå¸®åŠ©é˜Ÿä¼ä¿æŒèŠ‚å¥ã€‚",
+    map_picker_hint_water: "å»ºè®®è®¾ç½®åœ¨ä¸­æ®µï¼Œæ–¹ä¾¿è¡¥æ°´å’ŒçŸ­æš‚æ¢å¤ã€‚",
+    map_picker_hint_photo: "æ ‡è®°é£æ™¯ä½ï¼Œä¾¿äºåˆå½±å’Œæ´»åŠ¨åˆ†äº«ã€‚",
+    map_picker_hint_start: "ç”¨äºæ´»åŠ¨é›†åˆä¸çƒ­èº«èµ·ç‚¹ã€‚",
+    map_picker_hint_finish: "ç”¨äºç»ˆç‚¹å†²çº¿ä¸æ”¾æ¾åŒºåŸŸã€‚",
+    map_picker_suggestions: "æ¨èè·¯çº¿ç‚¹ä½",
+    map_picker_note_label: "æ ‡æ³¨å¤‡æ³¨",
+    map_picker_note_placeholder: "ä¾‹å¦‚ï¼šæ…¢é…é€Ÿé›†åˆç‚¹",
+    map_picker_note_help: "ç‚¹å‡»åœ°å›¾ä¼šç›´æ¥æ·»åŠ è·¯çº¿ç‚¹ä½ã€‚ç‚¹ä½é¡ºåºåˆé€‚åï¼Œä¿å­˜è·¯çº¿å³å¯ã€‚",
+    map_picker_coords_empty: "å°šæœªé€‰æ‹©ç‚¹ä½ã€‚",
+    map_picker_coords_value: "å·²é€‰åæ ‡ï¼š{lat}, {lng}",
+    map_picker_cancel: "å–æ¶ˆ",
+    map_picker_save: "ä¿å­˜æ ‡æ³¨",
+    match_eyebrow: "åŒ¹é…",
+    match_title: "é…é€Ÿåˆ†ç»„åŒ¹é…",
+    match_subtitle: "å‘Šè¯‰æˆ‘ä»¬ä½ çš„é…é€Ÿä¸ç›®æ ‡ï¼Œæˆ‘ä»¬ä¼šæ¨èé€‚åˆçš„å°ç»„å’Œæ´»åŠ¨ã€‚",
+    match_experience_label: "è·‘æ­¥ç»éªŒ",
+    match_goal_label: "ä»Šæ—¥ç›®æ ‡",
+    match_pace_label: "åå¥½é…é€Ÿ (åˆ†é’Ÿ/å…¬é‡Œ)",
+    match_style_label: "è·‘æ­¥é£æ ¼",
+    goal_social: "ç¤¾äº¤",
+    goal_stress: "å‡å‹",
+    goal_training: "è®­ç»ƒ",
+    goal_pb: "æŒ‘æˆ˜PB",
+    style_buddy: "æ­å­",
+    style_group: "å°ç»„",
+    style_solo: "ç‹¬è·‘+ç­¾åˆ°",
+    match_wearable: "åŒæ­¥ç©¿æˆ´è®¾å¤‡é…é€Ÿ",
+    match_submit: "è·å–åŒ¹é…",
+    match_result_title: "ä½ çš„åŒ¹é…",
+    match_result_default: "å®Œæˆè¡¨å•åæŸ¥çœ‹æ¨èç»“æœã€‚",
+    match_result_body: "æˆ‘ä»¬å°†æ¨èåˆé€‚çš„å°ç»„ã€é™„è¿‘æ´»åŠ¨ä»¥åŠå¯è§£é”å¥–åŠ±ã€‚",
+    match_status_idle: "å…ˆä¿å­˜ä½ çš„è·‘æ­¥æ„å‘ï¼Œç³»ç»Ÿæ‰ä¼šå¼€å§‹å’ŒçœŸå®ç”¨æˆ·åŒ¹é…ã€‚",
+    match_status_waiting: "ä½ çš„æ„å‘å·²ä¿å­˜ï¼Œæ­£åœ¨ç­‰å¾…æ›´å¤šé€‰æ‹©ç›¸åŒæ¡ä»¶çš„è·‘è€…ã€‚",
+    match_status_success: "åŒ¹é…æˆåŠŸï¼Œä»¥ä¸‹è·‘è€…é€‰æ‹©äº†ç›¸åŒçš„é…é€Ÿå’Œç›®æ ‡ã€‚",
+    match_group_title: "åŒå¥½å°ç»„",
+    match_group_empty: "æš‚æ—¶è¿˜æ²¡æœ‰åŒ¹é…åˆ°å…¶ä»–è·‘è€…ã€‚",
+    match_member_you: "ä½ ",
+    match_member_count: "è¿™ä¸ªå°ç»„é‡Œæœ‰ {count} ä½è·‘è€…",
+    match_saved_note: "ä½ çš„é€‰æ‹©å·²ç»å†™å…¥åŒ¹é…åº“ã€‚",
+    match_chat_title: "ç»„å†…äº¤æµ",
+    match_chat_hint: "è¿™ä¸ªå…±äº«å¸–å­å¯ä»¥ç”¨æ¥çº¦é›†åˆæ—¶é—´ã€çƒ­èº«æ–¹å¼å’Œè·‘æ­¥è·¯çº¿ã€‚",
+    match_chat_empty: "è¿˜æ²¡æœ‰æ¶ˆæ¯ï¼Œæ¥å‘ç¬¬ä¸€æ¡å§ã€‚",
+    match_chat_placeholder: "å’ŒåŒç»„è·‘è€…æ‰“ä¸ªæ‹›å‘¼...",
+    match_chat_send: "å‘é€",
+    community_eyebrow: "ç¤¾åŒº",
+    community_title: "è‹å·è·‘æ­¥åœ°å›¾ä¸äº’åŠ¨è´´",
+    community_subtitle: "æ¢ç´¢è‹å·çœŸå®åœ°ç‚¹ï¼Œç°åœºç­¾åˆ°å¹¶åˆ†äº«è·‘è€…å¿ƒå¾—ã€‚",
+    community_map_title: "è‹å·å®æ—¶åœ°å›¾",
+    community_locate: "å®šä½æˆ‘",
+    community_checkin: "ç°åœºç­¾åˆ°",
+    community_note: "å®šä½ä»…ç”¨äºå±•ç¤ºé™„è¿‘ç‚¹ä½ä¸ç­¾åˆ°ã€‚",
+    community_feed_title: "åœ°ç‚¹å¸–å­",
+    post_placeholder: "åˆ†äº«è·¯çº¿å»ºè®®æˆ–è·‘æ­¥ç¬é—´",
+    post_camera: "æ‰“å¼€ç›¸æœº",
+    post_submit: "å‘å¸ƒ",
+    auth_signin: "ç™»å½•",
+    auth_register: "æ³¨å†Œ",
+    auth_toggle_register: "æ²¡æœ‰è´¦å·ï¼Ÿæ³¨å†Œ",
+    auth_toggle_login: "å·²æœ‰è´¦å·ï¼Ÿç™»å½•",
+    auth_email_label: "é‚®ç®±",
+    auth_name_label: "å§“å",
+    auth_password_label: "å¯†ç ",
+    auth_login_button: "ç™»å½•",
+    auth_register_button: "åˆ›å»ºè´¦å·",
+    myrun_eyebrow: "æˆ‘çš„è·‘æ­¥",
+    myrun_title: "å‚ä¸å¥–åŠ±ä¸è¿›åº¦",
+    myrun_subtitle: "é¼“åŠ±åšæŒè€Œéç«äº‰ï¼Œè®°å½•ä½ çš„è¿ç»­å‚ä¸ä¸å¾½ç« ã€‚",
+    myrun_streak: "æœ¬å‘¨è¿ç»­",
+    myrun_streak_hint: "è¿ç»­å‚åŠ 3æ¬¡å¯è§£é”è¿ç»­æ‰“å¡å¾½ç« ã€‚",
+    myrun_points: "ç´¯è®¡ç§¯åˆ†",
+    myrun_points_hint: "æŠ¥åã€æ‰“å¡ã€ç»„é˜Ÿå‡å¯è·å¾—ç§¯åˆ†ã€‚",
+    myrun_badges: "å¾½ç« è§£é”",
+    myrun_badges_subtitle: "æŠŠä½ å·²ç»è¾¾æˆçš„è·‘æ­¥æˆå°±é›†ä¸­å±•ç¤ºå‡ºæ¥ã€‚",
+    myrun_upcoming: "å·²æŠ¥åæ´»åŠ¨",
+    myrun_clear: "æ¸…ç©º",
+    myrun_rank_label: "æˆ‘çš„æ’å",
+    myrun_leaderboard_summary: "æŸ¥çœ‹ä½ çš„ç§¯åˆ†å’Œæ•´ä¸ªè·‘å›¢æˆå‘˜çš„æ’åå¯¹æ¯”ã€‚",
+    myrun_leaderboard_empty: "æš‚æ—¶è¿˜æ²¡æœ‰æ’è¡Œæ¦œæ•°æ®ï¼Œé‚€è¯·æ›´å¤šè·‘è€…åŠ å…¥å§ã€‚",
+    myrun_badges_empty: "æš‚æ—¶è¿˜æ²¡æœ‰è·å¾—å¾½ç« ï¼Œå…ˆå»å‚åŠ ä¸€åœºæ´»åŠ¨å§ã€‚",
+    myrun_rank_fallback: "ç™»å½•å¹¶å‚ä¸æ´»åŠ¨åä¼šå‡ºç°åœ¨æ’è¡Œæ¦œä¸­ã€‚",
+    myrun_points_breakdown: "å½“å‰å…±æœ‰ {count} ä½è·‘è€…ä¸Šæ¦œ",
+    org_eyebrow: "ç»„ç»‡è€…",
+    org_title: "è½»é‡æ´»åŠ¨ç®¡ç†",
+    org_subtitle: "åˆ›å»ºæ´»åŠ¨ã€ç­¾åˆ°ç®¡ç†ã€ç°åœºé€šçŸ¥ï¼Œä¸€ç«™å¼ç®¡ç†ã€‚",
+    org_create_title: "åˆ›å»ºæ–°æ´»åŠ¨",
+    org_name_label: "æ´»åŠ¨åç§°",
+    org_location_label: "é›†åˆåœ°ç‚¹",
+    org_time_label: "æ—¶é—´ä¸æ—¥æœŸ",
+    org_distance_label: "è·ç¦» (å…¬é‡Œ)",
+    org_level_label: "éš¾åº¦",
+    org_capacity_label: "äººæ•°ä¸Šé™",
+    org_publish: "å‘å¸ƒæ´»åŠ¨",
+    org_attendance: "ç­¾åˆ°æƒ…å†µ",
+    org_users: "ç”¨æˆ·ç®¡ç†",
+    org_users_load: "åˆ·æ–°",
+    org_admin_console: "ç®¡ç†åå°",
+    org_admin_open: "æ‰“å¼€åå°",
+    org_admin_description: "ç®¡ç†å‘˜è¯·åœ¨ç‹¬ç«‹åå°ä¸­ç»Ÿä¸€ç®¡ç†ç”¨æˆ·ã€æ´»åŠ¨å’Œç¤¾åŒºå¸–å­ã€‚",
+    org_admin_guest: "è¯·ä½¿ç”¨ç®¡ç†å‘˜è´¦å·ç™»å½•åè¿›å…¥ç‹¬ç«‹ç®¡ç†åå°ã€‚",
+    org_admin_ready: "å·²è¯†åˆ«ç®¡ç†å‘˜èº«ä»½ï¼Œè¯·è¿›å…¥ç‹¬ç«‹åå°å¤„ç†ç”¨æˆ·ã€æ´»åŠ¨å’Œå†…å®¹å®¡æ ¸ã€‚",
+    org_update: "å‘é€é€šçŸ¥",
+    org_notice: "æš‚æ— é€šçŸ¥ï¼Œç‚¹å‡»å‘é€æé†’çƒ­èº«ã€‚",
+    org_map_title: "è·¯çº¿è§„åˆ’",
+    org_map_hint: "ç©ºç™½åœ°å›¾ï¼šç‚¹å‡»æ·»åŠ è·¯çº¿ç‚¹ä½ï¼Œå¯æ‹–åŠ¨åœ†ç‚¹è°ƒæ•´è·¯çº¿ã€‚",
+    org_type_hint: "å…ˆé€‰ç‚¹ä½ç±»å‹ï¼Œå†ç‚¹å‡»åœ°å›¾æ·»åŠ ï¼›ç‚¹å‡»å·²æœ‰ç‚¹ä½å¯ä¿®æ”¹ç±»å‹ã€‚",
+    footer_title: "GoRunners - æ— åè·‘å›¢",
     footer_subtitle: "CPT208 Human-Centric Computing - Active Lifestyles",
-    footer_explore: "²é¿´»î¶¯",
-    footer_match: "ÔÙ´ÎÆ¥Åä",
-    spots_left: "Ê£Óà{count}Î»",
-    seats_left: "Ê£Óà{count}Î»",
-    button_details: "²é¿´ÏêÇé",
-    button_register_short: "±¨Ãû",
-    badge_unlocked: "ÒÑ½âËø",
-    badge_locked: "Î´½âËø",
-    no_registrations: "ÔİÎŞ±¨Ãû»î¶¯£¬ÏÈÑ¡ÔñÒ»³¡°É¡£",
-    no_attendance: "ÔİÎŞÇ©µ½£¬ÏÈ·¢²¼»î¶¯¡£",
-    no_posts: "»¹Ã»ÓĞÌû×Ó£¬¿ìÀ´µÚÒ»¸ö·ÖÏí°É¡£",
-    post_like: "µãÔŞ",
-    post_reply: "ÆÀÂÛ",
-    post_floor: "{count}Â¥",
-    spot_vibe: "·ÕÎ§",
-    spot_distance: "¾àÀë",
-    match_result_prefix: "ÍÆ¼ö",
-    type_start: "Æğµã",
-    type_water: "²¹Ë®",
-    type_photo: "ÅÄÕÕ",
-    type_checkpoint: "´ò¿¨",
-    type_finish: "ÖÕµã",
-    toast_already_registered: "ÄãÒÑ¾­±¨ÃûÁË¡£",
-    toast_no_spots: "Ãû¶îÒÑÂú£¬ÊÔÊÔÆäËû»î¶¯¡£",
-    toast_registered: "±¨Ãû³É¹¦£¬ÏÖ³¡¼û¡£",
-    toast_route_badge: "ÒÑ½âËøÂ·ÏßÌ½Ë÷»ÕÕÂ¡£",
-    toast_checkpoints_reset: "ÒÑÖØÖÃ´ò¿¨µã¡£",
-    toast_location_enabled: "¶¨Î»ÒÑ¿ªÆô¡£",
-    toast_location_disabled: "¶¨Î»ÒÑ¹Ø±Õ¡£",
-    toast_geo_unsupported: "µ±Ç°Éè±¸²»Ö§³Ö¶¨Î»¡£",
-    toast_geo_denied: "¶¨Î»È¨ÏŞ±»¾Ü¾ø¡£",
-    toast_geo_success: "¶¨Î»ÒÑ¸üĞÂ¡£",
-    toast_checkin_ok: "ÒÑÔÚ{spot}Ç©µ½¡£",
-    toast_checkin_far: "¾àÀëÔ¼{distance}¹«Àï£¬¿¿½üºó¿ÉÇ©µ½¡£",
-    toast_posted: "ÒÑ·¢²¼Ìû×Ó¡£",
-    toast_like: "ÒÑµãÔŞ¡£",
-    toast_reply: "ÆÀÂÛÒÑÌí¼Ó¡£",
-    toast_update_sent: "Í¨ÖªÒÑ·¢ËÍ¡£",
-    toast_event_created: "ĞÂ»î¶¯ÒÑ·¢²¼¡£",
-    toast_cleared: "ÒÑÇå¿Õ±¨Ãû¼ÇÂ¼¡£",
-    toast_route_preview: "ÒÑ¶¨Î»Â·ÏßÔ¤ÀÀ¡£",
-    toast_login_required: "ÇëÏÈµÇÂ¼¡£",
-    toast_login_success: "ÒÑµÇÂ¼¡£",
-    toast_logout: "ÒÑÍË³ö¡£",
-    toast_register_success: "ÕËºÅÒÑ´´½¨¡£",
-    toast_admin_required: "ĞèÒª¹ÜÀíÔ±È¨ÏŞ¡£",
-    toast_admin_redirect: "ÒÑÊ¶±ğ¹ÜÀíÔ±ÕËºÅ£¬ÕıÔÚÌø×ªµ½¹ÜÀíºóÌ¨¡£",
-    toast_recommend_done: "ÒÑÉú³ÉÍÆ¼ö´ò¿¨µã¡£",
-    toast_plan_added: "¹æ»®±ê×¢ÒÑ±£´æ¡£",
-    toast_route_editing: "ÒÑ½øÈëÂ·Ïß±à¼­£¬µã»÷µØÍ¼Ìí¼ÓµãÎ»¡£",
-    toast_route_done: "Â·Ïß±à¼­ÒÑÍê³É¡£",
-    toast_route_saved: "Â·ÏßÒÑ±£´æ¡£",
-    toast_route_updated: "Â·ÏßÒÑ¸üĞÂ¡£",
-    toast_route_selected: "ÒÑÔØÈë±£´æµÄÂ·Ïß¡£",
-    toast_route_empty: "ÖÁÉÙÌí¼ÓÁ½¸öµãÎ»ºóÔÙ±£´æ¡£",
-    toast_route_undo: "ÒÑ³·Ïú×îºóÒ»¸öµãÎ»¡£",
-    toast_route_undo_empty: "µ±Ç°Â·ÏßÃ»ÓĞ¿É³·ÏúµÄµãÎ»¡£",
-    toast_route_deleted: "Â·ÏßÒÑÉ¾³ı¡£",
-    toast_route_renamed: "Â·ÏßÒÑÖØÃüÃû¡£",
-    toast_route_point_deleted: "µãÎ»ÒÑÉ¾³ı¡£",
-    toast_picker_need_point: "ÇëÏÈÔÚµØÍ¼ÉÏÑ¡ÔñÒ»¸öµãÎ»¡£",
-    toast_route_edit_required: "ÇëÏÈµã»÷¡°±à¼­µ±Ç°Â·Ïß¡±£¬ÔÙĞŞ¸ÄÂ·ÏßµãÎ»¡£",
-    toast_route_expand_required: "Çëµã»÷¡°·Å´ó¹æ»®¡±½øÒ»²½²Ù×÷¡£",
-    toast_checkin_confirm: "Ç©µ½ÒÑÈ·ÈÏ¡£",
-    toast_checkin_removed: "ÒÑÈ¡ÏûÇ©µ½¡£",
-    toast_geo_needed: "ÇëÏÈ¿ªÆô¶¨Î»ÔÙÇ©µ½¡£",
-    toast_run_started: "ÒÑ¿ªÊ¼ÅÜ²½×·×Ù¡£",
-    toast_run_stopped: "ÅÜ²½ÒÑ±£´æ£º{distance} ¹«Àï¡£",
-    toast_run_already_active: "ÅÜ²½×·×ÙÒÑ¿ªÆô¡£",
-    toast_run_not_active: "ÇëÏÈ¿ªÊ¼ÅÜ²½¡£",
-    toast_run_position: "ÅÜÕßÎ»ÖÃÒÑ¸üĞÂ¡£",
-    toast_run_mode_opened: "ÒÑ½øÈë³Á½şÊ½ÅÜ²½Ä£Ê½¡£",
-    toast_run_mode_closed: "ÒÑÍË³ö³Á½şÊÓÍ¼£¬ÅÜ²½×·×Ù¼ÌĞø¡£",
-    header_location_on: "¶¨Î»ÒÑ¿ªÆô",
-    toast_match_saved: "Æ¥ÅäÒâÏòÒÑ±£´æ¡£",
+    footer_explore: "æŸ¥çœ‹æ´»åŠ¨",
+    footer_match: "å†æ¬¡åŒ¹é…",
+    spots_left: "å‰©ä½™{count}ä½",
+    seats_left: "å‰©ä½™{count}ä½",
+    button_details: "æŸ¥çœ‹è¯¦æƒ…",
+    button_register_short: "æŠ¥å",
+    badge_unlocked: "å·²è§£é”",
+    badge_locked: "æœªè§£é”",
+    no_registrations: "æš‚æ— æŠ¥åæ´»åŠ¨ï¼Œå…ˆé€‰æ‹©ä¸€åœºå§ã€‚",
+    no_attendance: "æš‚æ— ç­¾åˆ°ï¼Œå…ˆå‘å¸ƒæ´»åŠ¨ã€‚",
+    no_posts: "è¿˜æ²¡æœ‰å¸–å­ï¼Œå¿«æ¥ç¬¬ä¸€ä¸ªåˆ†äº«å§ã€‚",
+    post_like: "ç‚¹èµ",
+    post_reply: "è¯„è®º",
+    post_floor: "{count}æ¥¼",
+    spot_vibe: "æ°›å›´",
+    spot_distance: "è·ç¦»",
+    match_result_prefix: "æ¨è",
+    type_start: "èµ·ç‚¹",
+    type_water: "è¡¥æ°´",
+    type_photo: "æ‹ç…§",
+    type_checkpoint: "æ‰“å¡",
+    type_finish: "ç»ˆç‚¹",
+    toast_already_registered: "ä½ å·²ç»æŠ¥åäº†ã€‚",
+    toast_no_spots: "åé¢å·²æ»¡ï¼Œè¯•è¯•å…¶ä»–æ´»åŠ¨ã€‚",
+    toast_registered: "æŠ¥åæˆåŠŸï¼Œç°åœºè§ã€‚",
+    toast_route_badge: "å·²è§£é”è·¯çº¿æ¢ç´¢å¾½ç« ã€‚",
+    toast_checkpoints_reset: "å·²é‡ç½®æ‰“å¡ç‚¹ã€‚",
+    toast_location_enabled: "å®šä½å·²å¼€å¯ã€‚",
+    toast_location_disabled: "å®šä½å·²å…³é—­ã€‚",
+    toast_geo_unsupported: "å½“å‰è®¾å¤‡ä¸æ”¯æŒå®šä½ã€‚",
+    toast_geo_denied: "å®šä½æƒé™è¢«æ‹’ç»ã€‚",
+    toast_geo_success: "å®šä½å·²æ›´æ–°ã€‚",
+    toast_checkin_ok: "å·²åœ¨{spot}ç­¾åˆ°ã€‚",
+    toast_checkin_far: "è·ç¦»çº¦{distance}å…¬é‡Œï¼Œé è¿‘åå¯ç­¾åˆ°ã€‚",
+    toast_posted: "å·²å‘å¸ƒå¸–å­ã€‚",
+    toast_like: "å·²ç‚¹èµã€‚",
+    toast_reply: "è¯„è®ºå·²æ·»åŠ ã€‚",
+    toast_update_sent: "é€šçŸ¥å·²å‘é€ã€‚",
+    toast_event_created: "æ–°æ´»åŠ¨å·²å‘å¸ƒã€‚",
+    toast_cleared: "å·²æ¸…ç©ºæŠ¥åè®°å½•ã€‚",
+    toast_route_preview: "å·²å®šä½è·¯çº¿é¢„è§ˆã€‚",
+    toast_login_required: "è¯·å…ˆç™»å½•ã€‚",
+    toast_login_success: "å·²ç™»å½•ã€‚",
+    toast_logout: "å·²é€€å‡ºã€‚",
+    toast_register_success: "è´¦å·å·²åˆ›å»ºã€‚",
+    toast_admin_required: "éœ€è¦ç®¡ç†å‘˜æƒé™ã€‚",
+    toast_admin_redirect: "å·²è¯†åˆ«ç®¡ç†å‘˜è´¦å·ï¼Œæ­£åœ¨è·³è½¬åˆ°ç®¡ç†åå°ã€‚",
+    toast_recommend_done: "å·²ç”Ÿæˆæ¨èæ‰“å¡ç‚¹ã€‚",
+    toast_plan_added: "è§„åˆ’æ ‡æ³¨å·²ä¿å­˜ã€‚",
+    toast_route_editing: "å·²è¿›å…¥è·¯çº¿ç¼–è¾‘ï¼Œç‚¹å‡»åœ°å›¾æ·»åŠ ç‚¹ä½ã€‚",
+    toast_route_done: "è·¯çº¿ç¼–è¾‘å·²å®Œæˆã€‚",
+    toast_route_saved: "è·¯çº¿å·²ä¿å­˜ã€‚",
+    toast_route_updated: "è·¯çº¿å·²æ›´æ–°ã€‚",
+    toast_route_selected: "å·²è½½å…¥ä¿å­˜çš„è·¯çº¿ã€‚",
+    toast_route_empty: "è‡³å°‘æ·»åŠ ä¸¤ä¸ªç‚¹ä½åå†ä¿å­˜ã€‚",
+    toast_route_undo: "å·²æ’¤é”€æœ€åä¸€ä¸ªç‚¹ä½ã€‚",
+    toast_route_undo_empty: "å½“å‰è·¯çº¿æ²¡æœ‰å¯æ’¤é”€çš„ç‚¹ä½ã€‚",
+    toast_route_deleted: "è·¯çº¿å·²åˆ é™¤ã€‚",
+    toast_route_renamed: "è·¯çº¿å·²é‡å‘½åã€‚",
+    toast_route_point_deleted: "ç‚¹ä½å·²åˆ é™¤ã€‚",
+    toast_picker_need_point: "è¯·å…ˆåœ¨åœ°å›¾ä¸Šé€‰æ‹©ä¸€ä¸ªç‚¹ä½ã€‚",
+    toast_route_edit_required: "è¯·å…ˆç‚¹å‡»â€œç¼–è¾‘å½“å‰è·¯çº¿â€ï¼Œå†ä¿®æ”¹è·¯çº¿ç‚¹ä½ã€‚",
+    toast_route_expand_required: "è¯·ç‚¹å‡»â€œæ”¾å¤§è§„åˆ’â€è¿›ä¸€æ­¥æ“ä½œã€‚",
+    toast_checkin_confirm: "ç­¾åˆ°å·²ç¡®è®¤ã€‚",
+    toast_checkin_removed: "å·²å–æ¶ˆç­¾åˆ°ã€‚",
+    toast_geo_needed: "è¯·å…ˆå¼€å¯å®šä½å†ç­¾åˆ°ã€‚",
+    toast_run_started: "å·²å¼€å§‹è·‘æ­¥è¿½è¸ªã€‚",
+    toast_run_stopped: "è·‘æ­¥å·²ä¿å­˜ï¼š{distance} å…¬é‡Œã€‚",
+    toast_run_already_active: "è·‘æ­¥è¿½è¸ªå·²å¼€å¯ã€‚",
+    toast_run_not_active: "è¯·å…ˆå¼€å§‹è·‘æ­¥ã€‚",
+    toast_run_position: "è·‘è€…ä½ç½®å·²æ›´æ–°ã€‚",
+    toast_run_mode_opened: "å·²è¿›å…¥æ²‰æµ¸å¼è·‘æ­¥æ¨¡å¼ã€‚",
+    toast_run_mode_closed: "å·²é€€å‡ºæ²‰æµ¸è§†å›¾ï¼Œè·‘æ­¥è¿½è¸ªç»§ç»­ã€‚",
+    header_location_on: "å®šä½å·²å¼€å¯",
+    toast_match_saved: "åŒ¹é…æ„å‘å·²ä¿å­˜ã€‚",
   },
 };
 
@@ -689,12 +689,12 @@ const sampleUpdates = {
     "Buddy check: grab a partner before the first checkpoint.",
     "Hydration reminder: water station open at 2.5 km.",
   ],
-  zh: ["10·ÖÖÓºó¿ªÊ¼ÈÈÉí", "ÇëÏÈÕÒµ½´î×Ó", "²¹Ë®µãÒÑ¿ª·Å"],
+  zh: ["10åˆ†é’Ÿåå¼€å§‹çƒ­èº«", "è¯·å…ˆæ‰¾åˆ°æ­å­", "è¡¥æ°´ç‚¹å·²å¼€æ”¾"],
 };
 
 const defaultAiTrainer = {
   id: "default",
-  label: { en: "GoRunner AI Trainer", zh: "GoRunner AIÑµÁ·Ê¦" },
+  label: { en: "GoRunner AI Trainer", zh: "GoRunner AIè®­ç»ƒå¸ˆ" },
   iframeSrc: "https://dify.junhong.asia/chatbot/EHL3lIJIRtssMjQh",
 };
 
@@ -1073,7 +1073,7 @@ function getBaseMapTileConfig() {
           `https://webrd0${subdomain}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}`
       ),
       subdomains: "1234",
-      attribution: "&copy; ¸ßµÂµØÍ¼ AutoNavi",
+      attribution: "&copy; é«˜å¾·åœ°å›¾ AutoNavi",
     };
   }
   return {
@@ -1183,8 +1183,8 @@ function setLanguage(lang) {
   saveState();
   document.documentElement.lang = lang === "zh" ? "zh" : "en";
   if (dom.langToggleButton) {
-    dom.langToggleButton.textContent = lang === "zh" ? "ÖĞÎÄ" : "EN";
-    dom.langToggleButton.setAttribute("aria-label", lang === "zh" ? "ÇĞ»»ÓïÑÔ" : "Toggle language");
+    dom.langToggleButton.textContent = lang === "zh" ? "ä¸­æ–‡" : "EN";
+    dom.langToggleButton.setAttribute("aria-label", lang === "zh" ? "åˆ‡æ¢è¯­è¨€" : "Toggle language");
   }
   applyTranslations();
   updateLocationButton();
@@ -1273,7 +1273,7 @@ function renderAiChat(trainerId) {
   if (!chat.messages.length) {
     const bubble = document.createElement("div");
     bubble.className = "ai-chat-bubble meta";
-    bubble.textContent = currentLang === "zh" ? "´ÓÒ»¸öÎÊÌâ¿ªÊ¼°É¡£" : "Start with a question.";
+    bubble.textContent = currentLang === "zh" ? "ä»ä¸€ä¸ªé—®é¢˜å¼€å§‹å§ã€‚" : "Start with a question.";
     dom.aiChatMessages.appendChild(bubble);
     return;
   }
@@ -1477,7 +1477,7 @@ function renderAiTrainerProfileForm(trainer) {
       const options = Array.isArray(field.options) ? field.options : [];
       const placeholder = document.createElement("option");
       placeholder.value = "";
-      placeholder.textContent = currentLang === "zh" ? "ÇëÑ¡Ôñ" : "Select";
+      placeholder.textContent = currentLang === "zh" ? "è¯·é€‰æ‹©" : "Select";
       placeholder.disabled = field.required === true;
       placeholder.hidden = true;
       placeholder.selected = !chat.inputs?.[field.key];
@@ -1962,10 +1962,10 @@ function renderEventDetail() {
   dom.eventPace.textContent = activeEvent.pace;
   dom.eventDescription.textContent = getEventText(activeEvent, "description");
   const gear = getEventArray(activeEvent, "gear");
-  const fallbackGear = currentLang === "zh" ? ["ÒûË®", "ÊæÊÊÅÜĞ¬"] : ["Water", "Comfort shoes"];
+  const fallbackGear = currentLang === "zh" ? ["é¥®æ°´", "èˆ’é€‚è·‘é‹"] : ["Water", "Comfort shoes"];
   const gearList = gear.length ? gear : fallbackGear;
   dom.eventGear.innerHTML = gearList.map((item) => `<span class="pill">${item}</span>`).join("");
-  dom.eventRewards.textContent = getEventText(activeEvent, "rewards") || (currentLang === "zh" ? "Íê³É¿É»ñµÃ»ı·ÖÓë»ÕÕÂ" : "Complete to earn points and badges");
+  dom.eventRewards.textContent = getEventText(activeEvent, "rewards") || (currentLang === "zh" ? "å®Œæˆå¯è·å¾—ç§¯åˆ†ä¸å¾½ç« " : "Complete to earn points and badges");
   dom.eventTags.innerHTML = tags.map((tag) => `<span class="pill">${tag}</span>`).join("");
   renderEventMap(activeEvent);
   loadCheckpointsForEvent(activeEvent);
@@ -1987,7 +1987,7 @@ function renderEventMap(event) {
       draggable: state.routeEditMode,
       icon: createRoutePointIcon(index),
     }).addTo(eventLayerGroup);
-    marker.bindPopup(`${currentLang === "zh" ? "Â·Ïßµã" : "Route Point"} ${index + 1}`);
+    marker.bindPopup(`${currentLang === "zh" ? "è·¯çº¿ç‚¹" : "Route Point"} ${index + 1}`);
     if (state.routeEditMode) {
       marker.on("dragend", (dragEvent) => {
         updateRoutePoint(index, dragEvent.target.getLatLng());
@@ -2108,7 +2108,7 @@ function saveCurrentRoute() {
     return;
   }
   const saved = getSavedRoutes();
-  const label = currentLang === "zh" ? `Â·Ïß ${saved.length + 1}` : `Route ${saved.length + 1}`;
+  const label = currentLang === "zh" ? `è·¯çº¿ ${saved.length + 1}` : `Route ${saved.length + 1}`;
   const id = `route_${Date.now()}`;
   saved.push({
     id,
@@ -2193,7 +2193,7 @@ function renderRouteControls() {
   if (dom.routeEditHint) {
     dom.routeEditHint.textContent = state.routeEditMode
       ? currentLang === "zh"
-        ? "ÕıÔÚ±à¼­£ºµã»÷µØÍ¼Ìí¼ÓµãÎ»£¬ÍÏ¶¯µãÎ»µ÷ÕûÂ·Ïß¡£"
+        ? "æ­£åœ¨ç¼–è¾‘ï¼šç‚¹å‡»åœ°å›¾æ·»åŠ ç‚¹ä½ï¼Œæ‹–åŠ¨ç‚¹ä½è°ƒæ•´è·¯çº¿ã€‚"
         : "Editing: tap the map to add points, then drag points to adjust the route."
       : t("map_edit_hint");
   }
@@ -2263,7 +2263,7 @@ function renderPickerSuggestions() {
       type: routeItem.type || "checkpoint",
       label:
         routeItem.name ||
-        (currentLang === "zh" ? `ÍÆ¼öµã ${index + 1}` : `Suggested Point ${index + 1}`),
+        (currentLang === "zh" ? `æ¨èç‚¹ ${index + 1}` : `Suggested Point ${index + 1}`),
     };
   });
   dom.mapPickerSuggestions.innerHTML = suggestions.length
@@ -2277,7 +2277,7 @@ function renderPickerSuggestions() {
           `
         )
         .join("")
-    : `<p class="body">${currentLang === "zh" ? "ÔİÎŞÍÆ¼öµãÎ»" : "No suggested points yet."}</p>`;
+    : `<p class="body">${currentLang === "zh" ? "æš‚æ— æ¨èç‚¹ä½" : "No suggested points yet."}</p>`;
 
   dom.mapPickerSuggestions.querySelectorAll("[data-suggest-index]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -2339,7 +2339,7 @@ function renderPickerMap(resetSelection = true) {
       draggable: state.routeEditMode,
       icon: createRoutePointIcon(index),
     }).addTo(pickerRouteLayer);
-    marker.bindPopup(`${currentLang === "zh" ? "Â·Ïßµã" : "Route Point"} ${index + 1}`);
+    marker.bindPopup(`${currentLang === "zh" ? "è·¯çº¿ç‚¹" : "Route Point"} ${index + 1}`);
     if (state.routeEditMode) {
       marker.on("dragend", (dragEvent) => {
         updateRoutePoint(index, dragEvent.target.getLatLng());
@@ -2415,7 +2415,7 @@ function renderCheckpointList(event, serverCheckpoints) {
   const shouldUseCustomRoute = getRouteMode() === "edit" ? hasCustomRoute : customRoute.length > 0;
   const route = shouldUseCustomRoute
     ? customRoute.map((point, index) => ({
-        name: currentLang === "zh" ? `Â·Ïßµã ${index + 1}` : `Route Point ${index + 1}`,
+        name: currentLang === "zh" ? `è·¯çº¿ç‚¹ ${index + 1}` : `Route Point ${index + 1}`,
         type: sanitizeRouteType(point.type || getDefaultRouteType(index, customRoute.length)),
       }))
     : Array.isArray(serverCheckpoints) && serverCheckpoints.length
@@ -2428,7 +2428,7 @@ function renderCheckpointList(event, serverCheckpoints) {
     route.length || shouldUseCustomRoute || !event.route_coords
       ? route
       : event.route_coords.map((_, index) => ({
-          name: currentLang === "zh" ? `´ò¿¨µã ${index + 1}` : `Checkpoint ${index + 1}`,
+          name: currentLang === "zh" ? `æ‰“å¡ç‚¹ ${index + 1}` : `Checkpoint ${index + 1}`,
           type: "checkpoint",
         }));
   dom.checkpointList.innerHTML = fallbackRoute
@@ -2566,17 +2566,17 @@ async function fetchLeaderboard() {
 }
 
 function renderMyRun() {
-  dom.streakCount.textContent = `${state.streak} ${currentLang === "zh" ? "´Î" : "runs"}`;
+  dom.streakCount.textContent = `${state.streak} ${currentLang === "zh" ? "æ¬¡" : "runs"}`;
   const currentLeader = leaderboardData.find((entry) => currentUser && String(entry.user_id) === String(currentUser.id));
   const visiblePoints = currentLeader?.points ?? state.points;
-  dom.pointsCount.textContent = `${visiblePoints} ${currentLang === "zh" ? "·Ö" : "pts"}`;
+  dom.pointsCount.textContent = `${visiblePoints} ${currentLang === "zh" ? "åˆ†" : "pts"}`;
   if (dom.leaderboardRank) {
     dom.leaderboardRank.textContent = currentLeader ? `#${currentLeader.rank}` : "--";
   }
   if (dom.leaderboardSummary) {
     dom.leaderboardSummary.textContent = leaderboardData.length
       ? currentLeader
-        ? `${t("myrun_points_breakdown", { count: String(leaderboardData.length) })} ¡¤ ${currentLang === "zh" ? "ÄãÒÑ½øÈëÅÅĞĞ°ñ" : "you are on the board"}`
+        ? `${t("myrun_points_breakdown", { count: String(leaderboardData.length) })} Â· ${currentLang === "zh" ? "ä½ å·²è¿›å…¥æ’è¡Œæ¦œ" : "you are on the board"}`
         : t("myrun_rank_fallback")
       : t("myrun_leaderboard_summary");
   }
@@ -2614,10 +2614,10 @@ function renderMyRun() {
               <article class="list-item leaderboard-item${isCurrentUser ? " active" : ""}">
                 <div class="leaderboard-rank">#${entry.rank}</div>
                 <div class="leaderboard-copy">
-                  <strong>${escapeHtml(entry.name)}${isCurrentUser ? ` (${currentLang === "zh" ? "Äã" : "You"})` : ""}</strong>
-                  <span>${entry.registration_count} ${currentLang === "zh" ? "´Î±¨Ãû" : "registrations"} ¡¤ ${entry.checkin_count} ${currentLang === "zh" ? "´ÎÇ©µ½" : "check-ins"}</span>
+                  <strong>${escapeHtml(entry.name)}${isCurrentUser ? ` (${currentLang === "zh" ? "ä½ " : "You"})` : ""}</strong>
+                  <span>${entry.registration_count} ${currentLang === "zh" ? "æ¬¡æŠ¥å" : "registrations"} Â· ${entry.checkin_count} ${currentLang === "zh" ? "æ¬¡ç­¾åˆ°" : "check-ins"}</span>
                 </div>
-                <div class="leaderboard-points">${entry.points} ${currentLang === "zh" ? "·Ö" : "pts"}</div>
+                <div class="leaderboard-points">${entry.points} ${currentLang === "zh" ? "åˆ†" : "pts"}</div>
               </article>
             `;
           })
@@ -2939,9 +2939,9 @@ async function handleMatch(event) {
 
 function translateBadge(label) {
   const map = {
-    "Warm-up Buddy": "ÈÈÉí´î×Ó",
-    "Pace Shield": "ÅäËÙÊØ»¤",
-    "Welcome Gift": "»¶Ó­Àñ",
+    "Warm-up Buddy": "çƒ­èº«æ­å­",
+    "Pace Shield": "é…é€Ÿå®ˆæŠ¤",
+    "Welcome Gift": "æ¬¢è¿ç¤¼",
   };
   return map[label] || label;
 }
@@ -2973,7 +2973,7 @@ async function handleCreateEvent(event) {
       : "4'30\"-5'30\" / km";
   const organizerRouteCoords = organizerRoutePoints.map((point) => [point.lat, point.lng]);
   const organizerRouteMeta = organizerRoutePoints.map((point, index) => ({
-    name: `${currentLang === "zh" ? "µãÎ»" : "Point"} ${index + 1}`,
+    name: `${currentLang === "zh" ? "ç‚¹ä½" : "Point"} ${index + 1}`,
     type: sanitizeRouteType(point.type || getDefaultRouteType(index, organizerRoutePoints.length)),
   }));
   const defaultLat = organizerRouteCoords[0]?.[0] ?? 31.3;
@@ -3100,7 +3100,7 @@ function updateSpotlight(event) {
   dom.spotlightTime.textContent = getEventText(event, "timeLabel");
   dom.spotlightLocation.textContent = getEventText(event, "location");
   dom.spotlightPace.textContent = event.pace;
-  dom.spotlightPerks.textContent = `${checkpointCount} ${currentLang === "zh" ? "´ò¿¨µã" : "checkpoints"} - ${getEventText(
+  dom.spotlightPerks.textContent = `${checkpointCount} ${currentLang === "zh" ? "æ‰“å¡ç‚¹" : "checkpoints"} - ${getEventText(
     event,
     "rewards"
   )}`;
@@ -5091,7 +5091,7 @@ function getRouteCue(currentPoint = getLatestRunPoint()) {
     const startPoint = approachRoute[1];
     const distanceM = Math.round(distanceBetweenPointsKm(currentPoint, startPoint) * 1000);
     return {
-      label: currentLang === "zh" ? "Ç°Íù³ö·¢µã" : "To start",
+      label: currentLang === "zh" ? "å‰å¾€å‡ºå‘ç‚¹" : "To start",
       distanceM,
       bearing: bearingBetweenPoints(currentPoint, startPoint) % 360,
       target: startPoint,
@@ -5999,7 +5999,7 @@ function renderPosts() {
           }
           const userName = escapeHtml(comment.user_name || comment.userName || "");
           const text = escapeHtml(comment.text || "");
-          const content = userName ? `${userName}£º${text}` : text;
+          const content = userName ? `${userName}ï¼š${text}` : text;
           return `<div class="post-comment">${content}</div>`;
         })
         .join("");
@@ -6060,7 +6060,7 @@ async function handleReply(postId) {
     openAuthModal("login");
     return;
   }
-  const replyText = prompt(currentLang === "zh" ? "ÊäÈëÆÀÂÛ" : "Type a comment");
+  const replyText = prompt(currentLang === "zh" ? "è¾“å…¥è¯„è®º" : "Type a comment");
   if (!replyText) return;
   const spotId = state.selectedSpotId;
   const posts = state.posts[spotId] || [];
@@ -6367,7 +6367,7 @@ function renderEventMap(event) {
       icon: createRoutePointIcon(draftPoint, 0, 1),
     })
       .addTo(eventLayerGroup)
-      .bindPopup(currentLang === "zh" ? "ĞÂÂ·ÏßÆğµã" : "New route start")
+      .bindPopup(currentLang === "zh" ? "æ–°è·¯çº¿èµ·ç‚¹" : "New route start")
       .on("click", (event) => {
         L.DomEvent.stopPropagation(event);
         selectRoutePoint(0);
@@ -6533,7 +6533,7 @@ function saveCurrentRoute() {
     return;
   }
   const saved = getSavedRoutes();
-  const label = currentLang === "zh" ? `Â·Ïß ${saved.length + 1}` : `Route ${saved.length + 1}`;
+  const label = currentLang === "zh" ? `è·¯çº¿ ${saved.length + 1}` : `Route ${saved.length + 1}`;
   const id = `route_${Date.now()}`;
   saved.push({
     id,
@@ -6640,8 +6640,8 @@ function renderRouteControls() {
             (route) => `
               <div class="saved-route-row" data-route-id="${route.id}">
                 <input value="${escapeHtml(route.label)}" aria-label="${t("route_name_placeholder")}" />
-                <button class="ghost-button saved-route-load" type="button">${currentLang === "zh" ? "Ñ¡Ôñ" : "Load"}</button>
-                <button class="ghost-button saved-route-delete" type="button" aria-label="${currentLang === "zh" ? "É¾³ıÂ·Ïß" : "Delete route"}">??</button>
+                <button class="ghost-button saved-route-load" type="button">${currentLang === "zh" ? "é€‰æ‹©" : "Load"}</button>
+                <button class="ghost-button saved-route-delete" type="button" aria-label="${currentLang === "zh" ? "åˆ é™¤è·¯çº¿" : "Delete route"}">${currentLang === "zh" ? "åˆ é™¤" : "Delete"}</button>
               </div>
             `
           )
@@ -6666,11 +6666,11 @@ function renderRouteControls() {
     dom.routeEditHint.textContent =
       getRouteMode() === "edit"
         ? currentLang === "zh"
-          ? "ÕıÔÚ±à¼­µ±Ç°Â·Ïß£º¿ÉÍÏ¶¯ S/C/F Ô²µãµ÷ÕûÂ·Ïß£¬ĞÂÔöµãÎ»Çëµã»÷¡°·Å´ó¹æ»®¡±¡£"
+          ? "æ­£åœ¨ç¼–è¾‘å½“å‰è·¯çº¿ï¼šå¯æ‹–åŠ¨ S/C/F åœ†ç‚¹è°ƒæ•´è·¯çº¿ï¼Œæ–°å¢ç‚¹ä½è¯·ç‚¹å‡»â€œæ”¾å¤§è§„åˆ’â€ã€‚"
           : "Editing current route: drag S/C/F points here; use Expand Planner to add new points."
         : getRouteMode() === "draft"
         ? currentLang === "zh"
-          ? "ÕıÔÚĞÂ½¨Â·Ïß£ºµÚÒ»¸öµã²»»áÁ¬½ÓÄ¬ÈÏÂ·Ïß£¬µÚ¶ş¸öµã¿ªÊ¼×Ô¶¯Á¬Ïß¡£"
+          ? "æ­£åœ¨æ–°å»ºè·¯çº¿ï¼šç¬¬ä¸€ä¸ªç‚¹ä¸ä¼šè¿æ¥é»˜è®¤è·¯çº¿ï¼Œç¬¬äºŒä¸ªç‚¹å¼€å§‹è‡ªåŠ¨è¿çº¿ã€‚"
           : "Creating a route: the first point stays separate; two or more points connect as a new route."
         : t("map_edit_hint");
   }
@@ -6710,7 +6710,7 @@ function renderPickerMap(resetSelection = true) {
   if (draftPoint) {
     L.marker(routePointToLatLng(draftPoint), { draggable: true, icon: createRoutePointIcon(draftPoint, 0, 1) })
       .addTo(pickerRouteLayer)
-      .bindPopup(currentLang === "zh" ? "ĞÂÂ·ÏßÆğµã" : "New route start")
+      .bindPopup(currentLang === "zh" ? "æ–°è·¯çº¿èµ·ç‚¹" : "New route start")
       .on("click", (event) => {
         L.DomEvent.stopPropagation(event);
         selectRoutePoint(0);
