@@ -873,6 +873,7 @@ let currentUser = null;
 let lastMatchResult = null;
 let matchChatPollId = null;
 let lastMatchChatGroupKey = "";
+let aiTrainerEmbedRequested = false;
 let leaderboardData = [];
 let authMode = "login";
 let eventMap;
@@ -1559,15 +1560,47 @@ function renderAiTrainer() {
   dom.aiTrainerName.textContent = activeTrainer ? getAiTrainerLabel(activeTrainer) : t("ai_default_name");
 
   dom.aiEmbed.hidden = false;
-  if (dom.aiTrainerIframe.getAttribute("src") !== embedUrl) {
+  if (embedUrl && aiTrainerEmbedRequested && dom.aiTrainerIframe.getAttribute("src") !== embedUrl) {
     dom.aiTrainerIframe.setAttribute("src", embedUrl);
+  }
+  if (!embedUrl) {
+    dom.aiTrainerIframe.removeAttribute("src");
   }
   dom.aiTrainerEmpty.hidden = Boolean(embedUrl);
   dom.aiEmbed.hidden = !embedUrl;
 }
 
+function requestAiTrainerEmbed() {
+  if (aiTrainerEmbedRequested) return;
+  aiTrainerEmbedRequested = true;
+  renderAiTrainer();
+}
+
 function initAiTrainer() {
   renderAiTrainer();
+  const aiSection = document.getElementById("ai-trainer");
+  if (!aiSection) return;
+
+  dom.navLinks.forEach((button) => {
+    if (button.dataset.target === "ai-trainer") {
+      button.addEventListener("click", requestAiTrainerEmbed);
+    }
+  });
+
+  const aiObserver = new IntersectionObserver(
+    (entries, observer) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        requestAiTrainerEmbed();
+        observer.disconnect();
+      }
+    },
+    { rootMargin: "240px 0px" }
+  );
+  aiObserver.observe(aiSection);
+
+  if (window.location.hash === "#ai-trainer") {
+    requestAiTrainerEmbed();
+  }
 }
 
 function normalizeRunTracking(runTracking) {
