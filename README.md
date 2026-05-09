@@ -145,8 +145,12 @@ Swagger docs:
 `http://localhost:8000/docs`
 
 Default admin:
-- Email: `admin@gorunners.com`
-- Password: `gorunners123`
+- Username: `admin`
+- Code: `gorunners123`
+
+Default user:
+- Username: `cpt208`
+- Code: `cpt208`
 
 Admin console:
 - `http://localhost:5173/admin.html`

@@ -49,17 +49,17 @@
 
           <form id="admin-login-form" class="form-card">
             <label>
-              <span>邮箱</span>
-              <input type="email" name="email" placeholder="admin@gorunners.com" required />
+              <span>Username</span>
+              <input type="text" name="username" placeholder="admin" autocomplete="username" required />
             </label>
             <label>
-              <span>密码</span>
-              <input type="password" name="password" placeholder="请输入管理员密码" required />
+              <span>Code</span>
+              <input type="password" name="code" placeholder="Admin code" autocomplete="current-password" required />
             </label>
             <button class="primary-button" type="submit">进入后台</button>
           </form>
 
-          <div class="notice" id="admin-login-message">默认管理员账号请查看 README。</div>
+          <div class="notice" id="admin-login-message">Default admin account: admin / gorunners123.</div>
         </div>
       </section>
 
@@ -283,6 +283,6 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="admin.js?v=admin-console-3"></script>
+    <script src="admin.js?v=username-login-1"></script>
   </body>
 </html>

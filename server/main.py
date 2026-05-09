@@ -136,6 +136,7 @@ def normalize_event_route_meta(route_meta: Optional[list], route_coords: Optiona
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(index=True, unique=True)
+    username: str = Field(default="", index=True)
     name: str
     password_hash: str
     role: str = "user"
@@ -270,14 +271,18 @@ class Token(SQLModel):
 
 
 class UserCreate(SQLModel):
-    email: str
+    username: str = ""
+    email: Optional[str] = None
     name: str
-    password: str
+    code: Optional[str] = None
+    password: Optional[str] = None
 
 
 class UserLogin(SQLModel):
-    email: str
-    password: str
+    username: str = ""
+    email: Optional[str] = None
+    code: Optional[str] = None
+    password: Optional[str] = None
 
 
 class MatchPreferenceInput(SQLModel):
@@ -607,6 +612,10 @@ def ensure_legacy_columns() -> None:
         statements.append(
             f"ALTER TABLE {user_table} ADD COLUMN {quote_identifier('is_active')} BOOLEAN NOT NULL DEFAULT 1"
         )
+    if "username" not in user_columns:
+        statements.append(
+            f"ALTER TABLE {user_table} ADD COLUMN {quote_identifier('username')} VARCHAR(255) NOT NULL DEFAULT ''"
+        )
     if "last_login_at" not in user_columns:
         statements.append(
             f"ALTER TABLE {user_table} ADD COLUMN {quote_identifier('last_login_at')} DATETIME"
@@ -673,6 +682,12 @@ def ensure_legacy_columns() -> None:
                     f"WHERE {quote_identifier('updated_at')} IS NULL"
                 )
             )
+            connection.execute(
+                text(
+                    f"UPDATE {user_table} SET {quote_identifier('username')} = {quote_identifier('email')} "
+                    f"WHERE {quote_identifier('username')} IS NULL OR {quote_identifier('username')} = ''"
+                )
+            )
             if "event" in existing_tables:
                 connection.execute(
                     text(
@@ -699,6 +714,13 @@ def ensure_legacy_columns() -> None:
     with engine.begin() as connection:
         for statement in statements:
             connection.execute(text(statement))
+        if "username" not in user_columns:
+            connection.execute(
+                text(
+                    f"UPDATE {user_table} SET {quote_identifier('username')} = {quote_identifier('email')} "
+                    f"WHERE {quote_identifier('username')} IS NULL OR {quote_identifier('username')} = ''"
+                )
+            )
         connection.execute(
             text(
                 f"UPDATE {user_table} SET {quote_identifier('is_active')} = 1 "
@@ -769,6 +791,7 @@ def serialize_user(user: User, registration_count: int = 0, post_count: int = 0,
     return {
         "id": user.id,
         "email": user.email,
+        "username": user.username or user.email,
         "name": user.name,
         "role": user.role,
         "is_active": user.is_active,
@@ -1049,13 +1072,44 @@ def serialize_comment_admin(
     }
 
 
+def normalize_username(value: str) -> str:
+    return re.sub(r"\s+", "", str(value or "")).strip().lower()
+
+
+def get_user_code(user_in) -> str:
+    return str(user_in.code or user_in.password or "")
+
+
+def get_login_identifier(user_in) -> str:
+    return str(user_in.username or user_in.email or "")
+
+
+def make_local_email(username: str) -> str:
+    return f"{username}@gorunners.local"
+
+
+def find_user_by_login(session: Session, username: str) -> Optional[User]:
+    normalized = normalize_username(username)
+    if not normalized:
+        return None
+    user = session.exec(select(User).where(User.username == normalized)).first()
+    if user:
+        return user
+    return session.exec(select(User).where(User.email == username)).first()
+
+
 def seed_data(session: Session) -> None:
     admin_email = os.getenv("GORUNNERS_ADMIN_EMAIL", "admin@gorunners.com")
+    admin_username = normalize_username(os.getenv("GORUNNERS_ADMIN_USERNAME", "admin"))
     admin_password = os.getenv("GORUNNERS_ADMIN_PASSWORD", "gorunners123")
-    existing_admin = session.exec(select(User).where(User.email == admin_email)).first()
+    default_username = normalize_username(os.getenv("GORUNNERS_DEFAULT_USERNAME", "cpt208"))
+    default_password = os.getenv("GORUNNERS_DEFAULT_PASSWORD", "cpt208")
+    existing_admin = find_user_by_login(session, admin_username) or session.exec(select(User).where(User.email == admin_email)).first()
     if existing_admin:
         existing_admin.role = "admin"
         existing_admin.is_active = True
+        existing_admin.username = admin_username
+        existing_admin.email = admin_email
         existing_admin.password_hash = hash_password(admin_password)
         existing_admin.updated_at = now_utc()
         session.add(existing_admin)
@@ -1063,12 +1117,33 @@ def seed_data(session: Session) -> None:
     else:
         admin = User(
             email=admin_email,
+            username=admin_username,
             name="Admin",
             password_hash=hash_password(admin_password),
             role="admin",
             is_active=True,
         )
         session.add(admin)
+        session.commit()
+
+    existing_default = find_user_by_login(session, default_username)
+    if existing_default:
+        existing_default.username = default_username
+        existing_default.password_hash = hash_password(default_password)
+        existing_default.is_active = True
+        existing_default.updated_at = now_utc()
+        session.add(existing_default)
+        session.commit()
+    else:
+        default_user = User(
+            email=make_local_email(default_username),
+            username=default_username,
+            name="CPT208",
+            password_hash=hash_password(default_password),
+            role="user",
+            is_active=True,
+        )
+        session.add(default_user)
         session.commit()
 
     seed_events = [
@@ -1301,13 +1376,18 @@ def ai_parameters():
 
 @app.post("/auth/register", response_model=Token)
 def register(user_in: UserCreate, session: Session = Depends(get_session)):
-    existing = session.exec(select(User).where(User.email == user_in.email)).first()
+    username = normalize_username(get_login_identifier(user_in))
+    code = get_user_code(user_in)
+    if not username or not code:
+        raise HTTPException(status_code=400, detail="Username and code are required")
+    existing = find_user_by_login(session, username)
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Username already registered")
     user = User(
-        email=user_in.email,
-        name=user_in.name,
-        password_hash=hash_password(user_in.password),
+        email=make_local_email(username),
+        username=username,
+        name=user_in.name or username,
+        password_hash=hash_password(code),
         role="user",
         is_active=True,
     )
@@ -1320,8 +1400,9 @@ def register(user_in: UserCreate, session: Session = Depends(get_session)):
 
 @app.post("/auth/login", response_model=Token)
 def login(user_in: UserLogin, session: Session = Depends(get_session)):
-    user = session.exec(select(User).where(User.email == user_in.email)).first()
-    if not user or not verify_password(user_in.password, user.password_hash):
+    user = find_user_by_login(session, get_login_identifier(user_in))
+    code = get_user_code(user_in)
+    if not user or not verify_password(code, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Account disabled")
@@ -1338,6 +1419,7 @@ def me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
         "email": current_user.email,
+        "username": current_user.username or current_user.email,
         "name": current_user.name,
         "role": current_user.role,
         "is_active": current_user.is_active,

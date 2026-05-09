@@ -695,16 +695,16 @@
         </div>
         <form id="auth-form" class="form-card">
           <label>
-            <span data-i18n="auth_email_label">Email</span>
-            <input type="email" name="email" required />
+            <span data-i18n="auth_email_label">Username</span>
+            <input type="text" name="username" autocomplete="username" required />
           </label>
           <label id="auth-name-field">
             <span data-i18n="auth_name_label">Name</span>
             <input type="text" name="name" />
           </label>
           <label>
-            <span data-i18n="auth_password_label">Password</span>
-            <input type="password" name="password" required />
+            <span data-i18n="auth_password_label">Code</span>
+            <input type="password" name="code" autocomplete="current-password" required />
           </label>
           <button class="primary-button" type="submit" id="auth-submit" data-i18n="auth_login_button">
             Login
@@ -894,6 +894,6 @@
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="data.js?v=merge-du-1"></script>
     <script src="config.js?v=ai-trainer-remote-2"></script>
-    <script src="app.js?v=ai-trainer-lazy-1"></script>
+    <script src="app.js?v=username-login-1"></script>
   </body>
 </html>

@@ -1072,13 +1072,13 @@ async function loadConsoleData() {
 async function handleLoginSubmit(event) {
   event.preventDefault();
   const formData = new FormData(dom.loginForm);
-  const email = String(formData.get("email") || "").trim();
-  const password = String(formData.get("password") || "");
+  const username = String(formData.get("username") || "").trim();
+  const code = String(formData.get("code") || "");
 
   try {
     const token = await apiRequest("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username, code }),
     });
     authToken = token.access_token;
     localStorage.setItem(tokenKey, authToken);

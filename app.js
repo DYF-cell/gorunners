@@ -235,9 +235,9 @@ const i18n = {
     auth_register: "Register",
     auth_toggle_register: "Need an account? Register",
     auth_toggle_login: "Have an account? Login",
-    auth_email_label: "Email",
+    auth_email_label: "Username",
     auth_name_label: "Name",
-    auth_password_label: "Password",
+    auth_password_label: "Code",
     auth_login_button: "Login",
     auth_register_button: "Create Account",
     myrun_eyebrow: "My Run",
@@ -557,9 +557,9 @@ const i18n = {
     auth_register: "注册",
     auth_toggle_register: "没有账号？注册",
     auth_toggle_login: "已有账号？登录",
-    auth_email_label: "邮箱",
+    auth_email_label: "用户名",
     auth_name_label: "姓名",
-    auth_password_label: "密码",
+    auth_password_label: "登录码",
     auth_login_button: "登录",
     auth_register_button: "创建账号",
     myrun_eyebrow: "我的跑步",
@@ -3142,14 +3142,14 @@ function updateSpotlight(event) {
 async function handleAuthSubmit(event) {
   event.preventDefault();
   const formData = new FormData(dom.authForm);
-  const email = formData.get("email");
-  const password = formData.get("password");
+  const username = String(formData.get("username") || "").trim();
+  const code = String(formData.get("code") || "");
   const name = formData.get("name") || "";
   try {
     if (authMode === "register") {
       const result = await apiRequest("/auth/register", {
         method: "POST",
-        body: JSON.stringify({ email, password, name: name || "Runner" }),
+        body: JSON.stringify({ username, code, name: name || username || "Runner" }),
       });
       authToken = result.access_token;
       localStorage.setItem(tokenKey, authToken);
@@ -3159,7 +3159,7 @@ async function handleAuthSubmit(event) {
     } else {
       const result = await apiRequest("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, code }),
       });
       authToken = result.access_token;
       localStorage.setItem(tokenKey, authToken);
